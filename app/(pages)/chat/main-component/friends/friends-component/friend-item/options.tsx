@@ -75,6 +75,7 @@ const Options: React.FC<FriendsProps> = ({friend}) => {
             console.error(res)
         }
     }
+
     return (
         <>
             <TooltipProvider>

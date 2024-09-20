@@ -40,4 +40,7 @@ const FriendsComponent = () => {
     </CustomCard>
   );
 };
+
+// benim adim ibo
+
 export default FriendsComponent;
