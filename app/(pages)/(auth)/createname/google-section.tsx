@@ -48,7 +48,6 @@ const GoogleSection = ({ token }: GoogleSectionProps) => {
             width={48}
             height={48}
             className="rounded-full"
-            loading="eager"
           />
           <div>
             {/* name section */}
