@@ -24,9 +24,12 @@ const ChatBox: React.FC<ChatBoxProps> = ({user, socket,chatBoxValue}) => {
         setMessages([]);
     
         if (user && user.id && chatBoxValue?.room_id && socket) {
+            // Unsubscribe from previous room's event
             socket.off(chatBoxValue.room_id);
     
+            // Fetch chat history
             history(chatBoxValue.room_id).then(() => {
+                // Listen for new messages
                 socket.on(chatBoxValue.room_id, (newMessage: Message) => {
                     setMessages((prevMessages) => [...prevMessages, newMessage]);
                 });
@@ -34,11 +37,11 @@ const ChatBox: React.FC<ChatBoxProps> = ({user, socket,chatBoxValue}) => {
         }
     
         return () => {
+            // Clean up listeners
             if (socket) socket.off(chatBoxValue.room_id);
         };
     }, [chatBoxValue.room_id, user, socket]);
     
-
     // gecmis mesajlari getiren func
     const history = async (room_id: string) => {
         const res = await getChatHistoryByRoomId(room_id);
@@ -49,7 +52,6 @@ const ChatBox: React.FC<ChatBoxProps> = ({user, socket,chatBoxValue}) => {
             console.error(res)
         }
     }
-
 
     if (chatBoxValue.activeComponent == "chatbox")
         return (

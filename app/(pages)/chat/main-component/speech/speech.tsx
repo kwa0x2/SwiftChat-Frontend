@@ -32,7 +32,7 @@ const Speech: React.FC<SpeechProps> = ({ user, messages, room_id }) => {
     setMessageList((prevMessages) =>
       prevMessages.map((msg) =>
         msg.message_id === messageId
-          ? { ...msg, message: "", deletedAt: new Date().toISOString() } 
+          ? { ...msg, message: "", deletedAt: new Date().toISOString() }
           : msg
       )
     );
@@ -41,7 +41,9 @@ const Speech: React.FC<SpeechProps> = ({ user, messages, room_id }) => {
   const handleUpdateMessage = (id: string, newMessage: string) => {
     setMessageList((prevMessages) =>
       prevMessages.map((msg) =>
-        msg.message_id === id ? { ...msg, message: newMessage, updatedAt:  new Date().toISOString() } : msg
+        msg.message_id === id
+          ? { ...msg, message: newMessage, updatedAt: new Date().toISOString() }
+          : msg
       )
     );
   };
