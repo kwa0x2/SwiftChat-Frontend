@@ -2,11 +2,12 @@ import {Message} from "@/models/Message";
 import {createSlice, PayloadAction} from "@reduxjs/toolkit";
 
 export interface MessageItemSliceModel {
-    chatBoxStatus: boolean;
+    activeComponent?: string
     other_user_email: string;
     other_user_name: string;
     other_user_photo: string;
     room_id: string;
+    friend_status: string;
     messages?: Message[];
 }
 
@@ -18,10 +19,11 @@ export const messageBox = createSlice({
     name: "message-box",
     initialState: {
         value: {
-            chatBoxStatus: false,
+            activeComponent: "friends",
             other_user_email: "",
             other_user_name: "",
             other_user_photo: "",
+            friend_status: "",
             room_id: "",
             messages: [],
         } as MessageItemSliceModel,
@@ -30,16 +32,22 @@ export const messageBox = createSlice({
         openChatBox: (state, action: PayloadAction<MessageItemSliceModel>) => {
             state.value = action.payload;
         },
-        closeChatBox: (state) => {
+        showProfile: (state) => {
             state.value = {
                 ...state.value,
-                chatBoxStatus: false,
+                activeComponent: "profile",  
+            };
+        },
+        showFriends: (state) => {
+            state.value = {
+                ...state.value,
+                activeComponent: "friends",  
             };
         },
     },
 });
 
 // Action creators are generated for each case reducer function
-export const {openChatBox, closeChatBox} = messageBox.actions;
+export const {openChatBox, showProfile,showFriends } = messageBox.actions;
 
 export default messageBox.reducer;
