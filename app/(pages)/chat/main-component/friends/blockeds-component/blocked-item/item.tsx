@@ -20,10 +20,11 @@ const BlockedItem: React.FC<BlockedProps> = ({blocked}) => {
                 className="aspect-square h-full w-full"
                 src={
                     blocked.user_photo ||
-                    "https://dash-tail.vercel.app/_next/static/media/avatar-2.1136fd53.jpg"
+                    "/profile-circle.svg"
                 }
                 alt="tst"
                 loading="eager"
+
             />
           </span>
                 </div>

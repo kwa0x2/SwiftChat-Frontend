@@ -7,6 +7,16 @@ interface CustomCardProps {
     style?: string;
 }
 
+<<<<<<< HEAD
+const CustomCard: React.FC<CustomCardProps> = ({ className, children }) => {
+  return (
+    <Card
+      className={cn("bg-[#1F2938]/40 transition", className)}
+    >
+      {children}
+    </Card>
+  );
+=======
 const CustomCard: React.FC<CustomCardProps> = ({className, children}) => {
     return (
         <Card
@@ -15,6 +25,7 @@ const CustomCard: React.FC<CustomCardProps> = ({className, children}) => {
             {children}
         </Card>
     );
+>>>>>>> 8d5a91547291fce1cccc0a96755edca11146c760
 };
 
 export default CustomCard;

@@ -10,13 +10,13 @@ import {zodResolver} from "@hookform/resolvers/zod";
 import {useState} from "react";
 import {useForm} from "react-hook-form";
 import {z} from "zod";
-import {SendFriendRequest} from "@/app/api/services/request.Service";
+import io, {Socket} from "socket.io-client";
 
 interface AddFriendProps {
-    className?: string;
+    socket: Socket | null;
 }
 
-const AddFriend = ({className}: AddFriendProps) => {
+const AddFriend: React.FC<AddFriendProps> = ({socket}) => {
     const [errorMessage, setErrorMessage] = useState("");
 
     const form = useForm<z.infer<typeof AddFriendSchemas>>({
@@ -27,63 +27,50 @@ const AddFriend = ({className}: AddFriendProps) => {
     });
 
     const onSubmit = async (values: z.infer<typeof AddFriendSchemas>) => {
-        const res = await SendFriendRequest(values.email);
-        if (res.status === 201) {
-            console.log("arkadas eklendi buraya bir toaster ve inputu temizle");
-            toast("Arkadaşlık isteği başarıyla gönderildi", {
-                description: `${values.email} adli kişiye isteğiniz gönderildi.`,
-                action: {
-                    label: "Geri Al",
-                    onClick: () => console.log("İptal etme butonuna basıldı"),
-                },
-            })
-            form.reset({email: ""});
-        } else {
-            console.error("arkadas eklenirken bir sorun olustu", res);
+
+        let email = values.email
+        console.log(socket)
+        if (socket) {
+            socket.emit("sendFriend", email);
         }
     };
+
     return (
         <Disclosure as="nav" className="border-b border-[#5C6B81]">
-            {({open}) => (
-                <>
-                    <div>
-                        <div className="relative px-5 flex h-20 items-center justify-between">
-                            <Form {...form}>
-                                <form
-                                    className="w-full flex gap-5"
-                                    onSubmit={form.handleSubmit(onSubmit)}
-                                >
-                                    <FormField
-                                        control={form.control}
-                                        name="email"
-                                        render={({field}) => (
-                                            <FormItem className="w-full">
-                                                <FormControl>
-                                                    <Search
-                                                        {...field}
-                                                        id="email"
-                                                        placeholder="Kullanıcı Adı & E-Posta"
-                                                    />
-                                                </FormControl>
-                                                <FormMessage/>
-                                            </FormItem>
-                                        )}
-                                    />
-                                    <FormError className="mb-3" message={errorMessage}/>
-                                    <Button
-                                        type="submit"
-                                        className="bg-[#4A32B0] border-none  hover:bg-[#4A32B0] hover:text-white text-white"
-                                        variant={"outline"}
-                                    >
-                                        Gönder
-                                    </Button>
-                                </form>
-                            </Form>
+            <div className="relative  px-5 flex h-20 items-center justify-between gap-5">
+                <Form {...form}>
+                    <form
+                        className="w-full flex gap-5"
+                        onSubmit={form.handleSubmit(onSubmit)}
+                    >
+                        <FormField
+                            control={form.control}
+                            name="email"
+                            render={({field}) => (
+                                <FormItem className="w-full">
+                                    <FormControl>
+                                        <Search
+                                            {...field}
+                                            id="email"
+                                            placeholder="E-Posta"
 
-                        </div>
-                    </div>
-                </>
-            )}
+                                        />
+                                    </FormControl>
+                                    <FormMessage/>
+                                </FormItem>
+                            )}
+                        />
+                        <FormError className="mb-3" message={errorMessage}/>
+                        <Button
+                            type="submit"
+                            className="bg-[#4A32B0] border-none  hover:bg-[#4A32B0] hover:text-white text-white"
+                            variant={"outline"}
+                        >
+                            Gönder
+                        </Button>
+                    </form>
+                </Form>
+            </div>
         </Disclosure>
     );
 };

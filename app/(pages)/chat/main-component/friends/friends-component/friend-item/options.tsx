@@ -9,7 +9,8 @@ import {toast} from "sonner";
 import {checkAndGetPrivateRoom, createPrivateRoom} from "@/app/api/services/room.Service";
 import {useDispatch} from "react-redux";
 import {AppDispatch} from "@/app/redux/store";
-import {openChatBox} from "@/app/redux/slices/message-boxSlice";
+import {openChatBox} from "@/app/redux/slices/messageBoxSlice";
+import { addChatMessage } from "@/app/redux/slices/chatlistSlice";
 
 interface FriendsProps {
     friend: FriendsModel;
@@ -51,22 +52,29 @@ const Options: React.FC<FriendsProps> = ({friend}) => {
     const openChatBoxHandler = async (friendMail: string) => {
         const res = await checkAndGetPrivateRoom(friendMail);
         if (res.status === 200) {
+            const chatMessage = {
+                room_id: res.data.room_id,
+                last_message: '', 
+                updatedAt: new Date().toISOString(),
+                user_name: friend.user_name,
+                user_photo: friend.user_photo,
+                user_email: friendMail,
+                friend_status: 'friend',
+            };
+            dispatch(addChatMessage(chatMessage));
             dispatch(openChatBox({
-                chatBoxStatus: true,
+                activeComponent: "chatbox",
                 other_user_email: friendMail,
                 other_user_name: friend.user_name,
                 other_user_photo: friend.user_photo,
+                friend_status: 'friend',
                 room_id: res.data.room_id
             }))
         } else {
             toast('BİLİNMEYEN BİR HATA MEYDANA GELDİ')
             console.error(res)
         }
-
-
     }
-
-
     return (
         <>
             <TooltipProvider>

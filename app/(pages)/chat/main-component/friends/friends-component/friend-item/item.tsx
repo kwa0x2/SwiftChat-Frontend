@@ -20,7 +20,7 @@ const FriendItem: React.FC<FriendsProps> = ({ friends }) => {
                 className="aspect-square h-full w-full"
                 src={
                     friends.user_photo ||
-                    "https://dash-tail.vercel.app/_next/static/media/avatar-2.1136fd53.jpg"
+                    "/profile-circle.svg"
                 }
                 alt="tst"
                 loading="eager"

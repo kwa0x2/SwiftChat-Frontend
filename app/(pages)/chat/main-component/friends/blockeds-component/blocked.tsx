@@ -15,7 +15,7 @@ export interface BlockedModel {
 
 const BlockedComponent = () => {
 
-    const [blockedUsers, setBlockedUsers] = useState<BlockedModel[]>();
+    const [friends, setFriends] = useState<BlockedModel[]>();
 
     useEffect(() => {
         fetchData();
@@ -29,16 +29,16 @@ const BlockedComponent = () => {
             console.error(res)
         }
 
-        setBlockedUsers(res.data);
+        setFriends(res.data);
     };
 
     return (
         <CustomCard
             className="bg-transparent rounded-md border border-[#5C6B81] flex-1 flex flex-col justify-between h-full">
-            <span className="border-b border-[#5C6B81] text-white pl-4 py-2">Engellenenler</span>
-            <ScrollArea className="mb-auto">
+            <ScrollArea className="rounded-md">
                 <div className="mt-3 p-6 pt-0 relative">
-                    {blockedUsers?.map((reqs) => (
+
+                    {friends?.map((reqs) => (
                         <BlockedItem blocked={reqs} key={reqs.blocked_mail}/>
                     ))}
                 </div>
