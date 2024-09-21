@@ -42,13 +42,13 @@ const WriteMessage: React.FC<WriteMessageProps> = ({
     other_user_email: string
   ) => {
     if (socket && user) {
-      console.log("Error sending message4:");
 
       socket.emit("sendMessage", {
         room_id,
         message,
         other_user_email,
       });
+      console.warn("new Date().toISOString()",new Date().toISOString())
       dispatch(
         updateLastMessage({
           room_id,

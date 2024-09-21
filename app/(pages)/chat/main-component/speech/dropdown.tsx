@@ -12,25 +12,42 @@ import {
   import { Message } from "@/models/Message";
   import { toast } from "sonner";
   import { deleteById } from "@/app/api/services/message.Service";
-  
+  import { Socket } from "socket.io-client";
+import { MessageItemSliceModel } from "@/app/redux/slices/messageBoxSlice";
+
   interface DropdownProps {
     isLeftMode?: boolean;
     msg: Message;
-    onDelete: (id: string) => void; // Yeni onDelete callback
-    onEdit?: () => void;
+    onEdit: () => void;
+    socket: Socket | null;
+    user: any;
+    friend: MessageItemSliceModel;
+
   }
   
-  const Dropdown = ({ isLeftMode = false, msg, onDelete, onEdit }: DropdownProps) => {
+  const Dropdown = ({ isLeftMode = false, msg, onEdit, socket, user, friend }: DropdownProps) => {
     const [dropdown, setDropdown] = useState<boolean>(false);
   
     const handleDelete = async () => {
-      const res = await deleteById(msg.message_id);
+      // const res = await deleteById(msg.message_id);
   
-      if (res.status !== 200) {
-        toast("Mesaj silinirken bir hata oluştu.");
-        console.error(res);
-      } else {
-        onDelete(msg.message_id); 
+      // if (res.status !== 200) {
+      //   toast("Mesaj silinirken bir hata oluştu.");
+      //   console.error(res);
+      // } else {
+      //   onDelete(msg.message_id); 
+      // }
+
+      if (socket && user) {
+        let message_id = msg.message_id
+        let other_user_email= friend.other_user_email
+        let room_id= friend.room_id
+
+        socket.emit("deleteMessage", {
+          message_id,
+          room_id,
+          other_user_email,
+        });        
       }
     };
 

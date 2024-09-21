@@ -8,7 +8,7 @@ import MessageItem from "./message-item";
 import { Socket } from "socket.io-client";
 import { useSelector, useDispatch } from "react-redux";
 import { AppDispatch, RootState } from "@/app/redux/store";
-import { MessageItemModel, setChatList } from "@/app/redux/slices/chatlistSlice";
+import { MessageItemModel, setChatList, updateLastMessage } from "@/app/redux/slices/chatlistSlice";
 
 interface SidebarProps {
   user: any;
@@ -27,9 +27,19 @@ const Sidebar: React.FC<SidebarProps> = ({ user, socket }) => {
     if (user && user.email && socket) {
       console.log("useridd", user.email);
       socket.on(user.email, (res: any) => {
-        if (res.notification_type === "message") {
+        if (res.action === "new_message") {
           console.log("chat listi guncelle", res.data);
-          updateLastMessage(res.data);
+          let room_id = res.data.room_id
+          let message = res.data.message
+          let updatedAt = res.data.updatedAt
+
+          dispatch(
+            updateLastMessage({
+              room_id,
+              message,
+              updatedAt,
+            })
+          );
           setHighlightedRoomId(res.data.room_id);
         }
       });
@@ -44,30 +54,6 @@ const Sidebar: React.FC<SidebarProps> = ({ user, socket }) => {
     }
   };
 
-  const updateLastMessage = (data: { message: string; room_id: string; updatedAt: string; other_user_email: string }) => {
-    console.log("dataroomid", data.room_id)
-    const updatedMessages = listMessages?.map((msg: MessageItemModel) =>
-      
-      msg.room_id === data.room_id
-        ? { ...msg, last_message: data.message, updatedAt: data.updatedAt }
-        : msg
-    ) || [];
-  
-    // Mesaj listesinde güncellenmiş mesajı bulamadık, o zaman yeni bir mesaj ekleyelim
-    if (!updatedMessages.some((msg) => msg.room_id === data.room_id)) {
-      updatedMessages.unshift({
-        room_id: data.room_id,
-        last_message: data.message,
-        updatedAt: data.updatedAt,
-        user_name: user.user_name,  // İhtiyaç duyuluyorsa kullanıcı bilgileri
-        user_photo: user.user_photo,  // İhtiyaç duyuluyorsa kullanıcı fotoğrafı
-        user_email: data.other_user_email,
-        friend_status: "friend",  // Bu değeri güncellemeniz gerekebilir
-      });
-    }
-  
-    dispatch(setChatList(updatedMessages));
-  };
 
   const handleItemClick = (room_id: string) => {
     setSelectedRoomId(room_id);
@@ -76,7 +62,7 @@ const Sidebar: React.FC<SidebarProps> = ({ user, socket }) => {
     }
   };
 
-  const filteredMessages = listMessages.filter((msg: MessageItemModel) =>
+  const filteredMessages = listMessages?.filter((msg: MessageItemModel) =>
     msg.user_name.toLowerCase().startsWith(searchQuery.toLowerCase())
   );
 

@@ -1,5 +1,4 @@
 "use client";
-import {signup} from "@/app/api/services/Auth.Service";
 import FormError from "@/components/form-error";
 import {Form, FormControl, FormField, FormItem, FormLabel, FormMessage,} from "@/components/ui/form";
 import {AnimationInput} from "@/components/ui/input";
@@ -12,12 +11,14 @@ import {LabelInputContainer} from "@/components/label-input-container";
 import {useState} from "react";
 import {useForm} from "react-hook-form";
 import {z} from "zod";
+import { signup } from "@/app/api/services/auth.Service";
 
 interface CreateNameFormProps {
     token: string;
+    user_photo: string;
 }
 
-const CreateNameForm = ({token}: CreateNameFormProps) => {
+const CreateNameForm = ({token, user_photo}: CreateNameFormProps) => {
     const [isPending, setIsPending] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
 
@@ -31,14 +32,12 @@ const CreateNameForm = ({token}: CreateNameFormProps) => {
     //#endregion
 
     const onSubmit = async (values: z.infer<typeof UsernameSchemas>) => {
-        setIsPending(true);
+        setIsPending(true); 
+    
         try {
-            const res = await signup(token, values.username);
+            const res = await signup(token, values.username, user_photo);
             if (res.status === 201) {
-                /* kullanici basarili bir sekilde giris yaptiktan sonra
-                 * backend tarafından donen cookie ile auth.js tarafında giris islemini
-                 * baslatiyoruz */
-                loginAction(
+                await loginAction(
                     res.data.user_id,
                     res.data.user_name,
                     res.data.user_email,
@@ -48,14 +47,14 @@ const CreateNameForm = ({token}: CreateNameFormProps) => {
                 setErrorMessage("Bilinmeyen bir hata oluştu");
             }
         } catch (error: any) {
-            if (error.response.data.code == 409) {
+            if (error.response.data.code === 409) {
                 setErrorMessage("Bu kullanıcı adı zaten kullanılmakta.");
             } else {
                 setErrorMessage("Bilinmeyen bir hata oluştu");
             }
             console.error(error);
         } finally {
-            setIsPending(false);
+            setIsPending(false); 
         }
     };
 

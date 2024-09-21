@@ -5,10 +5,12 @@ import { useSearchParams } from "next/navigation";
 import CreateNameForm from "./create-name-form";
 import GoogleSection from "./google-section";
 import TitleSection from "./title-section";
+import { useState } from "react";
 
 const CreateName = () => {
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
+  const [userPhoto, setUserPhoto] = useState<string>("");
 
   if (token == null) return <UnknownErrorCard />;
 
@@ -18,10 +20,10 @@ const CreateName = () => {
       <TitleSection />
 
       {/* google bilgilerin bulundugu kisim */}
-      <GoogleSection token={token} />
+      <GoogleSection token={token} onPhotoUpdate={setUserPhoto}/>
 
       {/* kullanici adi girilen form kismi */}
-      <CreateNameForm token={token} />
+      <CreateNameForm token={token} user_photo={userPhoto}/>
     </CustomCard>
   );
 };

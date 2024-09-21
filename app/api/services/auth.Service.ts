@@ -2,10 +2,10 @@ import { getMyCookie } from "@/hooks/get-my-cookie";
 import axios from "../axios";
 
 // kayit olmak icin
-export const signup = async (token: string, username: string) => {
+export const signup = async (token: string, user_name: string, user_photo: string) => {
   return await axios.post(
     "/auth/signup",
-    { username: username },
+    { user_name: user_name, user_photo: user_photo },
     {
       headers: {
         Authorization: token,

@@ -3,14 +3,18 @@ import LeftBubble from "./bubbles/left-bubble";
 import RightBubble from "./bubbles/right-bubble";
 import { Message } from "@/models/Message";
 import { useEffect, useRef, useState } from "react";
+import { Socket } from "socket.io-client";
+import { MessageItemSliceModel } from "@/app/redux/slices/messageBoxSlice";
 
 interface SpeechProps {
   user: any;
   messages: Message[];
-  room_id: string;
+  socket: Socket | null;
+  friend: MessageItemSliceModel;
+
 }
 
-const Speech: React.FC<SpeechProps> = ({ user, messages, room_id }) => {
+const Speech: React.FC<SpeechProps> = ({ user, messages, socket, friend }) => {
   const [oldRoomId, setOldRoomId] = useState<string>("");
   const endOfMessagesRef = useRef<HTMLDivElement | null>(null);
   const [messageList, setMessageList] = useState<Message[]>(messages);
@@ -20,23 +24,15 @@ const Speech: React.FC<SpeechProps> = ({ user, messages, room_id }) => {
   }, [messages]);
 
   useEffect(() => {
-    if (room_id !== "" && room_id !== oldRoomId && messageList.length) {
+    if (friend.room_id !== "" && friend.room_id !== oldRoomId && messageList.length) {
       endOfMessagesRef.current?.scrollIntoView({ behavior: "auto" });
-      setOldRoomId(room_id);
+      setOldRoomId(friend.room_id);
     } else if (messageList.length) {
       endOfMessagesRef.current?.scrollIntoView({ behavior: "smooth" });
     }
   }, [messageList]);
 
-  const handleDelete = (messageId: string) => {
-    setMessageList((prevMessages) =>
-      prevMessages.map((msg) =>
-        msg.message_id === messageId
-          ? { ...msg, message: "", deletedAt: new Date().toISOString() }
-          : msg
-      )
-    );
-  };
+
 
   const handleUpdateMessage = (id: string, newMessage: string) => {
     setMessageList((prevMessages) =>
@@ -59,8 +55,8 @@ const Speech: React.FC<SpeechProps> = ({ user, messages, room_id }) => {
               group={false}
               user={user}
               msg={msg}
-              onDelete={handleDelete}
-              onUpdate={handleUpdateMessage}
+              socket={socket}
+              friend={friend}
             />
           ) : (
             <LeftBubble
@@ -69,7 +65,6 @@ const Speech: React.FC<SpeechProps> = ({ user, messages, room_id }) => {
               group={false}
               user={user}
               msg={msg}
-              onDelete={handleDelete}
             />
           )
         )}

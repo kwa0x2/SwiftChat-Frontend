@@ -29,9 +29,30 @@ const ChatBox: React.FC<ChatBoxProps> = ({user, socket,chatBoxValue}) => {
     
             // Fetch chat history
             history(chatBoxValue.room_id).then(() => {
+                console.warn("chatbix", chatBoxValue.room_id)
+
                 // Listen for new messages
-                socket.on(chatBoxValue.room_id, (newMessage: Message) => {
-                    setMessages((prevMessages) => [...prevMessages, newMessage]);
+                socket.on(chatBoxValue.room_id, (res: any) => {
+                    console.warn(res)
+                    if (res.action === "new_message") {
+                        setMessages((prevMessages) => [...prevMessages, res.data]);
+                    } else if (res.action === "delete_message") {
+                        setMessages((prevMessages) =>
+                            prevMessages.map((msg) =>
+                                msg.message_id === res.data
+                                    ? { ...msg, deletedAt: new Date().toISOString() } 
+                                    : msg
+                            )
+                        );                    
+                    } else if (res.action === "edit_message") {
+                        setMessages((prevMessages) =>
+                            prevMessages.map((msg) =>
+                                msg.message_id === res.data.message_id
+                                    ? { ...msg, updatedAt: new Date().toISOString(), message: res.data.edited_message } 
+                                    : msg
+                            )
+                        );    
+                    }
                 });
             });
         }
@@ -60,7 +81,7 @@ const ChatBox: React.FC<ChatBoxProps> = ({user, socket,chatBoxValue}) => {
                 <ChatNavbar friend={chatBoxValue}/>
 
                 {/* Chat Message */}
-                <Speech room_id={chatBoxValue.room_id} user={user} messages={messages}/>
+                <Speech friend={chatBoxValue} user={user} messages={messages} socket={socket}/>
 
                 {/* write new message section */}
                 <div className="mt-auto">
