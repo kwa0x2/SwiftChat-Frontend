@@ -8,6 +8,7 @@ import clsx from "clsx";
 import { MdOutlineNotificationsActive } from "react-icons/md";
 import animationData from "@/public/notification-bell.json";
 import { MessageItemModel } from "@/app/redux/slices/chatlistSlice";
+import { useEffect } from "react";
 
 interface MessageItemProps {
   message: MessageItemModel;
@@ -37,6 +38,11 @@ const MessageItem: React.FC<MessageItemProps> = ({
     onClick();
   };
   const formattedTime = extractTime(message.updatedAt);
+
+  useEffect(()=>{
+    console.log(message.user_name,message.updatedAt);
+
+  }, [message.updatedAt])
 
   return (
     <div

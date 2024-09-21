@@ -1,7 +1,7 @@
 import CustomCard from "@/components/custom-card";
 import { TbPhotoEdit } from "react-icons/tb";
 import ProfileForm from "./profile-component/form";
-import ProfilePicture from "./profile-component/profile-picture";
+import ProfilePicture from "./profile-component/profile-picture/profile-picture";
 
 const Profile = ({ user }: any) => {
   return (
