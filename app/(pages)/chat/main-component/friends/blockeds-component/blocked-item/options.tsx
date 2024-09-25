@@ -14,34 +14,32 @@ interface BlockedsProps {
   blocked: BlockedModel;
 }
 
-const unblock = async (friendMail: string) => {
-  const res = await Remove(friendMail);
-  if (res.status === 200) {
-    toast(`Engel başarıyla kaldırıldı.`, {
-      action: {
-        label: "Geri Al",
-        onClick: () => console.log("Geri Al butonuna basıldı"),
-      },
-    });
-  } else {
-    toast("BİLİNMEYEN BİR HATA MEYDANA GELDİ");
-    console.error(res);
-  }
-};
+
 
 const Options: React.FC<BlockedsProps> = ({ blocked }) => {
+
+  const unBlock = async (friendMail: string) => {
+    const res = await Remove(friendMail);
+    if (res.status === 200) {
+      toast.success("The block has been successfully removed.");
+    } else {
+      toast.error("An unknown error occurred while trying to unblock the user. Please try again later.");
+    }
+  };
+  
+
   return (
     <>
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger>
             <CgUnblock
-              onClick={() => unblock(blocked.blocked_mail)}
+              onClick={() => unBlock(blocked.blocked_mail)}
               className="text-[#3b82f6] h-5 w-5 transition-all duration-500   opacity-70 hover:opacity-100"
             />
           </TooltipTrigger>
           <TooltipContent>
-            <p>Engeli Kaldır</p>
+            <p>Unblock</p>
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>

@@ -4,8 +4,6 @@ import { extractTime } from "@/lib/utils";
 import { Message } from "@/models/Message";
 import { useEffect, useRef, useState } from "react";
 import { CiCircleCheck, CiCircleRemove } from "react-icons/ci";
-import { updateMessageByIdBody } from "@/app/api/services/message.Service";
-import { toast } from "sonner";
 import { MdBlock } from "react-icons/md";
 import { Socket } from "socket.io-client";
 import { MessageItemSliceModel } from "@/app/redux/slices/messageBoxSlice";
@@ -17,7 +15,6 @@ interface RightBubbleProps {
   time: string;
   socket: Socket | null;
   friend: MessageItemSliceModel;
-
 }
 
 const RightBubble: React.FC<RightBubbleProps> = ({
@@ -26,25 +23,22 @@ const RightBubble: React.FC<RightBubbleProps> = ({
   msg,
   time,
   socket,
-  friend
+  friend,
 }) => {
-  const formattedTime = extractTime(time);
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [editedMessage, setEditedMessage] = useState<string>(msg.message);
   const messageRef = useRef<HTMLDivElement>(null);
   const [messageWidth, setMessageWidth] = useState<number>(0);
-  const inputRef = useRef<HTMLInputElement>(null); 
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (messageRef.current) {
       setMessageWidth(messageRef.current.offsetWidth);
     }
     if (isEditing && inputRef.current) {
-      inputRef.current.focus(); 
+      inputRef.current.focus();
     }
   }, [msg.message, isEditing]);
-
-
 
   const handleEditChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEditedMessage(e.target.value);
@@ -52,20 +46,19 @@ const RightBubble: React.FC<RightBubbleProps> = ({
 
   const handleEditSubmit = async () => {
     if (socket && user) {
-      let message_id = msg.message_id
-      let other_user_email= friend.other_user_email
-      let room_id= friend.room_id
-      let edited_message = editedMessage
+      let message_id = msg.message_id;
+      let other_user_email = friend.other_user_email;
+      let room_id = friend.room_id;
+      let edited_message = editedMessage;
 
       socket.emit("editMessage", {
         message_id,
         room_id,
         other_user_email,
-        edited_message
-      });        
+        edited_message,
+      });
     }
 
-    console.log(msg.message_id, editedMessage);
     setIsEditing(false);
   };
 
@@ -89,7 +82,7 @@ const RightBubble: React.FC<RightBubbleProps> = ({
       <div className="flex space-x-2 items-start justify-end group w-full rtl:space-x-reverse mb-4">
         <div className=" flex flex-col max-w-[40%]  gap-1">
           <div className="flex items-center gap-1">
-            {(!msg.deletedAt && !isEditing) && (
+            {!msg.deletedAt && !isEditing && (
               <div className="opacity-0 invisible group-hover:opacity-100 group-hover:visible ">
                 <span
                   className="w-7 h-7 rounded-full bg-default-100 flex items-center justify-center"
@@ -98,7 +91,13 @@ const RightBubble: React.FC<RightBubbleProps> = ({
                   aria-expanded="false"
                   data-state="closed"
                 >
-                  <Dropdown friend={friend} socket={socket} msg={msg} onEdit={handleEdit} user={user} />
+                  <Dropdown
+                    friend={friend}
+                    socket={socket}
+                    msg={msg}
+                    onEdit={handleEdit}
+                    user={user}
+                  />
                 </span>
               </div>
             )}
@@ -117,7 +116,7 @@ const RightBubble: React.FC<RightBubbleProps> = ({
                   />
 
                   <>
-                  <CiCircleRemove
+                    <CiCircleRemove
                       onClick={handleEditCancel}
                       className="text-red-900 hover:text-red-500 transition-all duration-500 text-[2rem]"
                     />
@@ -125,7 +124,6 @@ const RightBubble: React.FC<RightBubbleProps> = ({
                       onClick={handleEditSubmit}
                       className="text-green-700 hover:text-green-500 transition-all duration-500 text-[2rem]"
                     />
-    
                   </>
                 </div>
               ) : (
@@ -153,7 +151,13 @@ const RightBubble: React.FC<RightBubbleProps> = ({
             {!msg.deletedAt && msg.updatedAt !== msg.createdAt && (
               <span className="italic">Edited</span>
             )}
-            <span className="text-[#e0f2fe]">{formattedTime}</span>
+            <span className="text-[#e0f2fe] uppercase">
+              {new Date(msg.updatedAt).toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: true, 
+              })}
+            </span>
           </div>
         </div>
         {group && (

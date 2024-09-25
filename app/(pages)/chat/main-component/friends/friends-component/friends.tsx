@@ -3,6 +3,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import FriendItem from "./friend-item/item";
 import { useEffect, useState } from "react";
 import { Friends } from "@/app/api/services/friendship.Service";
+import { toast } from "sonner";
 
 export interface FriendsModel {
   friend_mail: string;
@@ -20,15 +21,18 @@ const FriendsComponent = () => {
   const fetchData = async () => {
     const res = await Friends();
     if (res.status !== 200) {
-      console.error("arkadaşlarını getirmekle ilgili bir sorun oluştu ", res);
+      toast.error(
+        "An issue occurred while fetching friends. Please try again later."
+      );
+    } else {
+      setFriends(res.data);
     }
-    setFriends(res.data);
   };
 
   return (
     <CustomCard className="bg-transparent rounded-md border border-[#5C6B81] flex-1 flex flex-col justify-between">
       <span className="border-b border-[#5C6B81] text-white pl-4 py-2">
-        Arkadaşlar
+        Friends
       </span>
       <ScrollArea className="h-[81dvh] rounded-md">
         <div className="mt-3 p-6 pt-0 relative">

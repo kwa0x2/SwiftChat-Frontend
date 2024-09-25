@@ -38,9 +38,6 @@ const LeftBubble: React.FC<LeftBubbleProps> = ({ user, group, msg, time }) => {
           <div className="flex flex-col max-w-[40%]   gap-1">
             <div className="flex items-center gap-1">
               <div className="whitespace-pre-wrap break-all relative z-[1]">
-                {/* <div className="bg-[#1f2937] text-white  text-sm  py-2 px-3 rounded-2xl  flex-1  ">
-                  {msg.message}
-                </div> */}
                 <div
                   className={`bg-[#1f2937] text-sm py-2 px-3 rounded-2xl flex-1 ${
                     msg.deletedAt
@@ -60,7 +57,13 @@ const LeftBubble: React.FC<LeftBubbleProps> = ({ user, group, msg, time }) => {
               </div>
             </div>
             <div className="flex justify-start gap-2 text-xs text-gray-500">
-              <span className="text-[#e0f2fe]">{formattedTime}</span>
+              <span className="text-[#e0f2fe] uppercase">
+              {new Date(msg.updatedAt).toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: true, 
+              })}
+              </span>
               {!msg.deletedAt && msg.updatedAt !== msg.createdAt && (
                 <span className="italic">Edited</span>
               )}

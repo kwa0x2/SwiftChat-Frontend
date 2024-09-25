@@ -1,12 +1,13 @@
 "use client";
 
 import { loginAction } from "@/actions/login";
-import { getLoggedInUser } from "@/app/api/services/Auth.Service";
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import Loading from "@/public/blocks-wave.svg";
 import Image from "next/image";
 import UnknownErrorCard from "@/components/unknown-error-card";
+import { getLoggedInUser } from "@/app/api/services/auth.Service";
+import { toast } from "sonner";
 
 const LoginPage = () => {
   const [error, setError] = useState(false);
@@ -29,8 +30,8 @@ const LoginPage = () => {
         }
       } catch (error: any) {
         setError(true);
-        console.error(error);
-      }
+        toast.error("An unknown error occurred. Please try again.");
+            }
     };
 
     fetchData();

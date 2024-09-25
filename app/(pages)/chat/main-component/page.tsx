@@ -16,7 +16,7 @@ const MainComponent: React.FC<MainComponentProps> = ({ user, socket }) => {
     <>
       {/*friends settings */}
 
-      {chatBoxValue.activeComponent === "friends" && <FriendsSettings socket={socket} />}
+      {chatBoxValue.activeComponent === "friends" && <FriendsSettings socket={socket}  user={user} />}
 
       {chatBoxValue.activeComponent === "profile" && (
         <Profile  user={user}/>

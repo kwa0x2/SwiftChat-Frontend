@@ -7,13 +7,15 @@ import io, {Socket} from "socket.io-client";
 
 interface FriendsSettingsProps {
   socket: Socket | null;
+  user: any;
+
 }
 
-const FriendsSettings = ({ socket }: FriendsSettingsProps) => {
+const FriendsSettings = ({ socket, user }: FriendsSettingsProps) => {
   
     return (
       <CustomCard className="flex-1 flex-col justify-between">
-        <AddFriend socket={socket} />
+        <AddFriend socket={socket} user={user} />
         <div className="grid grid-cols-2 flex-1 gap-4 p-5">
           <FriendsComponent />
           <div className="flex flex-col h-full gap-4">

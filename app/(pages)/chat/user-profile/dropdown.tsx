@@ -26,7 +26,7 @@ const Dropdown = () => {
           <PiDotsThreeCircleLight className="text-[#4A32B0] text-[2rem]	" />
         </DropdownMenuTrigger>
         <DropdownMenuContent>
-          <DropdownMenuLabel>Hesabım</DropdownMenuLabel>
+          <DropdownMenuLabel>My Account</DropdownMenuLabel>
           <DropdownMenuSeparator />
 
           <DropdownMenuItem
@@ -36,7 +36,7 @@ const Dropdown = () => {
             }}
           >
             <User className="mr-2 h-4 w-4 text-blue-500" />
-            Profil
+            Profile
           </DropdownMenuItem>
 
           <DropdownMenuItem
@@ -46,14 +46,14 @@ const Dropdown = () => {
             }}
           >
             <UserRoundPlus className="mr-2 h-4 w-4 text-green-600" />
-            Arkadaşlar
+            Friends
           </DropdownMenuItem>
 
           <DropdownMenuSeparator />
 
           <DropdownMenuItem onClick={async () => await logoutAction()}>
             <LogOut className="mr-2 h-4 w-4 text-rose-700" />
-            <span>Çıkış Yap</span>
+            <span>Logout</span>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

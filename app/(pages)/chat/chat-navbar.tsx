@@ -13,10 +13,6 @@ interface ChatNavbarProps {
 
 const ChatNavbar: React.FC<ChatNavbarProps> = ({ friend }) => {
   
-  useEffect(()=>{
-    console.log("asdfda",friend)
-  },[friend])
-  
   return (
     <Disclosure as="nav" className="border-b border-[#5C6B81]">
       {({ open }) => (

@@ -43,7 +43,7 @@ const UserProfile = ({ user, onSearch }: UserProfileProps) => {
               </span>
             </div>
             <div className="truncate  max-w-[120px]">
-              <span className=" text-sm  text-[#5C6B81] ">Çevrimiçi</span>
+              <span className=" text-sm  text-[#5C6B81] ">Online</span>
             </div>
           </div>
         </div>
@@ -52,7 +52,7 @@ const UserProfile = ({ user, onSearch }: UserProfileProps) => {
         </div>
       </div>
       <div className="pt-5">
-        <Search placeholder="İsim'e göre ara" onChange={handleSearchChange} />
+        <Search placeholder="Search by name" onChange={handleSearchChange} />
       </div>
     </div>
   );

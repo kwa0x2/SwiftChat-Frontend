@@ -1,10 +1,11 @@
 import { useRef, useState } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { MdOutlineFileUpload,MdOutlineCancel  } from "react-icons/md";
+import { MdOutlineFileUpload, MdOutlineCancel } from "react-icons/md";
 import { SlPicture } from "react-icons/sl";
 import { uploadProfilePicture } from "@/app/api/services/user.Service";
 import { useSession } from "next-auth/react";
+import { toast } from "sonner";
 
 const ProfilePicture = ({ user }: any) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -36,18 +37,15 @@ const ProfilePicture = ({ user }: any) => {
     if (!selectedFile) return;
 
     try {
-        const result = await uploadProfilePicture(selectedFile);
-        console.log("File URL:", result.data);
+      await uploadProfilePicture(selectedFile);
 
-
-        setSelectedFile(null);
+      setSelectedFile(null);
     } catch (error) {
-        console.error("Error uploading file:", error);
+      toast.error("An unknown error occurred. Please try again.");
     }
     await update();
+  };
 
-};
-  
   const handleCancel = () => {
     setSelectedFile(null);
     setImagePreview(user.photo ?? "/profile-circle.svg");
@@ -77,22 +75,21 @@ const ProfilePicture = ({ user }: any) => {
           ref={fileInputRef}
         />
         {selectedFile && (
-        <div className="flex gap-1">
-          <Button variant={"outline"} onClick={handleUpload}>
-            <MdOutlineFileUpload className="h-5 w-5 mr-1 text-green-600" />
-            Upload
-          </Button>
-          <Button variant={"outline"} onClick={handleCancel}>
-            <MdOutlineCancel  className="h-5 w-5 mr-1 text-rose-700" />
-            Cancel
-          </Button>
-        </div>
+          <div className="flex gap-1">
+            <Button variant={"outline"} onClick={handleUpload}>
+              <MdOutlineFileUpload className="h-5 w-5 mr-1 text-green-600" />
+              Upload
+            </Button>
+            <Button variant={"outline"} onClick={handleCancel}>
+              <MdOutlineCancel className="h-5 w-5 mr-1 text-rose-700" />
+              Cancel
+            </Button>
+          </div>
         )}
         <Button onClick={handleButtonClick} variant={"outline"}>
           <SlPicture className="h-5 w-5 mr-2 text-blue-500" />
           Select Profile Photo
         </Button>
-
       </div>
     </div>
   );

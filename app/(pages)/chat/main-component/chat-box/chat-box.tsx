@@ -29,11 +29,9 @@ const ChatBox: React.FC<ChatBoxProps> = ({user, socket,chatBoxValue}) => {
     
             // Fetch chat history
             history(chatBoxValue.room_id).then(() => {
-                console.warn("chatbix", chatBoxValue.room_id)
 
                 // Listen for new messages
                 socket.on(chatBoxValue.room_id, (res: any) => {
-                    console.warn(res)
                     if (res.action === "new_message") {
                         setMessages((prevMessages) => [...prevMessages, res.data]);
                     } else if (res.action === "delete_message") {
@@ -63,14 +61,13 @@ const ChatBox: React.FC<ChatBoxProps> = ({user, socket,chatBoxValue}) => {
         };
     }, [chatBoxValue.room_id, user, socket]);
     
-    // gecmis mesajlari getiren func
+    // get old message func 
     const history = async (room_id: string) => {
         const res = await getChatHistoryByRoomId(room_id);
         if (res.status === 200) {
             setMessages(res.data);
         } else {
-            toast('ESKİ MESAJLAR GETİRİLİRKEN BİLİNMEYEN BİR HATA MEYDANA GELDİ')
-            console.error(res)
+            toast.error('An unknown error occurred while retrieving messages. Please try again later.');
         }
     }
 

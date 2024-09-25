@@ -33,17 +33,6 @@ const Speech: React.FC<SpeechProps> = ({ user, messages, socket, friend }) => {
   }, [messageList]);
 
 
-
-  const handleUpdateMessage = (id: string, newMessage: string) => {
-    setMessageList((prevMessages) =>
-      prevMessages.map((msg) =>
-        msg.message_id === id
-          ? { ...msg, message: newMessage, updatedAt: new Date().toISOString() }
-          : msg
-      )
-    );
-  };
-
   return (
     <ScrollArea className="rounded-md">
       <div className="mt-3 p-6 pt-0 relative flex-1 overflow-y-auto">

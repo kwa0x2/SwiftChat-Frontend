@@ -44,15 +44,14 @@ const CreateNameForm = ({token, user_photo}: CreateNameFormProps) => {
                     res.data.user_photo
                 );
             } else {
-                setErrorMessage("Bilinmeyen bir hata oluştu");
+                setErrorMessage("An unknown error occurred.");
             }
         } catch (error: any) {
             if (error.response.data.code === 409) {
-                setErrorMessage("Bu kullanıcı adı zaten kullanılmakta.");
+                setErrorMessage("This username is already taken.");
             } else {
-                setErrorMessage("Bilinmeyen bir hata oluştu");
+                setErrorMessage("An unknown error occurred.");
             }
-            console.error(error);
         } finally {
             setIsPending(false); 
         }
@@ -69,14 +68,14 @@ const CreateNameForm = ({token, user_photo}: CreateNameFormProps) => {
                             <FormItem>
                                 <LabelInputContainer className="mb-4">
                                     <FormLabel>
-                                        <Label htmlFor="username">Kullanıcı Adı</Label>
+                                        <Label htmlFor="username">Username</Label>
                                     </FormLabel>
                                     <FormMessage/>
                                     <FormControl>
                                         <AnimationInput
                                             {...field}
                                             id="username"
-                                            placeholder="Kullanıcı adı giriniz..."
+                                            placeholder="Please enter a username..."
                                             type="text"
                                             disabled={isPending}
                                         />
@@ -92,7 +91,7 @@ const CreateNameForm = ({token, user_photo}: CreateNameFormProps) => {
                         className="bg-gradient-to-br relative group/btn bg-black w-full text-white rounded-md h-10 font-medium "
                         type="submit"
                     >
-                        {isPending ? "Kontrol Ediliyor..." : "Kayıt Ol"}
+                        {isPending ? "Please Wait..." : "Sign Up"}
                     </button>
                 </form>
             </Form>

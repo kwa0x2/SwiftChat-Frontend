@@ -8,7 +8,11 @@ import MessageItem from "./message-item";
 import { Socket } from "socket.io-client";
 import { useSelector, useDispatch } from "react-redux";
 import { AppDispatch, RootState } from "@/app/redux/store";
-import { MessageItemModel, setChatList, updateLastMessage } from "@/app/redux/slices/chatlistSlice";
+import {
+  MessageItemModel,
+  setChatList,
+  updateLastMessage,
+} from "@/app/redux/slices/chatlistSlice";
 
 interface SidebarProps {
   user: any;
@@ -17,21 +21,27 @@ interface SidebarProps {
 
 const Sidebar: React.FC<SidebarProps> = ({ user, socket }) => {
   const dispatch = useDispatch<AppDispatch>();
-  const listMessages = useSelector((state: RootState) => state.chatListReducer.messages);
-  const [highlightedRoomId, setHighlightedRoomId] = useState<string | null>(null);
+  const listMessages = useSelector(
+    (state: RootState) => state.chatListReducer.messages
+  );
+  const [highlightedRoomId, setHighlightedRoomId] = useState<string | null>(
+    null
+  );
   const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>("");
 
   useEffect(() => {
     fetchData();
     if (user && user.email && socket) {
-      console.log("useridd", user.email);
       socket.on(user.email, (res: any) => {
         if (res.action === "new_message") {
-          console.log("chat listi guncelle", res.data);
-          let room_id = res.data.room_id
-          let message = res.data.message
-          let updatedAt = res.data.updatedAt
+          let room_id = res.data.room_id;
+          let message = res.data.message;
+          let updatedAt = res.data.updatedAt;
+
+          if (listMessages === null) {
+            fetchData();
+          }
 
           dispatch(
             updateLastMessage({
@@ -49,11 +59,9 @@ const Sidebar: React.FC<SidebarProps> = ({ user, socket }) => {
   const fetchData = async () => {
     const res = await getChatListHistory();
     if (res.status === 200) {
-      console.log("reschatlist", res.data);
       dispatch(setChatList(res.data));
     }
   };
-
 
   const handleItemClick = (room_id: string) => {
     setSelectedRoomId(room_id);
