@@ -22,7 +22,7 @@ const Search = React.forwardRef<HTMLInputElement, InputProps>(
           {...props}
           type="text"
           ref={ref}
-          className="w-full p-2 bg-transparent focus:outline-none focus:border-[#5C6B81]"
+          className="w-full p-2 bg-transparent focus:outline-none focus:border-[#5C6B81] outline-none"
         />
       </div>
     );

@@ -3,7 +3,6 @@ import Image from "next/image";
 import { openChatBox } from "@/app/redux/slices/messageBoxSlice";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/app/redux/store";
-import { extractTime } from "@/lib/utils";
 import clsx from "clsx";
 import { MdOutlineNotificationsActive } from "react-icons/md";
 import animationData from "@/public/notification-bell.json";
@@ -37,12 +36,6 @@ const MessageItem: React.FC<MessageItemProps> = ({
     );
     onClick();
   };
-  const formattedTime = extractTime(message.updatedAt);
-
-  useEffect(()=>{
-    console.log(message.user_name,message.updatedAt);
-
-  }, [message.updatedAt])
 
   return (
     <div
@@ -94,8 +87,7 @@ const MessageItem: React.FC<MessageItemProps> = ({
               )}
             >
               {/* 52 karakter  */}
-              {
-              message.last_message.length >= 15
+              {message.last_message.length >= 15
                 ? message.last_message.substring(0, 15) + "..."
                 : message.last_message}
             </span>
@@ -104,7 +96,12 @@ const MessageItem: React.FC<MessageItemProps> = ({
       </div>
       <div className="flex-none  flex-col items-end  gap-2 hidden lg:flex">
         <span className="text-xs text-white text-end uppercase ">
-          {formattedTime}
+          {message.updatedAt &&
+            new Date(message.updatedAt).toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit",
+              hour12: true,
+            })}
         </span>
         {highlight && (
           <span className=" flex items-center  text-[#fff] justify-center bg-default-400 rounded-full text-[8px] font-light tracking-widest">

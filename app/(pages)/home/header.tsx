@@ -3,15 +3,15 @@ import { TypewriterEffectSmooth } from "@/components/ui/typewriter-effect";
 const Header = () => {
   const words = [
     {
-      text: "Realtime",
+      text: "Welcome",
       className: "text-white",
     },
     {
-      text: "Chat",
+      text: "To",
       className: "text-white",
     },
     {
-      text: "Project",
+      text: "SwiftChat",
       className: "text-white",
     },
   ];

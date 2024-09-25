@@ -7,6 +7,7 @@ import { FcGoogle } from "react-icons/fc";
 import { IoIosLogOut } from "react-icons/io";
 import { RiImageEditLine } from "react-icons/ri";
 import ProfileEditDialog from "../../chat/main-component/profile/profile-component/profile-picture/dialog";
+import { toast } from "sonner";
 
 interface GoogleSectionProps {
   token: string;
@@ -36,16 +37,13 @@ const GoogleSection = ({ token, onPhotoUpdate }: GoogleSectionProps) => {
 
         onPhotoUpdate(decodedToken.user_photo);
       } catch (error) {
-        console.error("Invalid token:", error);
+        toast.error("An unknown error occurred. Please try again.");
       }
     }
   }, []);
 
   const handleUpload = (url: string) => {
-    console.log(userInfo, url)
-    setUserInfo((prev) => 
-      prev ? { ...prev, user_photo: url } : prev
-    );
+    setUserInfo((prev) => (prev ? { ...prev, user_photo: url } : prev));
     onPhotoUpdate(url);
   };
 
@@ -54,7 +52,7 @@ const GoogleSection = ({ token, onPhotoUpdate }: GoogleSectionProps) => {
       <div className="rounded-lg w-full bg-transparent my-8 text-center">
         <p className="text-gray-400 w-full flex items-center pb-4">
           <FcGoogle className="mr-2" />
-          Google tarafından şu şekilde oturum açıldı:
+          Signed in with Google as follows:
         </p>
         <div className="flex items-center justify-between ">
           <div className="flex space-x-4 items-center">
@@ -69,13 +67,9 @@ const GoogleSection = ({ token, onPhotoUpdate }: GoogleSectionProps) => {
               {/* name section */}
               <p className="font-bold text-lg flex text-white">
                 {userInfo?.user_name}
-                
               </p>
               {/* mail section */}
-              <p className="text-gray-400">
-                {userInfo?.user_email}
-
-              </p>
+              <p className="text-gray-400">{userInfo?.user_email}</p>
             </div>
           </div>
           <div className="flex items-center gap-2">

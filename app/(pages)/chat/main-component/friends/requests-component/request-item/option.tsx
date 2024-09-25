@@ -10,32 +10,22 @@ interface ComingRequestsProps {
     requests: ComingRequestsModel;
 }
 
-const handleOnClick = async (senderMail: string, status: RequestStatus, senderName: string) => {
-    const res = await UpdateFriendshipRequest(senderMail, status);
-    if (res.status === 200) {
-        if (status === RequestStatus.accepted) {
-            toast(`${senderName} artık arkadaşın`, {
-                action: {
-                    label: "Geri Al",
-                    onClick: () => console.log("Geri Al butonuna basıldı"),
-                },
-            })
-        } else {
-            toast('İstek silindi!', {
-                action: {
-                    label: "Geri Al",
-                    onClick: () => console.log("Geri Al butonuna basıldı"),
-                },
-            })
-        }
-    } else {
-        toast('BİLİNMEYEN BİR HATA MEYDANA GELDİ')
-        console.error(res)
-    }
-};
-
 
 const Options: React.FC<ComingRequestsProps> = ({requests}) => {
+    const handleOnClick = async (senderMail: string, status: RequestStatus, senderName: string) => {
+        const res = await UpdateFriendshipRequest(senderMail, status);
+        if (res.status === 200) {
+            if (status === RequestStatus.accepted) {
+                toast.success(`${senderName} is now your friend!`);
+            } else {
+                toast.success('The friend request has been successfully rejected.');
+            }
+        } else {
+            toast.error('An unknown error occurred while processing your request.'); 
+        }
+    };
+
+    
     return (
         <>
             <TooltipProvider>
@@ -47,7 +37,7 @@ const Options: React.FC<ComingRequestsProps> = ({requests}) => {
                         />
                     </TooltipTrigger>
                     <TooltipContent>
-                        <p>Kabul Et</p>
+                        <p>Accept</p>
                     </TooltipContent>
                 </Tooltip>
             </TooltipProvider>
@@ -61,7 +51,7 @@ const Options: React.FC<ComingRequestsProps> = ({requests}) => {
                         />
                     </TooltipTrigger>
                     <TooltipContent>
-                        <p>Reddet</p>
+                        <p>Reject</p>
                     </TooltipContent>
                 </Tooltip>
             </TooltipProvider>

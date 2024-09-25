@@ -24,7 +24,6 @@ interface ProfileEditDialogProps {
   user_photo: string;
   onUpload: (url: string) => void;
   token: string;
-
 }
 
 const ProfileEditDialog = ({
@@ -32,12 +31,10 @@ const ProfileEditDialog = ({
   onOpenChange,
   user_photo,
   onUpload,
-  token
+  token,
 }: ProfileEditDialogProps) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string>(
-    user_photo
-  );
+  const [imagePreview, setImagePreview] = useState<string>(user_photo);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { update } = useSession();
 
@@ -63,13 +60,14 @@ const ProfileEditDialog = ({
     if (!selectedFile) return;
 
     try {
-      const result = await uploadProfilePicture(selectedFile,token);
-      console.log("File URL:", result.data);
+      const result = await uploadProfilePicture(selectedFile, token);
 
-      onUpload(result.data);    
+      onUpload(result.data);
       setSelectedFile(null);
     } catch (error) {
-      toast("Error uploading file:");
+      toast.error(
+        "An error occurred while uploading the profile picture. Please try again."
+      );
       setSelectedFile(null);
       setImagePreview(user_photo);
       if (fileInputRef.current) {
@@ -96,16 +94,12 @@ const ProfileEditDialog = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-      <DialogTrigger asChild>
-        <Button variant="outline" className="hidden">
-          Edit Profile
-        </Button>
-      </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Edit Profile</DialogTitle>
+          <DialogTitle>Edit Profile Photo</DialogTitle>
           <DialogDescription>
-            Make changes to your profile here. Click save when youre done.
+            Please upload a clear photo for your profile, which will be visible
+            to other users.
           </DialogDescription>
         </DialogHeader>
         <div className="gap-4 py-4 relative flex  justify-center shrink-0 items-center ">
@@ -121,43 +115,42 @@ const ProfileEditDialog = ({
         <DialogFooter>
           <div className="flex flex-col   justify-center w-full">
             <div className="items-center  space-y-2">
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleFileChange}
-              className="hidden"
-              ref={fileInputRef}
-            />
-            {selectedFile && (
-              <div className="flex gap-1">
-                <Button
-                  variant={"outline"}
-                  className="w-full"
-                  onClick={handleUpload}
-                >
-                  <MdOutlineFileUpload className="h-5 w-5 mr-1 text-green-600" />
-                  Upload
-                </Button>
-                <Button
-                  variant={"outline"}
-                  className="w-full"
-                  onClick={handleCancel}
-                >
-                  <MdOutlineCancel className="h-5 w-5 mr-1 text-rose-700" />
-                  Cancel
-                </Button>
-              </div>
-            )}
-            <Button
-              onClick={handleButtonClick}
-              variant={"outline"}
-              className="w-full"
-            >
-              <SlPicture className="h-5 w-5 mr-2 text-blue-500" />
-              Select Profile Photo
-            </Button>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleFileChange}
+                className="hidden"
+                ref={fileInputRef}
+              />
+              {selectedFile && (
+                <div className="flex gap-1">
+                  <Button
+                    variant={"outline"}
+                    className="w-full"
+                    onClick={handleUpload}
+                  >
+                    <MdOutlineFileUpload className="h-5 w-5 mr-1 text-green-600" />
+                    Upload
+                  </Button>
+                  <Button
+                    variant={"outline"}
+                    className="w-full"
+                    onClick={handleCancel}
+                  >
+                    <MdOutlineCancel className="h-5 w-5 mr-1 text-rose-700" />
+                    Cancel
+                  </Button>
+                </div>
+              )}
+              <Button
+                onClick={handleButtonClick}
+                variant={"outline"}
+                className="w-full"
+              >
+                <SlPicture className="h-5 w-5 mr-2 text-blue-500" />
+                Select Profile Photo
+              </Button>
             </div>
-            
           </div>
         </DialogFooter>
       </DialogContent>

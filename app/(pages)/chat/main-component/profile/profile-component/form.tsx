@@ -33,15 +33,12 @@ const ProfileForm = ({ user }: any) => {
 
   async function onSubmit(data: z.infer<typeof UsernameSchemas>) {
     const res = await updateUsernameByMail(data.username);
-
     if (res.status !== 200) {
-      toast("BLOKLANAN KİŞİLERİ GETİRİRKEN BİLİNMEYEN BİR HATA MEYDANA GELDİ");
-      console.error(res);
+      toast.error(
+        "An unknown error occurred while updating the username. Please try again."
+      );
     }
-
     await update();
-
-    console.log("updateduiser", user);
   }
 
   return (
@@ -81,8 +78,8 @@ const ProfileForm = ({ user }: any) => {
             <Input className="capitalize " placeholder={user.role} disabled />
           </FormControl>
           <FormDescription>
-            If your role is standard, you can send a maximum of 500MB. If your
-            role is high, you can send up to 2GB.
+            If your role is standard, you can send a maximum of 50MB. If your
+            role is high, you can send up to 1GB.
           </FormDescription>
           <FormMessage />
         </FormItem>

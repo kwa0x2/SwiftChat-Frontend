@@ -9,8 +9,8 @@ import { ReduxProvider } from "./redux/provider";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Realtime Chat App",
-  description: "Alper ve Atalay tarafından yapıldı",
+  title: "SwiftChat",
+  description: "It was made by Alper Karakoyun and Atalay Karahan.",
 };
 
 export default async function RootLayout({
@@ -21,7 +21,10 @@ export default async function RootLayout({
   const session = await auth();
   return (
     <SessionProvider session={session}>
-      <html lang="tr">
+      <html lang="en">
+        <head>
+          <link rel="icon" href="/favicon.ico" />
+        </head>
         <body className={inter.className}>
           <ReduxProvider>{children}</ReduxProvider>
           <Toaster richColors />

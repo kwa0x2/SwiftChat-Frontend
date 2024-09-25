@@ -7,12 +7,10 @@ import { Socket } from "socket.io-client";
 import React, { useState } from "react";
 import { AnimatedPlaceholdersInput } from "@/components/ui/animated-placeholders-input";
 import { MessageItemSliceModel } from "@/app/redux/slices/messageBoxSlice";
-import {
-  addChatMessage,
-  updateLastMessage,
-} from "@/app/redux/slices/chatlistSlice";
+import { updateLastMessage } from "@/app/redux/slices/chatlistSlice";
 import { AppDispatch } from "@/app/redux/store";
 import { useDispatch } from "react-redux";
+import { toast } from "sonner";
 
 interface WriteMessageProps {
   user: any;
@@ -29,7 +27,6 @@ const WriteMessage: React.FC<WriteMessageProps> = ({
   const dispatch = useDispatch<AppDispatch>();
 
   const handleSendMessage = () => {
-    console.log("other_user_email", friend.other_user_email);
     if (newMessage.trim() && user.id) {
       sendMessage(friend.room_id, newMessage, friend.other_user_email);
       setNewMessage("");
@@ -42,45 +39,49 @@ const WriteMessage: React.FC<WriteMessageProps> = ({
     other_user_email: string
   ) => {
     if (socket && user) {
-
-      socket.emit("sendMessage", {
-        room_id,
-        message,
-        other_user_email,
-      });
-      console.warn("new Date().toISOString()",new Date().toISOString())
-      dispatch(
-        updateLastMessage({
+      socket.emit(
+        "sendMessage",
+        {
           room_id,
           message,
-          updatedAt: new Date().toISOString(),
-        })
+          other_user_email,
+        },
+        (response: any) => {
+          console.warn(response)
+          if (response.status === "error") {
+            toast.error("An unknown error occurred. Please try again later");
+          } else if (response.status === "success") {
+            dispatch(
+              updateLastMessage({
+                room_id,
+                message,
+                updatedAt: new Date().toISOString(),
+              })
+            );
+          }
+        }
       );
     }
   };
 
-  // for press enter then send a message
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
-      handleSendMessage();
-    }
-  };
+  // // for press enter then send a message
+  // const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  //   if (e.key === "Enter") {
+  //     handleSendMessage();
+  //   }
+  // };
 
   const friendPlaceholders =
     friend.friend_status !== "friend"
-      ? ["Bu kişi seni engellemiş veya sen onu engellemişsin"]
+      ? ["This person has blocked you or you have blocked them."]
       : [
-          "Mesajınızı buraya yazın...",
-          "Merhaba, nasılsınız?",
-          "Dün akşamki film harikaydı!",
-          "Sohbete katılın...",
-          "Yeni projeyle ilgili düşüncelerim var.",
-          "Bir şeyler yazmak ister misiniz?",
+          "Type your message here...",
+          "Hello, how are you?",
+          "The movie last night was great!",
+          "Join the conversation...",
+          "I have thoughts about the new project.",
+          "Would you like to write something?",
         ];
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    console.log(e.target.value);
-  };
 
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -112,6 +113,3 @@ const WriteMessage: React.FC<WriteMessageProps> = ({
 };
 
 export default WriteMessage;
-function dispatch(arg0: any) {
-  throw new Error("Function not implemented.");
-}
