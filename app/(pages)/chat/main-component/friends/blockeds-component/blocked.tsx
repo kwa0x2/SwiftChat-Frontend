@@ -13,23 +13,12 @@ export interface BlockedModel {
   user_photo: string;
 }
 
-const BlockedComponent = () => {
-  const [friends, setFriends] = useState<BlockedModel[]>();
+interface BlockedProps {
+  blockedUsers: BlockedModel[];
+}
 
-  useEffect(() => {
-    fetchData();
-  }, []);
 
-  const fetchData = async () => {
-    const res = await Blocked();
-
-    if (res.status !== 200) {
-        toast.error("An unknown error occurred while retrieving blocked users. Please try again later.");
-    } else {
-        setFriends(res.data);
-    }
-};
-
+const BlockedComponent = ({blockedUsers}: BlockedProps) => {
   return (
     <CustomCard className="bg-transparent rounded-md border border-[#5C6B81] flex-1 flex flex-col justify-between h-full">
       <span className="border-b border-[#5C6B81] text-white pl-4 py-2">
@@ -37,7 +26,7 @@ const BlockedComponent = () => {
       </span>
       <ScrollArea className="rounded-md">
         <div className="mt-3 p-6 pt-0 relative">
-          {friends?.map((reqs) => (
+          {blockedUsers?.map((reqs) => (
             <BlockedItem blocked={reqs} key={reqs.blocked_mail} />
           ))}
         </div>

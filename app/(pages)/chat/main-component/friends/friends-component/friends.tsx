@@ -1,9 +1,6 @@
 import CustomCard from "@/components/custom-card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import FriendItem from "./friend-item/item";
-import { useEffect, useState } from "react";
-import { Friends } from "@/app/api/services/friendship.Service";
-import { toast } from "sonner";
 
 export interface FriendsModel {
   friend_mail: string;
@@ -11,24 +8,12 @@ export interface FriendsModel {
   user_photo: string;
 }
 
-const FriendsComponent = () => {
-  const [friends, setFriends] = useState<FriendsModel[]>();
+interface FriendsProps {
+  friends: FriendsModel[];
+}
 
-  useEffect(() => {
-    fetchData();
-  }, []);
 
-  const fetchData = async () => {
-    const res = await Friends();
-    if (res.status !== 200) {
-      toast.error(
-        "An issue occurred while fetching friends. Please try again later."
-      );
-    } else {
-      setFriends(res.data);
-    }
-  };
-
+const FriendsComponent = ({friends}: FriendsProps) => {
   return (
     <CustomCard className="bg-transparent rounded-md border border-[#5C6B81] flex-1 flex flex-col justify-between">
       <span className="border-b border-[#5C6B81] text-white pl-4 py-2">

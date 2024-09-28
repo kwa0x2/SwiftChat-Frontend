@@ -2,12 +2,18 @@
 import Image from "next/image";
 import Options from "./option";
 import {ComingRequestsModel} from "../requests";
+import io, { Socket } from "socket.io-client";
+import { FriendsModel } from "../../friends-component/friends";
 
 interface ComingRequestsProps {
     requests: ComingRequestsModel;
+    socket: Socket | null;
+    setRequests: React.Dispatch<React.SetStateAction<ComingRequestsModel[]>>;
+    setFriends: React.Dispatch<React.SetStateAction<FriendsModel[]>>;
+
 }
 
-const RequestItem: React.FC<ComingRequestsProps> = ({requests}) => {
+const RequestItem = ({requests, socket,setRequests,setFriends } : ComingRequestsProps) => {
     return (
         <div
             className="gap-4 py-2 lg:py-2.5 px-3 mx-3 rounded-md hover:bg-[#4A32B0]/30 transition-all duration-500 cursor-pointer flex items-center">
@@ -36,7 +42,7 @@ const RequestItem: React.FC<ComingRequestsProps> = ({requests}) => {
                 </div>
             </div>
             <div className="flex-none flex items-center justify-center  gap-2 ml-auto lg:ml-0">
-                <Options requests={requests}/>
+                <Options requests={requests} socket={socket} setRequests={setRequests} setFriends={setFriends}/>
             </div>
         </div>
     );

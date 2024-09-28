@@ -7,6 +7,7 @@ import { ComingRequests } from "@/app/api/services/request.Service";
 import io, { Socket } from "socket.io-client";
 import { toast } from "sonner";
 import { useCurrentUser } from "@/hooks/use-current-user";
+import { FriendsModel } from "../friends-component/friends";
 
 export interface ComingRequestsModel {
   sender_mail: string;
@@ -14,41 +15,15 @@ export interface ComingRequestsModel {
   user_photo: string;
 }
 
-interface AddFriendProps {
+interface RequestsProps {
+  requests: ComingRequestsModel[];
+  setRequests: React.Dispatch<React.SetStateAction<ComingRequestsModel[]>>;
+  setFriends: React.Dispatch<React.SetStateAction<FriendsModel[]>>;
+
   socket: Socket | null;
 }
 
-const RequestsComponent: React.FC<AddFriendProps> = ({ socket }) => {
-  const [requests, setRequests] = useState<ComingRequestsModel[]>([]);
-  const user = useCurrentUser();
-
-  useEffect(() => {
-    fetchData();
-
-    if (user && user.email && socket) {
-      socket.on(user.email, (res: any) => {
-        if (res.action === "friend_request") {
-          setRequests((prevRequests) => {
-            if (!Array.isArray(prevRequests)) {
-              return [res.data];
-            }
-            return [...prevRequests, res.data];
-          });
-          toast.info(`${res.data.user_name} has sent you a friend request.`);
-        }
-      });
-    }
-  }, [socket]);
-
-  const fetchData = async () => {
-    const res = await ComingRequests();
-    if (res.status == 200) {
-      setRequests(res.data);
-    } else {
-      console.warn("ya arkadaşlık isteği yok yada hata var", res);
-    }
-  };
-
+const RequestsComponent = ({ requests,setRequests, socket, setFriends }: RequestsProps) => {
   return (
     <CustomCard className="bg-transparent rounded-md border border-[#5C6B81] flex-1 flex flex-col justify-between">
       <span className="border-b border-[#5C6B81] text-white pl-4 py-2">
@@ -57,7 +32,13 @@ const RequestsComponent: React.FC<AddFriendProps> = ({ socket }) => {
       <ScrollArea className="h-full rounded-md">
         <div className="mt-3 p-6 pt-0 relative">
           {requests?.map((reqs) => (
-            <RequestItem requests={reqs} key={reqs.sender_mail} />
+            <RequestItem
+              requests={reqs}
+              key={reqs.sender_mail}
+              socket={socket}
+              setRequests={setRequests}
+              setFriends={setFriends}
+            />
           ))}
         </div>
       </ScrollArea>
