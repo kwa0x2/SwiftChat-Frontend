@@ -32,6 +32,8 @@ const ChatBox: React.FC<ChatBoxProps> = ({user, socket,chatBoxValue}) => {
 
                 // Listen for new messages
                 socket.on(chatBoxValue.room_id, (res: any) => {
+                    console.warn("reschat",res)
+
                     if (res.action === "new_message") {
                         setMessages((prevMessages) => [...prevMessages, res.data]);
                     } else if (res.action === "delete_message") {

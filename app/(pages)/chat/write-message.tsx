@@ -39,6 +39,8 @@ const WriteMessage: React.FC<WriteMessageProps> = ({
     other_user_email: string
   ) => {
     if (socket && user) {
+      console.warn("emit",user,socket)
+
       socket.emit(
         "sendMessage",
         {

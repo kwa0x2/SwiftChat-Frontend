@@ -37,6 +37,7 @@ const chatListSlice = createSlice({
         updatedAt: string;
       }>
     ) => {
+      console.warn("update", action.payload)
       const existingMessage = state.messages?.find(
         (msg) => msg.room_id === action.payload.room_id
       );

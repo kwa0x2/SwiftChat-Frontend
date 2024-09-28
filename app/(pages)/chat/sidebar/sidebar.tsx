@@ -16,52 +16,17 @@ import {
 
 interface SidebarProps {
   user: any;
-  socket: Socket | null;
+  highlightedRoomId: string | null
+  setHighlightedRoomId: React.Dispatch<React.SetStateAction<string | null>>;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ user, socket }) => {
-  const dispatch = useDispatch<AppDispatch>();
+const Sidebar: React.FC<SidebarProps> = ({ user, highlightedRoomId, setHighlightedRoomId }) => {
   const listMessages = useSelector(
     (state: RootState) => state.chatListReducer.messages
   );
-  const [highlightedRoomId, setHighlightedRoomId] = useState<string | null>(
-    null
-  );
+
   const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>("");
-
-  useEffect(() => {
-    fetchData();
-    if (user && user.email && socket) {
-      socket.on(user.email, (res: any) => {
-        if (res.action === "new_message") {
-          let room_id = res.data.room_id;
-          let message = res.data.message;
-          let updatedAt = res.data.updatedAt;
-
-          if (listMessages === null) {
-            fetchData();
-          }
-
-          dispatch(
-            updateLastMessage({
-              room_id,
-              message,
-              updatedAt,
-            })
-          );
-          setHighlightedRoomId(res.data.room_id);
-        }
-      });
-    }
-  }, [user, socket]);
-
-  const fetchData = async () => {
-    const res = await getChatListHistory();
-    if (res.status === 200) {
-      dispatch(setChatList(res.data));
-    }
-  };
 
   const handleItemClick = (room_id: string) => {
     setSelectedRoomId(room_id);

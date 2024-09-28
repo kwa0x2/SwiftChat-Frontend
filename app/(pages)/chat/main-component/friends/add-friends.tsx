@@ -37,6 +37,7 @@ const AddFriend: React.FC<AddFriendProps> = ({ socket, user }) => {
     let email = values.email;
     if (email !== user.email) {
       if (socket) {
+        console.warn(`sent`)
         socket.emit("sendFriend", email, (response: any) => {
           if (response.status === "error") {
             toast.error("An unknown error occurred. Please try again later");
