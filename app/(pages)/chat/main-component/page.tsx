@@ -16,15 +16,17 @@ interface MainComponentProps {
   requests: ComingRequestsModel[];
   friends: FriendsModel[];
   blockedUsers: BlockedModel[];
+  setBlockedUsers: React.Dispatch<React.SetStateAction<BlockedModel[]>>;
+
 }
 
-const MainComponent: React.FC<MainComponentProps> = ({ user, socket,setRequests,setFriends,requests,friends,blockedUsers }) => {
+const MainComponent: React.FC<MainComponentProps> = ({ user, socket,setBlockedUsers,setRequests,setFriends,requests,friends,blockedUsers }) => {
   const chatBoxValue = useAppSelector((state) => state.messageBoxReducer.value);
   return (
     <>
       {/*friends settings */}
 
-      {chatBoxValue.activeComponent === "friends" && <FriendsSettings socket={socket} user={user} setRequests={setRequests} setFriends={setFriends} requests={requests} friends={friends} blockedUsers={blockedUsers} />}
+      {chatBoxValue.activeComponent === "friends" && <FriendsSettings setBlockedUsers={setBlockedUsers} socket={socket} user={user} setRequests={setRequests} setFriends={setFriends} requests={requests} friends={friends} blockedUsers={blockedUsers} />}
 
       {chatBoxValue.activeComponent === "profile" && (
         <Profile  user={user}/>

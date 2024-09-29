@@ -32,6 +32,7 @@ const MessageItem: React.FC<MessageItemProps> = ({
         other_user_photo: message.user_photo,
         room_id: message.room_id,
         friend_status: message.friend_status,
+        deletedAt: message.deletedAt
       })
     );
     onClick();
@@ -53,8 +54,8 @@ const MessageItem: React.FC<MessageItemProps> = ({
               height={40}
               className="aspect-square h-full w-full"
               src={
-                message.friend_status === "friend"
-                  ? message.user_photo
+                message.friend_status === "friend" || message.deletedAt
+                  ? message.user_photo ?? "/profile-circle.svg"
                   : "/profile-circle.svg"
               }
               alt="tst"

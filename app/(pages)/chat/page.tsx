@@ -7,7 +7,9 @@ import MainComponent from "@/app/(pages)/chat/main-component/page";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState, useAppSelector } from "@/app/redux/store";
 import {
+  updateChatListDeletedAtByEmail,
   setChatList,
+  updateChatListFriendStatusByEmail,
   updateLastMessage,
 } from "@/app/redux/slices/chatlistSlice";
 import { getChatListHistory } from "@/app/api/services/room.Service";
@@ -19,6 +21,7 @@ import { ComingRequests } from "@/app/api/services/request.Service";
 import { Blocked, Friends } from "@/app/api/services/friendship.Service";
 import { Message } from "@/models/Message";
 import { getChatHistoryByRoomId } from "@/app/api/services/message.Service";
+import { updateMessageBoxDeletedAtByEmail, updateMessageBoxFriendStatusByEmail } from "@/app/redux/slices/messageBoxSlice";
 
 const ChatPage = () => {
   const currentUser = useCurrentUser();
@@ -33,14 +36,14 @@ const ChatPage = () => {
   );
   const [requests, setRequests] = useState<ComingRequestsModel[]>([]);
   const [friends, setFriends] = useState<FriendsModel[]>([]);
-  const [blockedUsers, SetBlockedUsers] = useState<BlockedModel[]>([]);
+  const [blockedUsers, setBlockedUsers] = useState<BlockedModel[]>([]);
   const chatBoxValue = useAppSelector((state) => state.messageBoxReducer.value);
   const [messages, setMessages] = useState<Message[]>([]);
 
   const getChatListHistoryData = async () => {
     const res = await getChatListHistory();
     if (res.status === 200) {
-      console.warn("chatlistnerw",res.data)
+      console.warn("chatlistnerw", res.data);
       dispatch(setChatList(res.data));
     }
   };
@@ -91,7 +94,6 @@ const ChatPage = () => {
           );
           setHighlightedRoomId(response.data.room_id);
         } else if (response.action === "update_friendship_request") {
-          console.warn("aares", response.data);
 
           if (response.data.status === "accepted") {
             setFriends((prevRequests) => {
@@ -100,6 +102,30 @@ const ChatPage = () => {
               }
               return [...prevRequests, response.data.user_data];
             });
+            dispatch(
+              updateChatListFriendStatusByEmail({
+                friend_status: "friend",
+                user_email: response.data.user_data.friend_mail,
+              })
+            );
+            dispatch(
+              updateChatListDeletedAtByEmail({
+                user_email: response.data.user_data.friend_mail,
+                deletedAt: null
+              })
+            )
+            dispatch(
+              updateMessageBoxDeletedAtByEmail({
+                user_email: response.data.user_data.friend_mail,
+                deletedAt: null,
+              })
+            );
+            dispatch(
+              updateMessageBoxFriendStatusByEmail({
+                friend_status: "friend",
+                user_email: response.data.user_data.friend_mail,
+              })
+            );
             toast.success(
               `${response.data.user_data.user_name} is now your friend!`
             );
@@ -118,32 +144,45 @@ const ChatPage = () => {
           toast.info(
             `${response.data.user_name} has sent you a friend request.`
           );
+        } else if (response.action === "blocked_friend") {
+          if (listMessages) {
+            getChatListHistoryData();
+          }
+
+          let user_email = response.data.friend_mail;
+          let friend_status = response.data.friend_status;
+
+          dispatch(
+            updateChatListFriendStatusByEmail({
+              friend_status,
+              user_email,
+            })
+          );
+
+          dispatch(
+            updateMessageBoxFriendStatusByEmail({
+              friend_status,
+              user_email,
+            })
+          );
+
+          setFriends((prevRequests) =>
+            prevRequests.filter((req) => req.friend_mail !== user_email)
+          );
+        } else if (response.action === "deleted_friend") {
+          setFriends((prevRequests) =>
+            prevRequests.filter((req) => req.friend_mail !== response.data.user_email)
+          );
+          dispatch(updateChatListDeletedAtByEmail({
+            user_email: response.data.user_email,
+            deletedAt: new Date().toISOString()
+          }))
+          dispatch(updateMessageBoxDeletedAtByEmail({
+            user_email: response.data.user_email,
+            deletedAt: new Date().toISOString()
+          }))
         }
       });
-
-      //  newSocket.on(chatBoxValue.room_id, (res: any) => {
-      //               console.warn("reschat",res)
-
-      //               if (res.action === "new_message") {
-      //                   setMessages((prevMessages) => [...prevMessages, res.data]);
-      //               } else if (res.action === "delete_message") {
-      //                   setMessages((prevMessages) =>
-      //                       prevMessages.map((msg) =>
-      //                           msg.message_id === res.data
-      //                               ? { ...msg, deletedAt: new Date().toISOString() } 
-      //                               : msg
-      //                       )
-      //                   );                    
-      //               } else if (res.action === "edit_message") {
-      //                   setMessages((prevMessages) =>
-      //                       prevMessages.map((msg) =>
-      //                           msg.message_id === res.data.message_id
-      //                               ? { ...msg, updatedAt: new Date().toISOString(), message: res.data.edited_message } 
-      //                               : msg
-      //                       )
-      //                   );    
-      //               }
-      //           });
     }
 
     setSocket(newSocket);
@@ -157,8 +196,6 @@ const ChatPage = () => {
       }
     };
   }, [socketUrl]);
-
-
 
   const getRequestData = async () => {
     const res = await ComingRequests();
@@ -183,15 +220,6 @@ const ChatPage = () => {
     }
   };
 
-  const getChatListHistoryByRoomId = async (room_id: string) => {
-    const res = await getChatHistoryByRoomId(room_id);
-    if (res.status === 200) {
-        setMessages(res.data);
-    } else {
-        toast.error('An unknown error occurred while retrieving messages. Please try again later.');
-    }
-}
-
   const getBlockedUsersData = async () => {
     const res = await Blocked();
 
@@ -200,7 +228,7 @@ const ChatPage = () => {
         "An unknown error occurred while retrieving blocked users. Please try again later."
       );
     } else {
-      SetBlockedUsers(res.data);
+      setBlockedUsers(res.data);
     }
   };
 
@@ -215,6 +243,7 @@ const ChatPage = () => {
         setHighlightedRoomId={setHighlightedRoomId}
       />
       <MainComponent
+        setBlockedUsers={setBlockedUsers}
         user={currentUser}
         socket={socket}
         setRequests={setRequests}

@@ -74,16 +74,19 @@ const WriteMessage: React.FC<WriteMessageProps> = ({
   // };
 
   const friendPlaceholders =
-    friend.friend_status !== "friend"
-      ? ["This person has blocked you or you have blocked them."]
-      : [
-          "Type your message here...",
-          "Hello, how are you?",
-          "The movie last night was great!",
-          "Join the conversation...",
-          "I have thoughts about the new project.",
-          "Would you like to write something?",
-        ];
+  friend.deletedAt
+    ? ["This conversation has been deleted."]
+    : friend.friend_status !== "friend"
+    ? ["This person has blocked you or you have blocked them."]
+    : [
+        "Type your message here...",
+        "Hello, how are you?",
+        "The movie last night was great!",
+        "Join the conversation...",
+        "I have thoughts about the new project.",
+        "Would you like to write something?",
+      ];
+
 
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -103,8 +106,8 @@ const WriteMessage: React.FC<WriteMessageProps> = ({
                   placeholders={friendPlaceholders}
                   onChange={(e) => setNewMessage(e.target.value)}
                   onSubmit={onSubmit}
-                  disabled={friend.friend_status !== "friend"}
-                />
+                  disabled={friend.friend_status !== "friend" || !!friend.deletedAt}
+                  />
               </div>
             </div>
           </div>

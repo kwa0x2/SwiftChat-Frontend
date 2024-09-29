@@ -31,8 +31,9 @@ const ChatNavbar: React.FC<ChatNavbarProps> = ({ friend }) => {
                             height={40}
                             className="aspect-square h-full w-full"
                             src={
-                              friend.other_user_photo ??
-                              "/profile-circle.svg"
+                              friend.friend_status === "friend" || friend.deletedAt
+                              ? friend.other_user_photo ?? "/profile-circle.svg"
+                              : "/profile-circle.svg"
                             }
                             alt="tst"
                             loading="eager"

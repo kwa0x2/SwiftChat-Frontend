@@ -82,7 +82,7 @@ const RightBubble: React.FC<RightBubbleProps> = ({
       <div className="flex space-x-2 items-start justify-end group w-full rtl:space-x-reverse mb-4">
         <div className=" flex flex-col max-w-[40%]  gap-1">
           <div className="flex items-center gap-1">
-            {!msg.deletedAt && !isEditing && (
+            {!msg.deletedAt && !isEditing && friend.friend_status === "friend" && (
               <div className="opacity-0 invisible group-hover:opacity-100 group-hover:visible ">
                 <span
                   className="w-7 h-7 rounded-full bg-default-100 flex items-center justify-center"

@@ -29,6 +29,7 @@ const Sidebar: React.FC<SidebarProps> = ({ user, highlightedRoomId, setHighlight
   const [searchQuery, setSearchQuery] = useState<string>("");
 
   const handleItemClick = (room_id: string) => {
+    console.warn("chatlist", listMessages)
     setSelectedRoomId(room_id);
     if (highlightedRoomId === room_id) {
       setHighlightedRoomId(null);

@@ -2,12 +2,16 @@
 import Image from "next/image";
 import Options from "./options";
 import {BlockedModel} from "../blocked";
+import io, { Socket } from "socket.io-client";
 
 interface BlockedProps {
     blocked: BlockedModel;
+    socket: Socket | null;
+    setBlockedUsers: React.Dispatch<React.SetStateAction<BlockedModel[]>>;
+
 }
 
-const BlockedItem: React.FC<BlockedProps> = ({blocked}) => {
+const BlockedItem: React.FC<BlockedProps> = ({blocked,socket,setBlockedUsers}) => {
     return (
         <div
             className="gap-4 py-2 lg:py-2.5 px-3 mx-3 rounded-md hover:bg-[#4A32B0]/30 transition-all duration-500 cursor-pointer flex items-center">
@@ -19,7 +23,7 @@ const BlockedItem: React.FC<BlockedProps> = ({blocked}) => {
                 height={40}
                 className="aspect-square h-full w-full"
                 src={
-                    blocked.user_photo ||
+                    
                     "/profile-circle.svg"
                 }
                 alt="tst"
@@ -36,7 +40,7 @@ const BlockedItem: React.FC<BlockedProps> = ({blocked}) => {
                 </div>
             </div>
             <div className="flex-none flex items-center justify-center  gap-2 ml-auto lg:ml-0">
-                <Options blocked={blocked}/>
+                <Options setBlockedUsers={setBlockedUsers} blockedUser={blocked} socket={socket}/>
             </div>
         </div>
     );
