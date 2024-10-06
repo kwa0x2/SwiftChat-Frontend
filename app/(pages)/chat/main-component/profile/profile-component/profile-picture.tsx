@@ -28,9 +28,7 @@ const ProfilePicture = ({ user }: any) => {
   };
 
   const handleButtonClick = () => {
-    if (fileInputRef.current) {
-      fileInputRef.current.click();
-    }
+    fileInputRef.current?.click();
   };
 
   const handleUpload = async () => {
@@ -38,7 +36,7 @@ const ProfilePicture = ({ user }: any) => {
 
     try {
       await uploadProfilePicture(selectedFile);
-
+      toast.success("Profile picture updated successfully.");
       setSelectedFile(null);
     } catch (error) {
       toast.error("An unknown error occurred. Please try again.");

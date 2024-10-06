@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { FcGoogle } from "react-icons/fc";
 import { IoIosLogOut } from "react-icons/io";
 import { RiImageEditLine } from "react-icons/ri";
-import ProfileEditDialog from "../../chat/main-component/profile/profile-component/profile-picture/dialog";
+import ProfilePictureEditDialog from "../../../../components/dialogs/profile-picture-edit/dialog";
 import { toast } from "sonner";
 
 interface GoogleSectionProps {
@@ -87,7 +87,7 @@ const GoogleSection = ({ token, onPhotoUpdate }: GoogleSectionProps) => {
           </div>
         </div>
       </div>
-      <ProfileEditDialog
+      <ProfilePictureEditDialog
         isOpen={isDialogOpen}
         onOpenChange={setIsDialogOpen}
         user_photo={userInfo?.user_photo ?? "/profile-circle.svg"}

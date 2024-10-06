@@ -13,51 +13,44 @@ import { useState } from "react";
 import { PiDotsThreeCircleLight } from "react-icons/pi";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/app/redux/store";
-import { showProfile, showFriends } from "@/app/redux/slices/messageBoxSlice";
+import { setActiveComponent } from "@/app/redux/slices/componentSlice";
 
 const Dropdown = () => {
   const dispatch = useDispatch<AppDispatch>();
   const [dropdown, setDropdown] = useState<boolean>(false);
 
+  const clickHandler = (action: () => void) => {
+    setDropdown(false);
+    action();
+  };
+
   return (
-    <>
-      <DropdownMenu open={dropdown} onOpenChange={setDropdown}>
-        <DropdownMenuTrigger className="outline-none">
-          <PiDotsThreeCircleLight className="text-[#4A32B0] text-[2rem]	" />
-        </DropdownMenuTrigger>
-        <DropdownMenuContent>
-          <DropdownMenuLabel>My Account</DropdownMenuLabel>
-          <DropdownMenuSeparator />
+    <DropdownMenu open={dropdown} onOpenChange={setDropdown}>
+      <DropdownMenuTrigger className="outline-none">
+        <PiDotsThreeCircleLight className="text-[#4A32B0] text-[2rem]" />
+      </DropdownMenuTrigger>
+      <DropdownMenuContent>
+        <DropdownMenuLabel>My Account</DropdownMenuLabel>
+        <DropdownMenuSeparator />
 
-          <DropdownMenuItem
-            onSelect={() => {
-              setDropdown(!dropdown);
-              dispatch(showProfile());
-            }}
-          >
-            <User className="mr-2 h-4 w-4 text-blue-500" />
-            Profile
-          </DropdownMenuItem>
+        <DropdownMenuItem onSelect={() => clickHandler(() => dispatch(setActiveComponent("profile")))}>
+          <User className="mr-2 h-4 w-4 text-blue-500" />
+          Profile
+        </DropdownMenuItem>
 
-          <DropdownMenuItem
-            onSelect={() => {
-              setDropdown(!dropdown);
-              dispatch(showFriends());  
-            }}
-          >
-            <UserRoundPlus className="mr-2 h-4 w-4 text-green-600" />
-            Friends
-          </DropdownMenuItem>
+        <DropdownMenuItem onSelect={() => clickHandler(() => dispatch(setActiveComponent("friends")))}>
+          <UserRoundPlus className="mr-2 h-4 w-4 text-green-600" />
+          Friends
+        </DropdownMenuItem>
 
-          <DropdownMenuSeparator />
+        <DropdownMenuSeparator />
 
-          <DropdownMenuItem onClick={async () => await logoutAction()}>
-            <LogOut className="mr-2 h-4 w-4 text-rose-700" />
-            <span>Logout</span>
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    </>
+        <DropdownMenuItem onClick={async () => await logoutAction()}>
+          <LogOut className="mr-2 h-4 w-4 text-rose-700" />
+          Logout
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 };
 

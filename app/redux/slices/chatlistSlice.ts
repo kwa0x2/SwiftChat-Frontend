@@ -1,52 +1,87 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-export interface MessageItemModel {
+export interface ChatListItemModel {
   room_id: string;
   last_message: string;
+  last_message_id: string;
   updatedAt?: string;
   user_name: string;
   user_photo: string;
   user_email: string;
   friend_status: string;
+  createdAt: string;
+  message_deleted_at?: string;
+  activeStatus: boolean;
 }
 
 interface InitialState {
-  messages: MessageItemModel[];
+  chatLists: ChatListItemModel[];
 }
 
 const chatListSlice = createSlice({
-  name: "messageBox",
+  name: "chatList",
   initialState: {
-    messages: [],
+    chatLists: [],
   } as InitialState,
   reducers: {
-    setChatList: (state, action: PayloadAction<MessageItemModel[]>) => {
-      state.messages = action.payload;
+    setChatList: (state, action: PayloadAction<ChatListItemModel[]>) => {
+      state.chatLists = action.payload;
     },
-    addChatList: (state, action: PayloadAction<MessageItemModel>) => {
-      if (!state.messages) {
-        state.messages = [];
+    addChatList: (state, action: PayloadAction<ChatListItemModel>) => {
+      if (!state.chatLists) {
+        state.chatLists = [];
       }
-      state.messages.push(action.payload);
+      state.chatLists.push(action.payload);
     },
     updateLastMessage: (
       state,
       action: PayloadAction<{
         room_id: string;
         message: string;
+        message_id: string;
         updatedAt: string;
       }>
     ) => {
-      console.warn("update", action.payload)
-      const existingMessage = state.messages?.find(
+      const existingMessage = state.chatLists?.find(
         (msg) => msg.room_id === action.payload.room_id
       );
       if (existingMessage) {
         existingMessage.last_message = action.payload.message;
         existingMessage.updatedAt = action.payload.updatedAt;
-        state.messages = [
+        existingMessage.last_message_id = action.payload.message_id;
+        state.chatLists = [
           existingMessage,
-          ...state.messages.filter(
+          ...state.chatLists.filter(
+            (msg) => msg.room_id !== action.payload.room_id
+          ),
+        ];
+      }
+    },
+    deleteLastMessage: (
+      state,
+      action: PayloadAction<{
+        room_id: string;
+        message_id: string;
+        updatedAt: string;
+        deletedAt: string;
+      }>
+    ) => {
+      const existingMessage = state.chatLists?.find(
+        (msg) => msg.room_id === action.payload.room_id
+      );
+      console.warn("existingMessage.last_message_id",existingMessage?.last_message_id)
+      console.warn("existingMessage.last_message_id2",action.payload)
+
+      if (
+        existingMessage &&
+        existingMessage.last_message_id === action.payload.message_id
+      ) {
+        existingMessage.updatedAt = action.payload.updatedAt;
+        existingMessage.message_deleted_at = action.payload.deletedAt;
+        existingMessage.last_message = "";
+        state.chatLists = [
+          existingMessage,
+          ...state.chatLists.filter(
             (msg) => msg.room_id !== action.payload.room_id
           ),
         ];
@@ -56,18 +91,83 @@ const chatListSlice = createSlice({
       state,
       action: PayloadAction<{ room_id: string; user_email: string }>
     ) => {
-      const existingMessage = state.messages?.find(
-        (msg) => msg.user_email === action.payload.user_email
+      const existingMessage = state.chatLists?.find(
+        (chatList) => chatList.user_email === action.payload.user_email
       );
       if (existingMessage) {
         existingMessage.room_id = action.payload.room_id;
-        state.messages = [
+        state.chatLists = [
           existingMessage,
-          ...state.messages.filter(
-            (msg) => msg.user_email !== action.payload.user_email
+          ...state.chatLists.filter(
+            (chatList) => chatList.user_email !== action.payload.user_email
           ),
         ];
       }
+    },
+    updateChatListFriendStatusByEmail: (
+      state,
+      action: PayloadAction<{ friend_status: string; user_email: string }>
+    ) => {
+      const existingMessage = state.chatLists?.find(
+        (chatList) => chatList.user_email === action.payload.user_email
+      );
+      if (existingMessage) {
+        existingMessage.friend_status = action.payload.friend_status;
+        state.chatLists = [
+          existingMessage,
+          ...state.chatLists.filter(
+            (chatList) => chatList.user_email !== action.payload.user_email
+          ),
+        ];
+      }
+    },
+    updateChatListUsernameByEmail: (
+      state,
+      action: PayloadAction<{ user_name: string; user_email: string }>
+    ) => {
+      const existingMessage = state.chatLists?.find(
+        (chatList) => chatList.user_email === action.payload.user_email
+      );
+      if (existingMessage) {
+        existingMessage.user_name = action.payload.user_name;
+        state.chatLists = [
+          existingMessage,
+          ...state.chatLists.filter(
+            (chatList) => chatList.user_email !== action.payload.user_email
+          ),
+        ];
+      }
+    },
+    updateChatListUserPhotoByEmail: (
+      state,
+      action: PayloadAction<{ user_photo: string; user_email: string }>
+    ) => {
+      const existingMessage = state.chatLists?.find(
+        (chatList) => chatList.user_email === action.payload.user_email
+      );
+      if (existingMessage) {
+        existingMessage.user_photo = action.payload.user_photo;
+        state.chatLists = [
+          existingMessage,
+          ...state.chatLists.filter(
+            (chatList) => chatList.user_email !== action.payload.user_email
+          ),
+        ];
+      }
+    },
+    updateChatListActiveStatusByEmails: (
+      state,
+      action: PayloadAction<{ activeEmails: string[] }>
+    ) => {
+      const activeEmails = action.payload.activeEmails;
+
+      state.chatLists?.forEach((chatList) => {
+        if (activeEmails.includes(chatList.user_email)) {
+          chatList.activeStatus = true;
+        } else {
+          chatList.activeStatus = false;
+        }
+      });
     },
   },
 });
@@ -75,7 +175,12 @@ const chatListSlice = createSlice({
 export const {
   setChatList,
   updateLastMessage,
+  updateChatListFriendStatusByEmail,
+  updateChatListUsernameByEmail,
+  updateChatListUserPhotoByEmail,
   updateRoomIdByEmail,
+  deleteLastMessage,
   addChatList,
+  updateChatListActiveStatusByEmails,
 } = chatListSlice.actions;
 export default chatListSlice.reducer;

@@ -1,109 +1,122 @@
-import {Tooltip, TooltipContent, TooltipProvider, TooltipTrigger,} from "@/components/ui/tooltip";
-import {BsCheckLg} from "react-icons/bs";
-import {LiaTimesSolid} from "react-icons/lia";
-import {ComingRequestsModel} from "../requests";
-import {UpdateFriendshipRequest} from "@/app/api/services/request.Service";
-import {RequestStatus} from "@/models/Enum";
-import {toast} from "sonner";
-import io, { Socket } from "socket.io-client";
-import { FriendsModel } from "../../friends-component/friends";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { BsCheckLg } from "react-icons/bs";
+import { LiaTimesSolid } from "react-icons/lia";
+import { ComingRequestsModel } from "../requests";
+import { RequestStatus } from "@/models/Enum";
+import { toast } from "sonner";
+import { FriendModel } from "../../friends-component/friends";
+import { AppDispatch } from "@/app/redux/store";
+import { useDispatch } from "react-redux";
+import { updateChatListFriendStatusByEmail } from "@/app/redux/slices/chatListSlice";
+import { updateChatFriendStatusByEmail } from "@/app/redux/slices/chatSlice";
+import { UpdateFriendshipRequest } from "@/app/api/services/request.Service";
 
 interface ComingRequestsProps {
-    requests: ComingRequestsModel;
-    socket: Socket | null;
-    setRequests: React.Dispatch<React.SetStateAction<ComingRequestsModel[]>>;
-    setFriends: React.Dispatch<React.SetStateAction<FriendsModel[]>>;
-
+  requests: ComingRequestsModel;
+  setRequests: React.Dispatch<React.SetStateAction<ComingRequestsModel[]>>;
+  setFriends: React.Dispatch<React.SetStateAction<FriendModel[]>>;
 }
 
+const Options: React.FC<ComingRequestsProps> = ({
+  requests,
+  setRequests,
+  setFriends,
+}) => {
+  const dispatch = useDispatch<AppDispatch>();
 
-const Options: React.FC<ComingRequestsProps> = ({requests, socket, setRequests, setFriends}) => {
-    const handleOnClick = async (sender_mail: string, status: RequestStatus, senderName: string) => {
-        // const res = await UpdateFriendshipRequest(senderMail, status);
-        // if (res.status === 200) {
-        //     if (status === RequestStatus.accepted) {
-        //         toast.success(`${senderName} is now your friend!`);
-        //     } else {
-        //         toast.success('The friend request has been successfully rejected.');
-        //     }
-        // } else {
-        //     toast.error('An unknown error occurred while processing your request.'); 
-        // }
-        console.warn("sender_mail", sender_mail)
-        if (socket) {
-            console.warn("socket", sender_mail)
+  const updateFriendshipRequest = async (
+    request: ComingRequestsModel,
+    status: RequestStatus
+  ) => {
+    const res = await UpdateFriendshipRequest(request.sender_mail, status);
+    if (res.status === 200) {
+      console.warn("friendship request", res.data);
+      if (status === RequestStatus.accepted) {
+        setRequests((prevRequests) =>
+          prevRequests.filter((req) => req.sender_mail !== request.sender_mail)
+        );
 
-            socket.emit(
-                "updateFriendshipRequest",
-                {
-                    status,
-                    sender_mail,
-                },
-                (response: any) => {
-                  console.warn(response)
-                  if (response.status === "error") {
-                    toast.error("An unknown error occurred. Please try again later");
-                  } else if (response.status === "success" && status === RequestStatus.accepted) {
-                    toast.success(`${senderName} is now your friend!`);
-                    setRequests((prevRequests) => prevRequests.filter(req => req.sender_mail !== sender_mail));
-  
-                    const newFriend: FriendsModel = {
-                        friend_mail: sender_mail,
-                        user_name: senderName,
-                        user_photo: requests.user_photo, 
-                    };
-  
-                    setFriends((prevRequests) => {
-                        if (!Array.isArray(prevRequests)) {
-                          return [newFriend];
-                        }
-                        return [...prevRequests, newFriend];
-                      });
-                  } else if (response.status === "success" && status === RequestStatus.rejected){
-                    toast.success('The friend request has been successfully rejected.');
-                    setRequests((prevRequests) => prevRequests.filter(req => req.sender_mail !== sender_mail));
+        const newFriend: FriendModel = {
+          friend_mail: request.sender_mail,
+          user_name: requests.user_name,
+          user_photo: request.user_photo,
+        };
 
-                  }
-                }
-              );
-        }
-        
-    };
+        setFriends((prevRequests) => {
+          if (!Array.isArray(prevRequests)) {
+            return [newFriend];
+          }
+          return [...prevRequests, newFriend];
+        });
 
-    
+        dispatch(
+          updateChatListFriendStatusByEmail({
+            friend_status: "friend",
+            user_email: request.sender_mail,
+          })
+        );
 
-    
-    return (
-        <>
-            <TooltipProvider>
-                <Tooltip>
-                    <TooltipTrigger>
-                        <BsCheckLg
-                            onClick={() => handleOnClick(requests.sender_mail, RequestStatus.accepted, requests.user_name)}
-                            className="text-[#3b82f6] h-5 w-5 transition-all duration-500 opacity-70 hover:opacity-100"
-                        />
-                    </TooltipTrigger>
-                    <TooltipContent>
-                        <p>Accept</p>
-                    </TooltipContent>
-                </Tooltip>
-            </TooltipProvider>
+        dispatch(
+          updateChatFriendStatusByEmail({
+            friend_status: "friend",
+            user_email: request.sender_mail,
+          })
+        );
+        toast.success(`${requests.user_name} is now your friend!`);
+      } else if (status === RequestStatus.rejected) {
+        setRequests((prevRequests) =>
+          prevRequests.filter((req) => req.sender_mail !== request.sender_mail)
+        );
+        toast.success(`The friend request has been successfully rejected.`);
+      }
+    } else {
+      toast.error(
+        "An unknown error occurred. Please try again later."
+      );
+      console.error(res);
+    }
+  };
 
-            <TooltipProvider>
-                <Tooltip>
-                    <TooltipTrigger>
-                        <LiaTimesSolid
-                            onClick={() => handleOnClick(requests.sender_mail, RequestStatus.rejected, requests.user_name)}
-                            className="text-[#e11d48] transition-all duration-500 h-5 w-5 opacity-70 hover:opacity-100"
-                        />
-                    </TooltipTrigger>
-                    <TooltipContent>
-                        <p>Reject</p>
-                    </TooltipContent>
-                </Tooltip>
-            </TooltipProvider>
-        </>
-    );
+  return (
+    <>
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger>
+            <BsCheckLg
+              onClick={() =>
+                updateFriendshipRequest(requests, RequestStatus.accepted)
+              }
+              className="text-[#3b82f6] h-5 w-5 transition-all duration-500 opacity-70 hover:opacity-100"
+            />
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Accept</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger>
+            <LiaTimesSolid
+              onClick={() =>
+                updateFriendshipRequest(requests, RequestStatus.rejected)
+              }
+              className="text-[#e11d48] transition-all duration-500 h-5 w-5 opacity-70 hover:opacity-100"
+            />
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Reject</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+    </>
+  );
 };
 
 export default Options;

@@ -35,7 +35,7 @@ const DialogContent = React.forwardRef<
   (
   ({ className, children, ...props }, ref) => (
     <DialogPortal>
-      <DialogOverlay className="backdrop-blur-2xl" />
+      <DialogOverlay className="backdrop-blur-lg" />
       <DialogPrimitive.Content
         ref={ref}
         className={cn(
@@ -45,7 +45,7 @@ const DialogContent = React.forwardRef<
         {...props}
       >
         {children}
-        <DialogPrimitive.Close className="absolute text-white right-4 top-4 rounded-sm opacity-70 transition-opacity backdrop-blur-none hover:opacity-100 ">
+        <DialogPrimitive.Close className="outline-none absolute text-white right-4 top-4 rounded-sm opacity-70 transition-opacity backdrop-blur-none hover:opacity-100 ">
           <X className="h-4 w-4" />
           <span className="sr-only">Close</span>
         </DialogPrimitive.Close>

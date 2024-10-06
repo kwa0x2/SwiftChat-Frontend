@@ -1,23 +1,24 @@
 "use client";
 import Image from "next/image";
-import { openChatBox } from "@/app/redux/slices/messageBoxSlice";
+import { setChatData } from "@/app/redux/slices/chatSlice";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/app/redux/store";
 import clsx from "clsx";
-import { MdOutlineNotificationsActive } from "react-icons/md";
-import animationData from "@/public/notification-bell.json";
-import { MessageItemModel } from "@/app/redux/slices/chatlistSlice";
-import { useEffect } from "react";
+import { ChatListItemModel } from "@/app/redux/slices/chatListSlice";
+import {
+  setActiveComponent,
+  setFriendStatus,
+} from "@/app/redux/slices/componentSlice";
 
-interface MessageItemProps {
-  message: MessageItemModel;
+interface ChatListItemProps {
+  chatList: ChatListItemModel;
   highlight?: boolean;
   selected?: boolean;
   onClick: () => void;
 }
 
-const MessageItem: React.FC<MessageItemProps> = ({
-  message,
+const ChatListItem: React.FC<ChatListItemProps> = ({
+  chatList,
   highlight,
   selected,
   onClick,
@@ -25,15 +26,19 @@ const MessageItem: React.FC<MessageItemProps> = ({
   const dispatch = useDispatch<AppDispatch>();
   const openMessageBox = () => {
     dispatch(
-      openChatBox({
-        activeComponent: "chatbox",
-        other_user_email: message.user_email,
-        other_user_name: message.user_name,
-        other_user_photo: message.user_photo,
-        room_id: message.room_id,
-        friend_status: message.friend_status,
+      setChatData({
+        user_email: chatList.user_email,
+        user_name: chatList.user_name,
+        user_photo: chatList.user_photo,
+        room_id: chatList.room_id,
+        friend_status: chatList.friend_status,
+        createdAt: chatList.createdAt,
+        activeStatus: chatList.activeStatus,
       })
     );
+    dispatch(setActiveComponent("chat"));
+    dispatch(setFriendStatus(chatList.friend_status));
+
     onClick();
   };
 
@@ -53,15 +58,25 @@ const MessageItem: React.FC<MessageItemProps> = ({
               height={40}
               className="aspect-square h-full w-full"
               src={
-                message.friend_status === "friend"
-                  ? message.user_photo
+                chatList.friend_status === "friend" ||
+                chatList.friend_status === "unfriend"
+                  ? chatList.user_photo ?? "/profile-circle.svg"
                   : "/profile-circle.svg"
               }
               alt="tst"
               loading="eager"
             />
           </span>
-          <div className="inline-flex rounded-full border text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 bg-success border-transparent text-success-foreground h-2 w-2 p-0 ring-1 ring-border ring-offset-[1px] items-center justify-center absolute left-[calc(100%-8px)] top-[calc(100%-10px)]"></div>
+          {(chatList.friend_status === "friend" ||
+            chatList.friend_status === "unfriend") && (
+            <>
+              {chatList.activeStatus ? (
+                <span className="inline-flex rounded-full h-2 w-2 p-0 ring-1 ring-border ring-green-500 items-center justify-center absolute left-[calc(100%-8px)] top-[calc(100%-10px)] bg-green-500" />
+              ) : (
+                <div className="inline-flex rounded-full border text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 bg-success border-transparent text-success-foreground h-2 w-2 p-0 ring-1 ring-border ring-offset-[1px] items-center justify-center absolute left-[calc(100%-8px)] top-[calc(100%-10px)]"></div>
+              )}
+            </>
+          )}
         </div>
         <div className="block">
           <div className="truncate max-w-[120px]">
@@ -74,30 +89,31 @@ const MessageItem: React.FC<MessageItemProps> = ({
               )}
             >
               {" "}
-              {message.user_name}
+              {chatList.user_name}
             </span>
           </div>
-          <div className="truncate  max-w-[120px]">
+          <div className="truncate max-w-[120px]">
             <span
               className={clsx(
-                "text-xs  text-[#5C6B81] transition-all duration-500 ease-in-out",
+                "text-xs text-[#5C6B81] transition-all duration-500 ease-in-out",
                 {
                   "text-[#fff]": highlight || selected,
                 }
               )}
             >
-              {/* 52 karakter  */}
-              {message.last_message.length >= 15
-                ? message.last_message.substring(0, 15) + "..."
-                : message.last_message}
+              {chatList.message_deleted_at
+                ? "Mesaj silindi"
+                : chatList.last_message.length >= 15
+                ? chatList.last_message.substring(0, 15) + "..."
+                : chatList.last_message}
             </span>
           </div>
         </div>
       </div>
       <div className="flex-none  flex-col items-end  gap-2 hidden lg:flex">
         <span className="text-xs text-white text-end uppercase ">
-          {message.updatedAt &&
-            new Date(message.updatedAt).toLocaleTimeString([], {
+          {chatList.updatedAt &&
+            new Date(chatList.updatedAt).toLocaleTimeString([], {
               hour: "2-digit",
               minute: "2-digit",
               hour12: true,
@@ -113,4 +129,4 @@ const MessageItem: React.FC<MessageItemProps> = ({
   );
 };
 
-export default MessageItem;
+export default ChatListItem;

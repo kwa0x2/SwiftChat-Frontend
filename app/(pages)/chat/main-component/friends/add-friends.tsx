@@ -16,16 +16,15 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import io, { Socket } from "socket.io-client";
+import { Socket } from "socket.io-client";
+import { SendFriendRequest } from "@/app/api/services/request.Service";
+import axios from "axios";
 
 interface AddFriendProps {
-  socket: Socket | null;
   user: any;
 }
 
-const AddFriend: React.FC<AddFriendProps> = ({ socket, user }) => {
-  const [errorMessage, setErrorMessage] = useState("");
-
+const AddFriend: React.FC<AddFriendProps> = ({ user }) => {
   const form = useForm<z.infer<typeof AddFriendSchemas>>({
     resolver: zodResolver(AddFriendSchemas),
     defaultValues: {
@@ -33,35 +32,60 @@ const AddFriend: React.FC<AddFriendProps> = ({ socket, user }) => {
     },
   });
 
-  const onSubmit = async (values: z.infer<typeof AddFriendSchemas>) => {
-    let email = values.email;
-    if (email !== user.email) {
-      if (socket) {
-        console.warn(`sent`)
-        socket.emit("sendFriend", email, (response: any) => {
-          if (response.status === "error") {
-            toast.error("An unknown error occurred. Please try again later");
-          } else if (response.status === "duplicate") {
-            toast.warning("You have already sent a friend request to " + email + "!");
-          } else if (response.status === "friend_sent") {
-            toast.success("Friend request sent successfully to " + email + "!");
-          } else if (response.status === "email_sent") {
+  async function onSubmit(formData: z.infer<typeof AddFriendSchemas>) {
+    if (user.mail === formData.email) {
+      toast.error("You cannot send a friend request to yourself.");
+    } else {
+      try {
+        const res = await SendFriendRequest(formData.email);
+        if (res.status === 200) {
+          if (res.data.status === "Friend Sent") {
             toast.success(
-              "No such user exists, so the friend request has been sent to " +
-                email +
-                " via email!"
+              `Friend request sent successfully to ${formData.email}!`
+            );
+          } else if (res.data.status === "Email Sent") {
+            toast.success(
+              `No such user exists, so the friend request has been sent to ${formData.email} via email!`
             );
           }
-        });
+        }
+      } catch (error) {
+        if (axios.isAxiosError(error) && error.response) {
+          const { status, data } = error.response;
+
+          if (status === 409) {
+            switch (data.error) {
+              case "Already Friend":
+                toast.warning(
+                  `${formData.email} is already in your friends list!`
+                );
+                break;
+              case "Already Sent":
+                toast.warning(
+                  `You have already sent a friend request to ${formData.email}!`
+                );
+                break;
+              case "Blocked User":
+                toast.warning(
+                  `Either you have blocked ${formData.email} or they have blocked you!`
+                );
+                break;
+              default:
+                toast.error(
+                  "An unknown error occurred. Please try again later."
+                );
+            }
+          } else {
+            toast.error("An unknown error occurred. Please try again later.");
+          }
+        }
       }
-    } else {
-      toast.warning("You cannot send a friend request to yourself.");
     }
-  };
+  }
 
   return (
     <Disclosure as="nav" className="border-b border-[#5C6B81]">
-      <div className="relative  px-5 flex h-20 items-center justify-between gap-5">
+      <div className="relative px-5 flex h-20 items-center justify-between gap-5">
         <Form {...form}>
           <form
             className="w-full flex gap-5"
@@ -83,11 +107,10 @@ const AddFriend: React.FC<AddFriendProps> = ({ socket, user }) => {
                 </FormItem>
               )}
             />
-            <FormError className="mb-3" message={errorMessage} />
 
             <Button
               type="submit"
-              className="bg-[#4A32B0] border-none  hover:bg-[#4A32B0] hover:text-white text-white"
+              className="bg-[#4A32B0] border-none hover:bg-[#4A32B0] hover:text-white text-white"
               variant={"outline"}
             >
               Submit
