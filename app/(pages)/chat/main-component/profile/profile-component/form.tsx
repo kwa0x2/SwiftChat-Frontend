@@ -16,11 +16,14 @@ import { UsernameSchemas } from "@/schemas/username";
 import { updateUsernameByMail } from "@/app/api/services/user.Service";
 import { toast } from "sonner";
 import { useSession } from "next-auth/react";
-import { setUser } from "@/app/redux/slices/userSlice";
 import { AppDispatch } from "@/app/redux/store";
 import { useDispatch } from "react-redux";
 
-const ProfileForm = ({ user }: any) => {
+interface ProfileFormProps {
+  user: any;
+}
+
+const ProfileForm = ({  user }: ProfileFormProps) => {
   const dispatch = useDispatch<AppDispatch>();
   const { update } = useSession();
 
@@ -32,14 +35,19 @@ const ProfileForm = ({ user }: any) => {
   });
 
   async function onSubmit(data: z.infer<typeof UsernameSchemas>) {
-    const res = await updateUsernameByMail(data.username);
-    if (res.status !== 200) {
-      toast.error(
-        "An unknown error occurred while updating the username. Please try again."
-      );
+    if (user.name === data.username) {
+      toast.warning("Please enter a different name to update.");
+    } else {
+      const res = await updateUsernameByMail(data.username);
+      if (res.status === 200) {
+        toast.success("Username updated successfully!");
+      } else {
+        toast.error("An unknown error occurred while updating the username. Please try again.");
+      }
+      await update();
     }
-    await update();
   }
+  
 
   return (
     <Form {...form}>
@@ -75,7 +83,7 @@ const ProfileForm = ({ user }: any) => {
         <FormItem>
           <FormLabel>Role</FormLabel>
           <FormControl>
-            <Input className="capitalize " placeholder={user.role} disabled />
+            <Input className="capitalize" placeholder={user.role} disabled />
           </FormControl>
           <FormDescription>
             If your role is standard, you can send a maximum of 50MB. If your
@@ -83,6 +91,7 @@ const ProfileForm = ({ user }: any) => {
           </FormDescription>
           <FormMessage />
         </FormItem>
+
         <Button type="submit" variant={"outline"}>
           Update Profile
         </Button>

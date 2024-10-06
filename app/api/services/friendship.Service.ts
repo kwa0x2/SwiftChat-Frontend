@@ -28,3 +28,4 @@ export const Remove = async (friendMail: string) => {
         data: body
     })
 }
+

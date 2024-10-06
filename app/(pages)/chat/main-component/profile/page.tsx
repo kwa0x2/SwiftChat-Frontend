@@ -1,9 +1,12 @@
 import CustomCard from "@/components/custom-card";
-import { TbPhotoEdit } from "react-icons/tb";
 import ProfileForm from "./profile-component/form";
-import ProfilePicture from "./profile-component/profile-picture/profile-picture";
+import ProfilePicture from "./profile-component/profile-picture";
 
-const Profile = ({ user }: any) => {
+interface ProfileProps {
+  user: any;
+}
+
+const Profile = ({ user }: ProfileProps) => {
   return (
     <CustomCard className="flex-1 flex-col justify-between">
       <div className="p-8 space-y-8">

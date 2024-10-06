@@ -1,21 +1,20 @@
 "use client";
 import { Disclosure } from "@headlessui/react";
 import { LuPlusCircle } from "react-icons/lu";
-import { Input } from "@/components/ui/input";
-import { AiOutlineSend } from "react-icons/ai";
 import { Socket } from "socket.io-client";
 import React, { useState } from "react";
 import { AnimatedPlaceholdersInput } from "@/components/ui/animated-placeholders-input";
-import { MessageItemSliceModel } from "@/app/redux/slices/messageBoxSlice";
-import { updateLastMessage } from "@/app/redux/slices/chatlistSlice";
+import { ChatSliceModel } from "@/app/redux/slices/chatSlice";
+import { updateLastMessage } from "@/app/redux/slices/chatListSlice";
 import { AppDispatch } from "@/app/redux/store";
 import { useDispatch } from "react-redux";
 import { toast } from "sonner";
+import { handleSocketEmit } from "@/lib/socket";
 
 interface WriteMessageProps {
   user: any;
   socket: Socket | null;
-  friend: MessageItemSliceModel;
+  friend: ChatSliceModel;
 }
 
 const WriteMessage: React.FC<WriteMessageProps> = ({
@@ -28,7 +27,7 @@ const WriteMessage: React.FC<WriteMessageProps> = ({
 
   const handleSendMessage = () => {
     if (newMessage.trim() && user.id) {
-      sendMessage(friend.room_id, newMessage, friend.other_user_email);
+      sendMessage(friend.room_id, newMessage, friend.user_email);
       setNewMessage("");
     }
   };
@@ -36,57 +35,46 @@ const WriteMessage: React.FC<WriteMessageProps> = ({
   const sendMessage = (
     room_id: string,
     message: string,
-    other_user_email: string
+    user_email: string
   ) => {
     if (socket && user) {
-      console.warn("emit",user,socket)
-
-      socket.emit(
+      console.warn("asdadas")
+      handleSocketEmit(
+        socket,
         "sendMessage",
-        {
-          room_id,
-          message,
-          other_user_email,
+        { room_id, message, user_email },
+        "",
+        (message_id) => {
+          console.warn("addiedmessageid", message_id)
+          dispatch(
+            updateLastMessage({
+              room_id,
+              message,
+              message_id: message_id,
+              updatedAt: new Date().toISOString(),              
+            })
+          );
         },
-        (response: any) => {
-          console.warn(response)
-          if (response.status === "error") {
-            toast.error("An unknown error occurred. Please try again later");
-          } else if (response.status === "success") {
-            dispatch(
-              updateLastMessage({
-                room_id,
-                message,
-                updatedAt: new Date().toISOString(),
-              })
-            );
-          }
+        () => {
+          toast.error("An unknown error occurred. Please try again later.");
         }
       );
     }
   };
 
-  // // for press enter then send a message
-  // const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-  //   if (e.key === "Enter") {
-  //     handleSendMessage();
-  //   }
-  // };
-
   const friendPlaceholders =
-  friend.deletedAt
-    ? ["This conversation has been deleted."]
-    : friend.friend_status !== "friend"
-    ? ["This person has blocked you or you have blocked them."]
-    : [
-        "Type your message here...",
-        "Hello, how are you?",
-        "The movie last night was great!",
-        "Join the conversation...",
-        "I have thoughts about the new project.",
-        "Would you like to write something?",
-      ];
-
+    friend.friend_status === "unfriend"
+      ? ["You are not friends with this person, so you cannot send a message."]
+      : friend.friend_status !== "friend"
+      ? ["This person has blocked you or you have blocked them."]
+      : [
+          "Type your message here...",
+          "Hello, how are you?",
+          "The movie last night was great!",
+          "Join the conversation...",
+          "I have thoughts about the new project.",
+          "Would you like to write something?",
+        ];
 
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -106,8 +94,8 @@ const WriteMessage: React.FC<WriteMessageProps> = ({
                   placeholders={friendPlaceholders}
                   onChange={(e) => setNewMessage(e.target.value)}
                   onSubmit={onSubmit}
-                  disabled={friend.friend_status !== "friend" || !!friend.deletedAt}
-                  />
+                  disabled={friend.friend_status !== "friend"}
+                />
               </div>
             </div>
           </div>

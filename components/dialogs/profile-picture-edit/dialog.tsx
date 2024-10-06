@@ -26,7 +26,7 @@ interface ProfileEditDialogProps {
   token: string;
 }
 
-const ProfileEditDialog = ({
+const ProfilePictureEditDialog = ({
   isOpen,
   onOpenChange,
   user_photo,
@@ -158,4 +158,4 @@ const ProfileEditDialog = ({
   );
 };
 
-export default ProfileEditDialog;
+export default ProfilePictureEditDialog;

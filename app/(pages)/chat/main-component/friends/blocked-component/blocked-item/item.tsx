@@ -1,20 +1,16 @@
 "use client";
-import Image from "next/image";
-import Options from "./option";
-import { ComingRequestsModel } from "../requests";
-import { FriendModel } from "../../friends-component/friends";
 
-interface ComingRequestsProps {
-  requests: ComingRequestsModel;
-  setRequests: React.Dispatch<React.SetStateAction<ComingRequestsModel[]>>;
-  setFriends: React.Dispatch<React.SetStateAction<FriendModel[]>>;
+import Image from "next/image";
+import Options from "./options";
+import { BlockedModel } from "../blocked";
+import { Socket } from "socket.io-client";
+
+interface BlockedItemProps {
+  blockedUser: BlockedModel;
+  setBlockedUsers: React.Dispatch<React.SetStateAction<BlockedModel[]>>;
 }
 
-const RequestItem = ({
-  requests,
-  setRequests,
-  setFriends,
-}: ComingRequestsProps) => {
+const BlockedItem = ({ blockedUser, setBlockedUsers }: BlockedItemProps) => {
   return (
     <div className="gap-4 py-2 lg:py-2.5 px-3 mx-3 rounded-md hover:bg-[#4A32B0]/30 transition-all duration-500 cursor-pointer flex items-center">
       <div className="flex-1 flex gap-3">
@@ -24,8 +20,8 @@ const RequestItem = ({
               width={40}
               height={40}
               className="aspect-square h-full w-full"
-              src={requests.user_photo || "/profile-circle.svg"}
-              alt="tst"
+              src={"/profile-circle.svg"}
+              alt={`${blockedUser.user_name} profile`}
               loading="eager"
             />
           </span>
@@ -33,20 +29,16 @@ const RequestItem = ({
         <div className="flex items-center">
           <div className="truncate max-w-[120px]">
             <span className="text-sm text-white font-medium">
-              {requests.user_name}
+              {blockedUser.user_name}
             </span>
           </div>
         </div>
       </div>
-      <div className="flex-none flex items-center justify-center  gap-2 ml-auto lg:ml-0">
-        <Options
-          requests={requests}
-          setRequests={setRequests}
-          setFriends={setFriends}
-        />
+      <div className="flex-none flex items-center justify-center gap-2 ml-auto lg:ml-0">
+        <Options setBlockedUsers={setBlockedUsers} blockedUser={blockedUser}  />
       </div>
     </div>
   );
 };
 
-export default RequestItem;
+export default BlockedItem;
