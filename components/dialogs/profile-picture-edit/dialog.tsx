@@ -14,7 +14,7 @@ import { MdOutlineCancel, MdOutlineFileUpload } from "react-icons/md";
 import { useRef, useState } from "react";
 import Image from "next/image";
 import { SlPicture } from "react-icons/sl";
-import { uploadProfilePicture } from "@/app/api/services/user.Service";
+import { uploadProfilePhoto } from "@/app/api/services/user.Service";
 import { useSession } from "next-auth/react";
 import { toast } from "sonner";
 
@@ -60,7 +60,7 @@ const ProfilePictureEditDialog = ({
     if (!selectedFile) return;
 
     try {
-      const result = await uploadProfilePicture(selectedFile, token);
+      const result = await uploadProfilePhoto(selectedFile, token);
 
       onUpload(result.data);
       setSelectedFile(null);

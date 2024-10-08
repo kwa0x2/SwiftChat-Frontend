@@ -7,6 +7,7 @@ export interface FriendModel {
   friend_mail: string;
   user_name: string;
   user_photo: string;
+  activeStatus: boolean
 }
 
 export interface FriendsProps {

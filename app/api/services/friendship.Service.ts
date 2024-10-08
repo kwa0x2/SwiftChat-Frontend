@@ -14,7 +14,7 @@ export const Blocked = async () => {
 // block user
 export const Block = async (friendMail:string) => {
     const body = {
-        mail : friendMail
+        email : friendMail
     }
     return await axios.patch("/friend/block",body)
 }
@@ -22,7 +22,7 @@ export const Block = async (friendMail:string) => {
 // remove friend
 export const Remove = async (friendMail: string) => {
     const body = {
-        mail : friendMail
+        email : friendMail
     }
     return await axios.delete("/friend", {
         data: body

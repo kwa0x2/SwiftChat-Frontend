@@ -3,7 +3,7 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { MdOutlineFileUpload, MdOutlineCancel } from "react-icons/md";
 import { SlPicture } from "react-icons/sl";
-import { uploadProfilePicture } from "@/app/api/services/user.Service";
+import { uploadProfilePhoto } from "@/app/api/services/user.Service";
 import { useSession } from "next-auth/react";
 import { toast } from "sonner";
 
@@ -35,7 +35,7 @@ const ProfilePicture = ({ user }: any) => {
     if (!selectedFile) return;
 
     try {
-      await uploadProfilePicture(selectedFile);
+      await uploadProfilePhoto(selectedFile);
       toast.success("Profile picture updated successfully.");
       setSelectedFile(null);
     } catch (error) {

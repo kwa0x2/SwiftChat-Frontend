@@ -124,6 +124,7 @@ const Options = ({
         friend_status: "friend",
         room_id,
         createdAt: new Date().toISOString(),
+        activeStatus: friend.activeStatus,
       };
 
       if (chatLists) {
@@ -141,7 +142,7 @@ const Options = ({
               user_email: friend.friend_mail,
               friend_status: "friend",
               createdAt: new Date().toISOString(),
-              activeStatus:false,
+              activeStatus: friend.activeStatus,
               last_message_id: ""
             })
           );
@@ -158,7 +159,7 @@ const Options = ({
             user_email: friend.friend_mail,
             friend_status: "friend",
             createdAt: new Date().toISOString(),
-            activeStatus:false,
+            activeStatus: friend.activeStatus,
             last_message_id: ""
           })
         );

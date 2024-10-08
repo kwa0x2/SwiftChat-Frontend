@@ -16,7 +16,7 @@ const LoginPage = () => {
     const fetchData = async () => {
       try {
         const res: any = await getLoggedInUser();
-
+        console.warn("login",res.data)
         if (res.error) setError(true);
 
         //kullanici basarili bir sekilde giris yapmis demektir
@@ -24,14 +24,14 @@ const LoginPage = () => {
           loginAction(
             res.data.id,
             res.data.name,
-            res.data.mail,
+            res.data.email,
             res.data.photo
           );
         }
       } catch (error: any) {
         setError(true);
         toast.error("An unknown error occurred. Please try again.");
-            }
+      }
     };
 
     fetchData();
