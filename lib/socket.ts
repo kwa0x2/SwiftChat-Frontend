@@ -8,13 +8,10 @@ export const handleSocketEmit = (
   onSuccess: (response: any) => void,
   onError: () => void
 ) => {
-  console.warn(socket)
 
   if (socket) {
-    console.warn("response",event)
 
     socket.emit(event, data, (response: any) => {
-      console.warn("response",response)
       if (response.status === "error") {
         onError();
       } else if (response.status === "success") {

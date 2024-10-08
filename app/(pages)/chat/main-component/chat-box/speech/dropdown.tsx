@@ -19,6 +19,7 @@ import { IoStarSharp } from "react-icons/io5";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/app/redux/store";
 import { deleteLastMessage, updateLastMessage } from "@/app/redux/slices/chatListSlice";
+import { FaRegStar } from "react-icons/fa";
 
 interface DropdownProps {
   msg: Message;
@@ -70,14 +71,15 @@ const Dropdown = ({
     }
   };
 
-  const handleStarMessage = () => {
+  const handleUpdateMessageType = () => {
     if (socket && user) {
       handleSocketEmit(
         socket,
-        "starMessage",
+        "updateMessageType",
         {
           room_id: friend.room_id,
           message_id: msg.message_id,
+          message_type: msg.message_type === "starred_text" ? "text" : "starred_text"
         },
         null,
         () => {},
@@ -109,9 +111,13 @@ const Dropdown = ({
             <DropdownMenuSeparator />
           </>
         )}
-        <DropdownMenuItem onClick={handleStarMessage}>
-          <FaStar className="mr-2 h-4 w-4 text-[#412c9c]" />
-          <span>Star</span>
+        <DropdownMenuItem onClick={handleUpdateMessageType}>
+          {msg.message_type === "starred_text" ? ( 
+            <FaRegStar className="mr-2 h-4 w-4 text-[#412c9c]" />
+          ) : (
+            <FaStar className="mr-2 h-4 w-4 text-[#412c9c]" />
+          )}
+          <span>{msg.message_type === "starred_text" ? "Unstar" : "Star"}</span> 
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

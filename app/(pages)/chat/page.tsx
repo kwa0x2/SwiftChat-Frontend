@@ -55,7 +55,6 @@ const ChatPage = () => {
   const getChatListHistoryData = async () => {
     const res = await getChatListHistory();
     if (res.status === 200) {
-      console.warn("chatlistnerw", res.data.data);
       dispatch(setChatList(res.data.data));
       dispatch(
         updateChatListActiveStatusByEmails({
@@ -142,7 +141,6 @@ const ChatPage = () => {
   }, [socketUrl, currentUser?.email]);
 
   const handleSocketResponse = (response: any) => {
-    console.warn("new", response);
     const { action, data } = response;
     // if (chatLists.length === 0) {
     //   getChatListHistoryData();
@@ -184,7 +182,6 @@ const ChatPage = () => {
 
     if (!roomExists) {
       getChatListHistoryData();
-      console.warn("onlineUsers2", onlineUsers.current);
      
     }
 
@@ -205,7 +202,6 @@ const ChatPage = () => {
         { room_id, message_id },
         "",
         () => {
-          console.warn("readed");
         },
         () => {
           toast.error("An unknown error occurred. Please try again later.");
@@ -247,7 +243,6 @@ const ChatPage = () => {
   const handleBlockedFriend = (data: any) => {
     if (chatLists) getChatListHistoryData();
     const { friend_mail, friend_status } = data;
-    console.warn("blocked data", data);
     dispatch(
       updateChatListFriendStatusByEmail({
         friend_status,
@@ -357,7 +352,6 @@ const ChatPage = () => {
     if (res.status === 200) {
       setRequests(res.data.data);
     } else {
-      console.warn("ya arkadaşlık isteği yok yada hata var", res);
       toast.error(
         "An issue occurred while fetching friends. Please try again later."
       );

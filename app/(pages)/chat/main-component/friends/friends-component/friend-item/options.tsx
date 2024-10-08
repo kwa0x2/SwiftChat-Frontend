@@ -46,7 +46,6 @@ const Options = ({
   const blockFriend = async () => {
     const res = await Block(friend.friend_mail);
     if (res.status === 200) {
-      console.warn("block friend req", res.data);
       setFriends((prev) =>
         prev.filter((req) => req.friend_mail !== friend.friend_mail)
       );
@@ -78,14 +77,12 @@ const Options = ({
       toast.error(
         "An unknown error occurred while trying to block the user."
       );
-      console.error(res);
     }
   };
 
   const deleteFriend = async () => {
     const res = await Remove(friend.friend_mail);
     if (res.status === 200) {
-      console.warn("delete friend req", res.data);
       setFriends((prev) =>
         prev.filter((req) => req.friend_mail !== friend.friend_mail)
       );
@@ -107,7 +104,6 @@ const Options = ({
       toast.error(
         "An unknown error occurred while trying to delete the friend."
       );
-      console.error(res);
     }
   };
   

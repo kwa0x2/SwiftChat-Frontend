@@ -35,7 +35,6 @@ const Options: React.FC<ComingRequestsProps> = ({
   ) => {
     const res = await UpdateFriendshipRequest(request.sender_mail, status);
     if (res.status === 200) {
-      console.warn("friendship request", res.data);
       if (status === RequestStatus.accepted) {
         setRequests((prevRequests) =>
           prevRequests.filter((req) => req.sender_mail !== request.sender_mail)
@@ -79,7 +78,6 @@ const Options: React.FC<ComingRequestsProps> = ({
       toast.error(
         "An unknown error occurred. Please try again later."
       );
-      console.error(res);
     }
   };
 
