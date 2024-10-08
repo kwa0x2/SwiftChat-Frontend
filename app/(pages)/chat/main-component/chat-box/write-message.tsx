@@ -38,14 +38,12 @@ const WriteMessage: React.FC<WriteMessageProps> = ({
     user_email: string
   ) => {
     if (socket && user) {
-      console.warn("asdadas")
       handleSocketEmit(
         socket,
         "sendMessage",
         { room_id, message, user_email },
         "",
         (message_id) => {
-          console.warn("addiedmessageid", message_id)
           dispatch(
             updateLastMessage({
               room_id,

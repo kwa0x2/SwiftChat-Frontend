@@ -50,7 +50,6 @@ const Options: React.FC<BlockedsProps> = ({
       toast.error(
         "An unknown error occurred while trying to remove the friend."
       );
-      console.error(res);
     }
   };
 

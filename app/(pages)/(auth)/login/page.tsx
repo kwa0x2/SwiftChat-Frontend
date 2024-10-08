@@ -16,7 +16,6 @@ const LoginPage = () => {
     const fetchData = async () => {
       try {
         const res: any = await getLoggedInUser();
-        console.warn("login",res.data)
         if (res.error) setError(true);
 
         //kullanici basarili bir sekilde giris yapmis demektir

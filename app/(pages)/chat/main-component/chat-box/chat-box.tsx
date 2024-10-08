@@ -32,7 +32,6 @@ const ChatBox: React.FC<ChatBoxProps> = ({
   const dispatch = useDispatch<AppDispatch>();
 
   useEffect(() => {
-    console.warn("chatReducerValue", chatReducerValue);
     const fetchHistory = async (room_id: string) => {
       const res = await getChatHistoryByRoomId(room_id);
       if (res.status === 200) {
@@ -56,7 +55,6 @@ const ChatBox: React.FC<ChatBoxProps> = ({
           { room_id: chatReducerValue.room_id },
           "",
           () => {
-            console.warn("readed");
           },
           () => {
             toast.error("An unknown error occurred. Please try again later.");
@@ -65,7 +63,6 @@ const ChatBox: React.FC<ChatBoxProps> = ({
 
         socket.on(chatReducerValue.room_id, (res: any) => {
           if (res.action === "new_message") {
-            console.warn("new");
             setMessages((prevMessages) => [...prevMessages, res.data]);
           } else if (res.action === "delete_message") {
             dispatch(
@@ -95,19 +92,18 @@ const ChatBox: React.FC<ChatBoxProps> = ({
                   : msg
               )
             );
-          } else if (res.action === "star_message") {
+          } else if (res.action === "updated_message_type") {
             setMessages((prevMessages) =>
               prevMessages.map((msg) =>
                 msg.message_id === res.data.message_id
                   ? {
                       ...msg,
-                      message_type: "starred_text",
+                      message_type: res.data.message_type,
                     }
                   : msg
               )
             );
           } else if (res.action === "read_message") {
-            console.warn("res.data", user.id);
             setMessages((prevMessages) =>
               prevMessages.map((msg) =>
                 msg.sender_id === user.id

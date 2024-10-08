@@ -69,9 +69,6 @@ const chatListSlice = createSlice({
       const existingMessage = state.chatLists?.find(
         (msg) => msg.room_id === action.payload.room_id
       );
-      console.warn("existingMessage.last_message_id",existingMessage?.last_message_id)
-      console.warn("existingMessage.last_message_id2",action.payload)
-
       if (
         existingMessage &&
         existingMessage.last_message_id === action.payload.message_id
