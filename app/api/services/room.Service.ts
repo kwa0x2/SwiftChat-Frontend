@@ -4,7 +4,7 @@ import axios from "../axios";
 
 export const checkAndGetPrivateRoom = async (friendMail: string) => {
     const body = {
-        mail: friendMail,
+        email: friendMail,
     }
     return await axios.post("/room/check", body);
 }

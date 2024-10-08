@@ -2,7 +2,7 @@ import FriendsSettings from "@/app/(pages)/chat/main-component/friends/page";
 import { RootState, useAppSelector } from "@/app/redux/store";
 import io, { Socket } from "socket.io-client";
 import Profile from "./profile/page";
-import { ComingRequestsModel } from "./friends/requests-component/requests";
+import { RequestsModel } from "./friends/requests-component/requests";
 import { FriendModel } from "./friends/friends-component/friends";
 import { BlockedModel } from "./friends/blocked-component/blocked";
 import ChatBox from "./chat-box/chat-box";
@@ -10,11 +10,12 @@ import ChatBox from "./chat-box/chat-box";
 interface MainComponentProps {
   user: any;
   socket: Socket | null;
-  setRequests: React.Dispatch<React.SetStateAction<ComingRequestsModel[]>>;
+  setRequests: React.Dispatch<React.SetStateAction<RequestsModel[]>>;
   setFriends: React.Dispatch<React.SetStateAction<FriendModel[]>>;
-  requests: ComingRequestsModel[];
+  requests: RequestsModel[];
   friends: FriendModel[];
   blockedUsers: BlockedModel[];
+  onlineUsers: string[]
   setBlockedUsers: React.Dispatch<React.SetStateAction<BlockedModel[]>>;
 }
 

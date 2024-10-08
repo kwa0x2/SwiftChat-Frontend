@@ -6,7 +6,7 @@ import {
 } from "@/components/ui/tooltip";
 import { BsCheckLg } from "react-icons/bs";
 import { LiaTimesSolid } from "react-icons/lia";
-import { ComingRequestsModel } from "../requests";
+import { RequestsModel } from "../requests";
 import { RequestStatus } from "@/models/Enum";
 import { toast } from "sonner";
 import { FriendModel } from "../../friends-component/friends";
@@ -17,8 +17,8 @@ import { updateChatFriendStatusByEmail } from "@/app/redux/slices/chatSlice";
 import { UpdateFriendshipRequest } from "@/app/api/services/request.Service";
 
 interface ComingRequestsProps {
-  requests: ComingRequestsModel;
-  setRequests: React.Dispatch<React.SetStateAction<ComingRequestsModel[]>>;
+  requests: RequestsModel;
+  setRequests: React.Dispatch<React.SetStateAction<RequestsModel[]>>;
   setFriends: React.Dispatch<React.SetStateAction<FriendModel[]>>;
 }
 
@@ -30,7 +30,7 @@ const Options: React.FC<ComingRequestsProps> = ({
   const dispatch = useDispatch<AppDispatch>();
 
   const updateFriendshipRequest = async (
-    request: ComingRequestsModel,
+    request: RequestsModel,
     status: RequestStatus
   ) => {
     const res = await UpdateFriendshipRequest(request.sender_mail, status);
@@ -45,6 +45,7 @@ const Options: React.FC<ComingRequestsProps> = ({
           friend_mail: request.sender_mail,
           user_name: requests.user_name,
           user_photo: request.user_photo,
+          activeStatus: request.activeStatus,
         };
 
         setFriends((prevRequests) => {

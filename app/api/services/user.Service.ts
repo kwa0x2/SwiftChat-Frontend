@@ -7,7 +7,7 @@ export const updateUsernameByMail = async (userName: string) => {
   return await axios.patch("/user/username", body);
 };
 
-export const uploadProfilePicture = async (file: File, token?: string) => {
+export const uploadProfilePhoto = async (file: File, token?: string) => {
   const formData = new FormData();
   formData.append("file", file);
 
@@ -19,7 +19,7 @@ export const uploadProfilePicture = async (file: File, token?: string) => {
     headers["Authorization"] = token;
   }
 
-  return await axios.post("/user/upload-profile-picture", formData, {
+  return await axios.post("/user/upload-profile-photo", formData, {
     headers,
   });
 };

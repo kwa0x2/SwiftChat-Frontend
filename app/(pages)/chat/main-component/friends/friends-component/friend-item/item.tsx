@@ -38,6 +38,12 @@ const FriendItem = ({
                     loading="eager"
                   />
                 </span>
+
+                {friend.activeStatus ? (
+                  <span className="inline-flex rounded-full h-2 w-2 p-0 ring-1 ring-border ring-green-500 items-center justify-center absolute left-[calc(100%-8px)] top-[calc(100%-10px)] bg-green-500" />
+                ) : (
+                  <div className="inline-flex rounded-full border text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 bg-success border-transparent text-success-foreground h-2 w-2 p-0 ring-1 ring-border ring-offset-[1px] items-center justify-center absolute left-[calc(100%-8px)] top-[calc(100%-10px)]"></div>
+                )}
               </div>
               <div className="flex items-center">
                 <div className="truncate max-w-[120px]">

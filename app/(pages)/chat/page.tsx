@@ -1,7 +1,7 @@
 "use client";
 
 import { useCurrentUser } from "@/hooks/use-current-user";
-import { SetStateAction, useEffect, useState } from "react";
+import { SetStateAction, useEffect, useRef, useState } from "react";
 import Sidebar from "./sidebar/sidebar";
 import io, { Socket } from "socket.io-client";
 import MainComponent from "@/app/(pages)/chat/main-component/page";
@@ -18,7 +18,7 @@ import {
 } from "@/app/redux/slices/chatListSlice";
 import { getChatListHistory } from "@/app/api/services/room.Service";
 import { toast } from "sonner";
-import { ComingRequestsModel } from "./main-component/friends/requests-component/requests";
+import { RequestsModel } from "./main-component/friends/requests-component/requests";
 import { FriendModel } from "./main-component/friends/friends-component/friends";
 import { BlockedModel } from "./main-component/friends/blocked-component/blocked";
 import { ComingRequests } from "@/app/api/services/request.Service";
@@ -33,30 +33,50 @@ import { handleSocketEmit } from "@/lib/socket";
 
 const ChatPage = () => {
   const currentUser = useCurrentUser();
-  const [socket, setSocket] = useState<Socket | null>(null);
+  const socketRef = useRef<Socket | null>(null);
   const socketUrl = process.env.SOCKET_IO_URL;
   const chatLists = useSelector(
     (state: RootState) => state.chatListReducer.chatLists
   );
-  const componentReducerValue = useAppSelector(
-    (state) => state.componentReducer
+  const componentReducerValue = useSelector(
+    (state: RootState) => state.componentReducer
   );
-
+  const componentReducerRef = useRef(componentReducerValue);
+  const chatListsRef = useRef(chatLists);
+  const onlineUsers = useRef<string[]>([]);
   const dispatch = useDispatch<AppDispatch>();
   const [highlightedRoomId, setHighlightedRoomId] = useState<string | null>(
     null
   );
-  const [requests, setRequests] = useState<ComingRequestsModel[]>([]);
+  const [requests, setRequests] = useState<RequestsModel[]>([]);
   const [friends, setFriends] = useState<FriendModel[]>([]);
   const [blockedUsers, setBlockedUsers] = useState<BlockedModel[]>([]);
 
   const getChatListHistoryData = async () => {
     const res = await getChatListHistory();
     if (res.status === 200) {
-      console.warn("chatlistnerw", res.data);
-      dispatch(setChatList(res.data));
+      console.warn("chatlistnerw", res.data.data);
+      dispatch(setChatList(res.data.data));
+      dispatch(
+        updateChatListActiveStatusByEmails({
+          activeEmails: onlineUsers.current,
+        })
+      );
+      dispatch(
+        updateChatActiveStatusByEmails({
+          activeEmails: onlineUsers.current,
+        })
+      );
     }
   };
+
+  useEffect(() => {
+    componentReducerRef.current = componentReducerValue;
+  }, [componentReducerValue]);
+
+  useEffect(() => {
+    chatListsRef.current = chatLists;
+  }, [chatLists]);
 
   useEffect(() => {
     const newSocket = io(socketUrl as string, {
@@ -71,6 +91,8 @@ const ChatPage = () => {
 
     newSocket.emit("joinRoom", "notification");
 
+    socketRef.current = newSocket;
+
     if (currentUser && currentUser.email) {
       getChatListHistoryData();
       getRequestData();
@@ -82,7 +104,7 @@ const ChatPage = () => {
       );
 
       newSocket.on("onlineUsers", (response: any) => {
-        console.warn("onlineUsers", response);
+        onlineUsers.current = response;
         dispatch(
           updateChatListActiveStatusByEmails({
             activeEmails: response,
@@ -93,50 +115,40 @@ const ChatPage = () => {
             activeEmails: response,
           })
         );
+
+        setFriends((prevFriends) =>
+          prevFriends?.map((friend) =>
+            response.includes(friend.friend_mail)
+              ? { ...friend, activeStatus: true }
+              : { ...friend, activeStatus: false }
+          )
+        );
+
+        setRequests((prevRequests) =>
+          prevRequests?.map((requests) =>
+            response.includes(requests.sender_mail)
+              ? { ...requests, activeStatus: true }
+              : { ...requests, activeStatus: false }
+          )
+        );
       });
     }
-
-    setSocket(newSocket);
 
     return () => {
       if (currentUser && currentUser.email) {
         newSocket.off(currentUser.email);
       }
     };
-  }, [socketUrl, currentUser?.email, componentReducerValue]);
+  }, [socketUrl, currentUser?.email]);
 
   const handleSocketResponse = (response: any) => {
     console.warn("new", response);
     const { action, data } = response;
-
+    // if (chatLists.length === 0) {
+    //   getChatListHistoryData();
+    // }
     if (action === "new_message") {
-      console.warn("activeComponent", componentReducerValue.friendStatus);
-      const { room_id, message, message_id, updatedAt } = data;
-      dispatch(
-        updateLastMessage({
-          room_id,
-          message,
-          message_id,
-          updatedAt,
-        })
-      );
-      if (componentReducerValue.activeComponent !== "chat") {
-        setHighlightedRoomId(room_id);
-      } else if (componentReducerValue.friendStatus === "friend") {
-        handleSocketEmit(
-          socket,
-          "readMessage",
-          { room_id, message_id },
-          "",
-          () => {
-            console.warn("readed");
-          },
-          () => {
-            toast.error("An unknown error occurred. Please try again later.");
-          }
-        );
-      }
-      if (!chatLists) getChatListHistoryData();
+      handleNewMessage(data);
     } else if (action === "update_friendship_request") {
       handleFriendshipUpdate(data);
     } else if (action === "friend_request") {
@@ -163,10 +175,51 @@ const ChatPage = () => {
     }
   };
 
+  const handleNewMessage = (data: any) => {
+    const { room_id, message, message_id, updatedAt } = data;
+
+    const roomExists = chatListsRef.current?.some(
+      (chat) => chat.room_id === room_id
+    );
+
+    if (!roomExists) {
+      getChatListHistoryData();
+      console.warn("onlineUsers2", onlineUsers.current);
+     
+    }
+
+    dispatch(
+      updateLastMessage({
+        room_id,
+        message,
+        message_id,
+        updatedAt,
+      })
+    );
+    if (componentReducerRef.current.activeComponent !== "chat") {
+      setHighlightedRoomId(room_id);
+    } else if (componentReducerRef.current.friendStatus === "friend") {
+      handleSocketEmit(
+        socketRef.current,
+        "readMessage",
+        { room_id, message_id },
+        "",
+        () => {
+          console.warn("readed");
+        },
+        () => {
+          toast.error("An unknown error occurred. Please try again later.");
+        }
+      );
+    }
+  };
+
   const handleFriendshipUpdate = (data: any) => {
     if (data.status === "accepted") {
+      const updatedData = { ...data.user_data, activeStatus: true };
+
       setFriends((prev) =>
-        Array.isArray(prev) ? [...prev, data.user_data] : [data.user_data]
+        Array.isArray(prev) ? [...prev, updatedData] : [updatedData]
       );
       dispatch(
         updateChatListFriendStatusByEmail({
@@ -185,7 +238,9 @@ const ChatPage = () => {
   };
 
   const handleFriendRequest = (data: any) => {
-    setRequests((prev) => (Array.isArray(prev) ? [...prev, data] : [data]));
+    const updatedData = { ...data, activeStatus: true };
+
+    setRequests((prev) => (Array.isArray(prev) ? [...prev, updatedData] : [updatedData]));
     toast.info(`${data.user_name} has sent you a friend request.`);
   };
 
@@ -239,6 +294,30 @@ const ChatPage = () => {
         user_email,
       })
     );
+
+    setFriends((prevFriends) =>
+      prevFriends?.map((friend) =>
+        friend.friend_mail === user_email
+          ? { ...friend, user_name: updated_username }
+          : friend
+      )
+    );
+
+    setRequests((prevRequests) =>
+      prevRequests?.map((request) =>
+        request.sender_mail === user_email
+          ? { ...request, user_name: updated_username }
+          : request
+      )
+    );
+
+    setBlockedUsers((prevBlockedUsers) =>
+      prevBlockedUsers?.map((blockedUsers) =>
+        blockedUsers.blocked_mail === user_email
+          ? { ...blockedUsers, user_name: updated_username }
+          : blockedUsers
+      )
+    );
   };
 
   const handleUpdateUserPhoto = (data: any) => {
@@ -255,12 +334,28 @@ const ChatPage = () => {
         user_email,
       })
     );
+
+    setFriends((prevFriends) =>
+      prevFriends?.map((friend) =>
+        friend.friend_mail === user_email
+          ? { ...friend, user_photo: updated_user_photo }
+          : friend
+      )
+    );
+
+    setRequests((prevRequests) =>
+      prevRequests?.map((request) =>
+        request.sender_mail === user_email
+          ? { ...request, user_photo: updated_user_photo }
+          : request
+      )
+    );
   };
 
   const getRequestData = async () => {
     const res = await ComingRequests();
     if (res.status === 200) {
-      setRequests(res.data);
+      setRequests(res.data.data);
     } else {
       console.warn("ya arkadaşlık isteği yok yada hata var", res);
       toast.error(
@@ -272,7 +367,7 @@ const ChatPage = () => {
   const getFriendsData = async () => {
     const res = await Friends();
     if (res.status === 200) {
-      setFriends(res.data);
+      setFriends(res.data.data);
     } else {
       toast.error(
         "An issue occurred while fetching friends. Please try again later."
@@ -287,7 +382,7 @@ const ChatPage = () => {
         "An unknown error occurred while retrieving blocked users. Please try again later."
       );
     } else {
-      setBlockedUsers(res.data);
+      setBlockedUsers(res.data.data);
     }
   };
 
@@ -304,7 +399,8 @@ const ChatPage = () => {
       <MainComponent
         setBlockedUsers={setBlockedUsers}
         user={currentUser}
-        socket={socket}
+        onlineUsers={onlineUsers.current}
+        socket={socketRef.current}
         setRequests={setRequests}
         setFriends={setFriends}
         requests={requests}

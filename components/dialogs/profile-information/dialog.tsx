@@ -2,21 +2,12 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { MdOutlineCancel, MdOutlineFileUpload } from "react-icons/md";
-import { useRef, useState } from "react";
 import Image from "next/image";
-import { SlPicture } from "react-icons/sl";
-import { uploadProfilePicture } from "@/app/api/services/user.Service";
-import { useSession } from "next-auth/react";
-import { toast } from "sonner";
 
 interface ProfileInformationDialogProps {
   isOpen: boolean;

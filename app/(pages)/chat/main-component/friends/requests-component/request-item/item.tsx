@@ -1,12 +1,12 @@
 "use client";
 import Image from "next/image";
 import Options from "./option";
-import { ComingRequestsModel } from "../requests";
+import { RequestsModel } from "../requests";
 import { FriendModel } from "../../friends-component/friends";
 
 interface ComingRequestsProps {
-  requests: ComingRequestsModel;
-  setRequests: React.Dispatch<React.SetStateAction<ComingRequestsModel[]>>;
+  requests: RequestsModel;
+  setRequests: React.Dispatch<React.SetStateAction<RequestsModel[]>>;
   setFriends: React.Dispatch<React.SetStateAction<FriendModel[]>>;
 }
 

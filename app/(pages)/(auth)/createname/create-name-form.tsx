@@ -36,6 +36,7 @@ const CreateNameForm = ({token, user_photo}: CreateNameFormProps) => {
     
         try {
             const res = await signup(token, values.username, user_photo);
+            
             if (res.status === 201) {
                 await loginAction(
                     res.data.user_id,

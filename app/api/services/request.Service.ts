@@ -8,14 +8,14 @@ export const ComingRequests = async () => {
 
 export const SendFriendRequest = async (email: string) => {
     const body = {
-        mail: email,
+        email: email,
     };
     return await axios.post("/request", body);
 };
 
 export const UpdateFriendshipRequest = async (senderMail: string, status: RequestStatus) => {
     const body = {
-        mail: senderMail,
+        email: senderMail,
         status: status,
     }
     return await axios.patch("/request", body)

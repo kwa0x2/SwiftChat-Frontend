@@ -36,7 +36,7 @@ const ChatBox: React.FC<ChatBoxProps> = ({
     const fetchHistory = async (room_id: string) => {
       const res = await getChatHistoryByRoomId(room_id);
       if (res.status === 200) {
-        setMessages(res.data);
+        setMessages(res.data.data);
       } else {
         toast.error(
           "An unknown error occurred while retrieving messages. Please try again later."
@@ -90,7 +90,6 @@ const ChatBox: React.FC<ChatBoxProps> = ({
                 msg.message_id === res.data.message_id
                   ? {
                       ...msg,
-                      updatedAt: new Date().toISOString(),
                       message: res.data.edited_message,
                     }
                   : msg

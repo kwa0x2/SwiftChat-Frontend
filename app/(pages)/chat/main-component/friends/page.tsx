@@ -2,7 +2,7 @@ import CustomCard from "@/components/custom-card";
 import AddFriend from "./add-friends";
 import FriendsComponent, { FriendModel } from "./friends-component/friends";
 import RequestsComponent, {
-  ComingRequestsModel,
+  RequestsModel,
 } from "./requests-component/requests";
 import BlockedComponent, {
   BlockedModel,
@@ -11,9 +11,9 @@ import { Socket } from "socket.io-client";
 
 interface FriendsSettingsProps {
   user: any;
-  setRequests: React.Dispatch<React.SetStateAction<ComingRequestsModel[]>>;
+  setRequests: React.Dispatch<React.SetStateAction<RequestsModel[]>>;
   setFriends: React.Dispatch<React.SetStateAction<FriendModel[]>>;
-  requests: ComingRequestsModel[];
+  requests: RequestsModel[];
   friends: FriendModel[];
   blockedUsers: BlockedModel[];
   setBlockedUsers: React.Dispatch<React.SetStateAction<BlockedModel[]>>;
