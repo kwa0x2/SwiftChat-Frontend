@@ -22,31 +22,31 @@ const Speech: React.FC<SpeechProps> = ({ user, messages, socket, friend }) => {
 
   return (
     <ScrollArea className="rounded-md">
-      <div className="mt-3 p-6 pt-0 relative flex-1 overflow-y-auto">
-        {messages.map((msg) =>
-          msg.sender_id === user.id ? (
-            <RightBubble
-              key={msg.message_id}
-              group={false}
-              user={user}
-              msg={msg}
-              socket={socket}
-              friend={friend}
-            />
-          ) : (
-            <LeftBubble
-              key={msg.message_id}
-              group={false}
-              user={user}
-              msg={msg}
-              friend={friend}
-              socket={socket}
-            />
-          )
-        )}
-        <div ref={endOfMessagesRef} />
-      </div>
-    </ScrollArea>
+    <div className="mt-3 p-6 pt-0 z-20 relative flex-1 overflow-y-auto">
+      {messages.map((msg) =>
+        msg.sender_id === user.id ? (
+          <RightBubble
+            key={msg.message_id}
+            group={false}
+            user={user}
+            msg={msg}
+            socket={socket}
+            friend={friend}
+          />
+        ) : (
+          <LeftBubble
+            key={msg.message_id}
+            group={false}
+            user={user}
+            msg={msg}
+            friend={friend}
+            socket={socket}
+          />
+        )
+      )}
+      <div ref={endOfMessagesRef} />
+    </div>
+  </ScrollArea>
   );
 };
 

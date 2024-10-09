@@ -4,6 +4,8 @@ import { MdBlock } from "react-icons/md";
 import { ChatSliceModel } from "@/app/redux/slices/chatSlice";
 import { Socket } from "socket.io-client";
 import { FaStar } from "react-icons/fa";
+import { FaFile } from "react-icons/fa6";
+import { MdReportGmailerrorred } from "react-icons/md";
 
 interface LeftBubbleProps {
   user: any;
@@ -21,6 +23,76 @@ const LeftBubble: React.FC<LeftBubbleProps> = ({
   friend,
   socket,
 }) => {
+  const getFileNameAndUrl = (message: string) => {
+    const urlParts = message.split("/");
+    const fileName = urlParts.pop();
+    const fileContent = fileName?.split("_").slice(1).join("_");
+
+    if (!fileName) {
+      return { fileName: null, finalUrl: null }; // Dosya adı bulunamazsa null döner
+    }
+
+    const baseUrl = urlParts.join("/");
+    const encodedFileName = encodeURIComponent(fileName);
+    const finalUrl = `${baseUrl}/${encodedFileName}`;
+
+    return { fileName, finalUrl };
+  };
+
+  const renderMessageContent = () => {
+    if (msg.deletedAt) {
+      return (
+        <div className="flex items-center gap-2">
+          <MdBlock className="h-4 w-4" />
+          <span>This message has been deleted.</span>
+        </div>
+      );
+    }
+
+    if (msg.message_type === "photo") {
+      const { fileName, finalUrl } = getFileNameAndUrl(msg.message);
+
+      if (finalUrl) {
+        return (
+          <Image
+            onClick={() => window.open(finalUrl ? finalUrl : "", "_blank")}
+            width={100}
+            height={100}
+            className="rounded-md h-[250px] w-auto"
+            src={finalUrl ? finalUrl : "/error-image-generic.png"}
+            alt="Selected Image"
+            loading="eager"
+          />
+        );
+      } else {
+        return <span>An error occurred while rendering the image.</span>;
+      }
+    }
+
+    if (msg.message_type === "file") {
+      const { fileName, finalUrl } = getFileNameAndUrl(msg.message);
+
+      return (
+        <div className="flex items-center gap-2">
+          {finalUrl ? (
+            <FaFile className=" h-[75px] w-[75px]" />
+          ) : (
+            <MdReportGmailerrorred className="text-red-500 h-[75px] w-[75px]" />
+          )}
+          <a
+            href={finalUrl ? finalUrl : ""}
+            target={finalUrl ? "_blank" : ""}
+            rel="noopener noreferrer"
+          >
+            {fileName ? fileName : "File name not found."}
+          </a>
+        </div>
+      );
+    }
+
+    return msg.message;
+  };
+
   return (
     <div className="block md:px-6 px-4">
       <div className="flex space-x-2 items-start group rtl:space-x-reverse mb-4">
@@ -44,20 +116,21 @@ const LeftBubble: React.FC<LeftBubbleProps> = ({
             <div className="flex items-center gap-1">
               <div className="whitespace-pre-wrap break-all relative z-[1]">
                 <div
-                  className={`bg-[#1f2937] text-sm py-2 px-3 rounded-2xl flex-1 ${
-                    msg.deletedAt
-                      ? "text-gray-500 italic"
-                      : "text-primary-foreground"
-                  }`}
+                  className={`text-sm py-2 rounded-2xl
+                    ${
+                      msg.message_type !== "photo"
+                        ? "bg-[#1f2937] px-3"
+                        : "px-0"
+                    } 
+                    ${msg.message_type === "file" ? "px-0 pr-3" : ""} 
+                    ${
+                      msg.deletedAt
+                        ? "bg-[#1f2937] !px-3 text-gray-500 italic"
+                        : "text-primary-foreground"
+                    }
+                  `}
                 >
-                  {msg.deletedAt ? (
-                    <div className="flex items-center gap-2">
-                      <MdBlock className="h-4 w-4" />
-                      <span>This message has been deleted.</span>
-                    </div>
-                  ) : (
-                    msg.message
-                  )}
+                  {renderMessageContent()}
                 </div>
               </div>
               {!msg.deletedAt && friend.friend_status === "friend" && (
@@ -91,7 +164,7 @@ const LeftBubble: React.FC<LeftBubbleProps> = ({
               {!msg.deletedAt && msg.updatedAt !== msg.createdAt && (
                 <span className="italic pl-1">Edited</span>
               )}
-              {msg.message_type === "starred_text" && !msg.deletedAt && (
+              {msg.message_starred === true && !msg.deletedAt && (
                 <FaStar className="text-[#412c9c] w-3 h-3" />
               )}
             </div>

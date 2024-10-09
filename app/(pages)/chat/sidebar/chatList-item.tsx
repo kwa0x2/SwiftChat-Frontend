@@ -9,6 +9,10 @@ import {
   setActiveComponent,
   setFriendStatus,
 } from "@/app/redux/slices/componentSlice";
+import { LuImage } from "react-icons/lu";
+import { FaRegFile } from "react-icons/fa";
+import { getFileNameAndUrl } from "@/lib/utils";
+import { MdBlock } from "react-icons/md";
 
 interface ChatListItemProps {
   chatList: ChatListItemModel;
@@ -40,6 +44,51 @@ const ChatListItem: React.FC<ChatListItemProps> = ({
     dispatch(setFriendStatus(chatList.friend_status));
 
     onClick();
+  };
+
+  const renderMessageContent = () => {
+    if (chatList.message_deleted_at) {
+      return (
+        <div className="flex items-center gap-2">
+          <span>Message deleted.</span>
+        </div>
+      );
+    }
+
+    if (chatList.message_type === "photo") {
+      return (
+        <div className="flex items-center gap-1">
+          <LuImage className="h-4 w-4" /> <span>Image</span>
+        </div>
+      );
+    }
+
+    if (chatList.message_type === "file") {
+      const { fileName } = getFileNameAndUrl(chatList.last_message);
+
+      if (fileName) {
+        const fileExtension = fileName.slice(fileName.lastIndexOf("."));
+        const truncatedFileName = fileName.slice(0, 9) + ".." + fileExtension;
+
+        return (
+          <div className="flex items-center gap-1">
+            <FaRegFile className="h-4 w-4" /> <span>{truncatedFileName}</span>
+          </div>
+        );
+      }
+    }
+
+    if (chatList.message_type === "text") {
+      return (
+        <span>
+          {chatList.last_message.length >= 15
+            ? chatList.last_message.substring(0, 15) + "..."
+            : chatList.last_message}
+        </span>
+      );
+    }
+
+    return null;
   };
 
   return (
@@ -101,11 +150,7 @@ const ChatListItem: React.FC<ChatListItemProps> = ({
                 }
               )}
             >
-              {chatList.message_deleted_at
-                ? "Mesaj silindi"
-                : chatList.last_message.length >= 15
-                ? chatList.last_message.substring(0, 15) + "..."
-                : chatList.last_message}
+              {renderMessageContent()}
             </span>
           </div>
         </div>

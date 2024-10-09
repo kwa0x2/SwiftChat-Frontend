@@ -12,6 +12,7 @@ export interface ChatListItemModel {
   createdAt: string;
   message_deleted_at?: string;
   activeStatus: boolean;
+  message_type: "text" | "file" | "photo"
 }
 
 interface InitialState {
@@ -40,6 +41,7 @@ const chatListSlice = createSlice({
         message: string;
         message_id: string;
         updatedAt: string;
+        message_type: "text" | "file" | "photo"
       }>
     ) => {
       const existingMessage = state.chatLists?.find(
@@ -49,6 +51,8 @@ const chatListSlice = createSlice({
         existingMessage.last_message = action.payload.message;
         existingMessage.updatedAt = action.payload.updatedAt;
         existingMessage.last_message_id = action.payload.message_id;
+        existingMessage.message_type = action.payload.message_type;
+        existingMessage.message_deleted_at = undefined
         state.chatLists = [
           existingMessage,
           ...state.chatLists.filter(

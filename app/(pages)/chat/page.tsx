@@ -99,6 +99,7 @@ const ChatPage = () => {
       getBlockedUsersData();
 
       newSocket.on(currentUser.email, (response: any) =>
+        
         handleSocketResponse(response)
       );
 
@@ -141,6 +142,8 @@ const ChatPage = () => {
   }, [socketUrl, currentUser?.email]);
 
   const handleSocketResponse = (response: any) => {
+    console.warn("email socket", response)
+
     const { action, data } = response;
     // if (chatLists.length === 0) {
     //   getChatListHistoryData();
@@ -174,7 +177,7 @@ const ChatPage = () => {
   };
 
   const handleNewMessage = (data: any) => {
-    const { room_id, message, message_id, updatedAt } = data;
+    const { room_id, message, message_id, updatedAt, message_type } = data;
 
     const roomExists = chatListsRef.current?.some(
       (chat) => chat.room_id === room_id
@@ -191,6 +194,7 @@ const ChatPage = () => {
         message,
         message_id,
         updatedAt,
+        message_type
       })
     );
     if (componentReducerRef.current.activeComponent !== "chat") {

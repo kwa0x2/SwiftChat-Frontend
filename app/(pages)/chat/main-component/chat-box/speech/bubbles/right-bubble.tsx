@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Dropdown from "../dropdown";
-import { extractTime } from "@/lib/utils";
+import { extractTime, getFileNameAndUrl } from "@/lib/utils";
 import { Message } from "@/models/Message";
 import { useEffect, useRef, useState } from "react";
 import { CiCircleCheck, CiCircleRemove } from "react-icons/ci";
@@ -14,6 +14,8 @@ import { PiCheckBold } from "react-icons/pi";
 import { FiCheck } from "react-icons/fi";
 import { IoMdStar } from "react-icons/io";
 import { FaStar } from "react-icons/fa";
+import { FaFile } from "react-icons/fa6";
+import { MdReportGmailerrorred } from "react-icons/md";
 
 interface RightBubbleProps {
   user: any;
@@ -92,6 +94,48 @@ const RightBubble: React.FC<RightBubbleProps> = ({
         </div>
       );
     }
+
+    if (msg.message_type === "photo") {
+      const { fileName, finalUrl } = getFileNameAndUrl(msg.message);
+
+      if (finalUrl) {
+        return (
+          <Image
+            onClick={() => window.open(finalUrl ? finalUrl : "", "_blank")}
+            width={100}
+            height={100}
+            className="rounded-md h-[250px] w-auto"
+            src={finalUrl ? finalUrl : "/error-image-generic.png"}
+            alt="Selected Image"
+            loading="eager"
+          />
+        );
+      } else {
+        return <span>An error occurred while rendering the image.</span>;
+      }
+    }
+
+    if (msg.message_type === "file") {
+      const { fileName, finalUrl } = getFileNameAndUrl(msg.message);
+
+      return (
+        <div className="flex items-center gap-2">
+          {finalUrl ? (
+            <FaFile className=" h-[75px] w-[75px]" />
+          ) : (
+            <MdReportGmailerrorred className="text-red-500 h-[75px] w-[75px]" />
+          )}
+          <a
+            href={finalUrl ? finalUrl : ""}
+            target={finalUrl ? "_blank" : ""}
+            rel="noopener noreferrer"
+          >
+            {fileName ? fileName : "File name not found."}
+          </a>
+        </div>
+      );
+    }
+
     return msg.message;
   };
 
@@ -105,7 +149,7 @@ const RightBubble: React.FC<RightBubbleProps> = ({
               friend.friend_status === "friend" && (
                 <div className="opacity-0 invisible group-hover:opacity-100 group-hover:visible">
                   <span
-                    className="w-7 h-7 rounded-full bg-default-100 flex items-center justify-center"
+                    className="w-7 h-7 rounded-full bg-default-100 flex items-center justify-end"
                     id="radix-:r1a:"
                     aria-haspopup="menu"
                     aria-expanded="false"
@@ -146,11 +190,19 @@ const RightBubble: React.FC<RightBubbleProps> = ({
               ) : (
                 <div
                   ref={messageRef}
-                  className={`bg-[#231758] text-sm py-2 px-3 rounded-2xl  ${
-                    msg.deletedAt
-                      ? "text-gray-500 italic"
-                      : "text-primary-foreground"
-                  }`}
+                  className={`text-sm py-2 rounded-2xl
+                    ${
+                      msg.message_type !== "photo"
+                        ? "bg-[#231758] px-3"
+                        : "px-0"
+                    } 
+                    ${msg.message_type === "file" ? "px-0 pr-3" : ""} 
+                    ${
+                      msg.deletedAt
+                        ? "bg-[#231758] !px-3  text-gray-500 italic"
+                        : "text-primary-foreground"
+                    }
+                  `}
                 >
                   {renderMessageContent()}
                 </div>
@@ -158,7 +210,7 @@ const RightBubble: React.FC<RightBubbleProps> = ({
             </div>
           </div>
           <div className="flex items-start text-xs gap-1 justify-end text-gray-500">
-            {msg.message_type === "starred_text" && !msg.deletedAt && (
+            {msg.message_starred === true && !msg.deletedAt && (
               <FaStar className="text-[#412c9c] w-3 h-3" />
             )}
             {!msg.deletedAt && msg.updatedAt !== msg.createdAt && (
