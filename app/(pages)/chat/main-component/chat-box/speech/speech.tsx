@@ -18,7 +18,7 @@ const Speech: React.FC<SpeechProps> = ({ user, messages, socket, friend }) => {
 
   useEffect(() => {
     endOfMessagesRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+  }, [messages.length]);
 
   return (
     <ScrollArea className="rounded-md">
@@ -27,7 +27,6 @@ const Speech: React.FC<SpeechProps> = ({ user, messages, socket, friend }) => {
         msg.sender_id === user.id ? (
           <RightBubble
             key={msg.message_id}
-            group={false}
             user={user}
             msg={msg}
             socket={socket}
@@ -36,7 +35,6 @@ const Speech: React.FC<SpeechProps> = ({ user, messages, socket, friend }) => {
         ) : (
           <LeftBubble
             key={msg.message_id}
-            group={false}
             user={user}
             msg={msg}
             friend={friend}

@@ -12,9 +12,17 @@ interface SidebarProps {
   user: any;
   highlightedRoomId: string | null;
   setHighlightedRoomId: React.Dispatch<React.SetStateAction<string | null>>;
+  isOpenChatList: boolean;
+  setIsOpenChatList: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const Sidebar = ({ user, highlightedRoomId, setHighlightedRoomId }: SidebarProps) => {
+const Sidebar = ({
+  user,
+  highlightedRoomId,
+  setHighlightedRoomId,
+  isOpenChatList,
+  setIsOpenChatList,
+}: SidebarProps) => {
   const chatLists = useSelector(
     (state: RootState) => state.chatListReducer.chatLists
   );
@@ -26,15 +34,21 @@ const Sidebar = ({ user, highlightedRoomId, setHighlightedRoomId }: SidebarProps
     if (highlightedRoomId === room_id) {
       setHighlightedRoomId(null);
     }
+    setIsOpenChatList(false);
   };
-  
+
   const filteredMessages = chatLists?.filter((msg: ChatListItemModel) =>
     msg.user_name.toLowerCase().startsWith(searchQuery.toLowerCase())
   );
 
+
   return (
-    <CustomCard className="hidden lg:flex flex-col flex-none min-w-[260px] max-h-full">
-      <UserProfile user={user} onSearch={setSearchQuery} />
+    <CustomCard
+      className={`${
+        isOpenChatList ? "flex" : "hidden"
+      } lg:flex flex-col   min-w-full lg:min-w-[260px] max-h-full`}
+    >
+      <UserProfile user={user} onSearch={setSearchQuery}  setIsOpenChatList={setIsOpenChatList} />
       <ScrollArea className="flex-1 rounded-md overflow-auto">
         <div className="pt-3">
           {filteredMessages?.map((chatList: ChatListItemModel) => (
@@ -49,6 +63,7 @@ const Sidebar = ({ user, highlightedRoomId, setHighlightedRoomId }: SidebarProps
         </div>
       </ScrollArea>
     </CustomCard>
+
   );
 };
 

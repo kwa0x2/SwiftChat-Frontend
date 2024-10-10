@@ -18,6 +18,7 @@ export const logoutAction = async () => {
         cookies().delete(process.env.SESSION_COOKIE_NAME || "connect.sid");
         //istek basarili ise auth.js tarafindan cikis islemlerini baslatiyoruz
         await signOut();
+        
       }
     });
   } catch (error) {

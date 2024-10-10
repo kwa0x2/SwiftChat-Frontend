@@ -15,21 +15,21 @@ interface BlockedProps {
 }
 
 const BlockedComponent = ({ blockedUsers, setBlockedUsers }: BlockedProps) => {
+
+
   return (
-    <CustomCard className="bg-transparent rounded-md border border-[#5C6B81] flex-1 flex flex-col justify-between">
+    <CustomCard className="bg-transparent rounded-md border border-[#5C6B81] flex flex-col h-full">
       <span className="border-b border-[#5C6B81] text-white pl-4 py-2">
         Blocked users
       </span>
-      <ScrollArea className="h-full rounded-md">
-        <div className="mt-3 p-6 pt-0 relative">
-          {blockedUsers?.map((blockedUser) => (
-            <BlockedItem
-              key={blockedUser.blocked_mail}
-              blockedUser={blockedUser}
-              setBlockedUsers={setBlockedUsers}
-            />
-          ))}
-        </div>
+      <ScrollArea className="flex-1 rounded-md pt-4">
+        {blockedUsers?.map((blockedUser) => (
+          <BlockedItem
+            key={blockedUser.blocked_mail}
+            blockedUser={blockedUser}
+            setBlockedUsers={setBlockedUsers}
+          />
+        ))}
       </ScrollArea>
     </CustomCard>
   );

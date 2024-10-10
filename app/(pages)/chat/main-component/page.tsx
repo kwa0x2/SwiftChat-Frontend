@@ -17,6 +17,8 @@ interface MainComponentProps {
   blockedUsers: BlockedModel[];
   onlineUsers: string[]
   setBlockedUsers: React.Dispatch<React.SetStateAction<BlockedModel[]>>;
+  isOpenChatList: boolean;
+  setIsOpenChatList: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const MainComponent: React.FC<MainComponentProps> = ({
@@ -28,6 +30,8 @@ const MainComponent: React.FC<MainComponentProps> = ({
   requests,
   friends,
   blockedUsers,
+  isOpenChatList,
+  setIsOpenChatList
 }) => {
   const chatReducerValue = useAppSelector((state) => state.chatReducer.value);
   const componentReducerValue = useAppSelector((state) => state.componentReducer);
@@ -44,13 +48,16 @@ const MainComponent: React.FC<MainComponentProps> = ({
           setFriends={setFriends}
           requests={requests}
           friends={friends}
+          socket={socket}
+          setIsOpenChatList={setIsOpenChatList}
           blockedUsers={blockedUsers}
+          isOpenChatList={isOpenChatList}
         />
       )}
 
-      {componentReducerValue.activeComponent === "profile" && <Profile user={user} />}
+      {componentReducerValue.activeComponent === "profile" && <Profile user={user} setIsOpenChatList={setIsOpenChatList} isOpenChatList={isOpenChatList} />}
       {/* chat box */}
-      <ChatBox chatReducerValue={chatReducerValue} componentReducerValue={componentReducerValue} user={user} socket={socket} />
+      <ChatBox setIsOpenChatList={setIsOpenChatList} isOpenChatList={isOpenChatList} chatReducerValue={chatReducerValue} componentReducerValue={componentReducerValue} user={user} socket={socket} />
     </>
   );
 };

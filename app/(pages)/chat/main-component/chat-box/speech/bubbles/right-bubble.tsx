@@ -19,7 +19,6 @@ import { MdReportGmailerrorred } from "react-icons/md";
 
 interface RightBubbleProps {
   user: any;
-  group?: boolean;
   msg: Message;
   socket: Socket | null;
   friend: ChatSliceModel;
@@ -27,7 +26,6 @@ interface RightBubbleProps {
 
 const RightBubble: React.FC<RightBubbleProps> = ({
   user,
-  group,
   msg,
   socket,
   friend,
@@ -142,7 +140,7 @@ const RightBubble: React.FC<RightBubbleProps> = ({
   return (
     <div className="block  ">
       <div className="flex space-x-2 items-start justify-end group w-full rtl:space-x-reverse mb-4">
-        <div className="flex flex-col max-w-[40%] gap-1">
+        <div className="flex flex-col max-w-[90%] sm:max-w-[40%] gap-1">
           <div className="flex items-center justify-end gap-1">
             {!msg.deletedAt &&
               !isEditing &&
@@ -230,20 +228,9 @@ const RightBubble: React.FC<RightBubbleProps> = ({
             )}
           </div>
         </div>
-        {group && (
-          <div className="flex self-end -translate-y-5">
-            <div className="h-8 w-8 rounded-full">
-              <Image
-                width={40}
-                height={40}
-                src={user?.photo}
-                alt="User Avatar"
-                className="block w-full h-full object-cover rounded-full"
-                loading="eager"
-              />
-            </div>
-          </div>
-        )}
+        
+          
+        
       </div>
     </div>
   );

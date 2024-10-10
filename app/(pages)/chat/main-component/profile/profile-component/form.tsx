@@ -24,7 +24,6 @@ interface ProfileFormProps {
 }
 
 const ProfileForm = ({  user }: ProfileFormProps) => {
-  const dispatch = useDispatch<AppDispatch>();
   const { update } = useSession();
 
   const form = useForm<z.infer<typeof UsernameSchemas>>({
@@ -76,18 +75,6 @@ const ProfileForm = ({  user }: ProfileFormProps) => {
           </FormControl>
           <FormDescription>
             This email belongs to your Google account and cannot be changed.
-          </FormDescription>
-          <FormMessage />
-        </FormItem>
-
-        <FormItem>
-          <FormLabel>Role</FormLabel>
-          <FormControl>
-            <Input className="capitalize" placeholder={user.role} disabled />
-          </FormControl>
-          <FormDescription>
-            If your role is standard, you can send a maximum of 50MB. If your
-            role is high, you can send up to 1GB.
           </FormDescription>
           <FormMessage />
         </FormItem>

@@ -5,12 +5,15 @@ import { LuInfo } from "react-icons/lu";
 import { ChatSliceModel } from "@/app/redux/slices/chatSlice";
 import { useState } from "react";
 import ProfileInformationDialog from "@/components/dialogs/profile-information/dialog";
+import { MdMenu } from "react-icons/md";
 
 interface ChatNavbarProps {
   friend: ChatSliceModel;
+  setIsOpenChatList: React.Dispatch<React.SetStateAction<boolean>>;
+  isOpenChatList: boolean;
 }
 
-const ChatNavbar: React.FC<ChatNavbarProps> = ({ friend }) => {
+const ChatNavbar = ({ friend,setIsOpenChatList,isOpenChatList }: ChatNavbarProps) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   return (
@@ -67,11 +70,12 @@ const ChatNavbar: React.FC<ChatNavbarProps> = ({ friend }) => {
               </div>
             </div>
           </div>
-          <div className="flex items-center gap-5">
+          <div className="flex items-center gap-2">
             <LuInfo
               onClick={() => setIsDialogOpen(true)}
               className="text-[#4A32B0] text-2xl"
             />
+            <MdMenu   onClick={() => setIsOpenChatList(true)} className="text-[#4A32B0] block sm:hidden  text-2xl"/>
           </div>
           <ProfileInformationDialog
             isOpen={isDialogOpen}

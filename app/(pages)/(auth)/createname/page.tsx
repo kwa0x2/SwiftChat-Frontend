@@ -15,7 +15,7 @@ const CreateName = () => {
   if (token == null) return <UnknownErrorCard />;
 
   return (
-    <CustomCard className="max-w-md  w-full mx-auto rounded-none md:rounded-2xl p-4 md:p-8 relative">
+    <CustomCard className="max-w-md mx-3 w-full rounded-md md:rounded-2xl p-4 md:p-8 relative">
       {/* baslik yazilarin bulundugu kisim */}
       <TitleSection />
 

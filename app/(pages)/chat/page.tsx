@@ -51,6 +51,8 @@ const ChatPage = () => {
   const [requests, setRequests] = useState<RequestsModel[]>([]);
   const [friends, setFriends] = useState<FriendModel[]>([]);
   const [blockedUsers, setBlockedUsers] = useState<BlockedModel[]>([]);
+  const [isOpenChatList, setIsOpenChatList] = useState(false);
+  const isOpenChatListRef = useRef(isOpenChatList);
 
   const getChatListHistoryData = async () => {
     const res = await getChatListHistory();
@@ -78,6 +80,10 @@ const ChatPage = () => {
   }, [chatLists]);
 
   useEffect(() => {
+    isOpenChatListRef.current = isOpenChatList;
+  }, [isOpenChatList]);
+
+  useEffect(() => {
     const newSocket = io(socketUrl as string, {
       transports: ["websocket", "polling"],
     });
@@ -99,7 +105,6 @@ const ChatPage = () => {
       getBlockedUsersData();
 
       newSocket.on(currentUser.email, (response: any) =>
-        
         handleSocketResponse(response)
       );
 
@@ -142,7 +147,7 @@ const ChatPage = () => {
   }, [socketUrl, currentUser?.email]);
 
   const handleSocketResponse = (response: any) => {
-    console.warn("email socket", response)
+    console.warn("email socket", response);
 
     const { action, data } = response;
     // if (chatLists.length === 0) {
@@ -185,7 +190,6 @@ const ChatPage = () => {
 
     if (!roomExists) {
       getChatListHistoryData();
-     
     }
 
     dispatch(
@@ -194,19 +198,23 @@ const ChatPage = () => {
         message,
         message_id,
         updatedAt,
-        message_type
+        message_type,
       })
     );
-    if (componentReducerRef.current.activeComponent !== "chat") {
+    if (
+      componentReducerRef.current.activeComponent !== "chat" ||
+      isOpenChatListRef.current == true
+    ) {
       setHighlightedRoomId(room_id);
     } else if (componentReducerRef.current.friendStatus === "friend") {
+      console.warn("isOpenChatList", isOpenChatListRef.current);
+
       handleSocketEmit(
         socketRef.current,
         "readMessage",
         { room_id, message_id },
         "",
-        () => {
-        },
+        () => {},
         () => {
           toast.error("An unknown error occurred. Please try again later.");
         }
@@ -240,7 +248,9 @@ const ChatPage = () => {
   const handleFriendRequest = (data: any) => {
     const updatedData = { ...data, activeStatus: true };
 
-    setRequests((prev) => (Array.isArray(prev) ? [...prev, updatedData] : [updatedData]));
+    setRequests((prev) =>
+      Array.isArray(prev) ? [...prev, updatedData] : [updatedData]
+    );
     toast.info(`${data.user_name} has sent you a friend request.`);
   };
 
@@ -386,14 +396,17 @@ const ChatPage = () => {
 
   return (
     <div
-      className="h-screen w-screen p-6 flex gap-5 relative"
+      className="h-screen w-screen p-6 flex lg:gap-5 relative"
       style={{ zIndex: "1" }}
     >
       <Sidebar
         user={currentUser}
         highlightedRoomId={highlightedRoomId}
         setHighlightedRoomId={setHighlightedRoomId}
+        isOpenChatList={isOpenChatList}
+        setIsOpenChatList={setIsOpenChatList}
       />
+
       <MainComponent
         setBlockedUsers={setBlockedUsers}
         user={currentUser}
@@ -404,6 +417,8 @@ const ChatPage = () => {
         requests={requests}
         friends={friends}
         blockedUsers={blockedUsers}
+        isOpenChatList={isOpenChatList}
+        setIsOpenChatList={setIsOpenChatList}
       />
     </div>
   );

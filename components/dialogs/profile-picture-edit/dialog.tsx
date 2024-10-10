@@ -93,8 +93,11 @@ const ProfilePictureEditDialog = ({
   };
 
   return (
+    
+
+   
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className=" sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Edit Profile Photo</DialogTitle>
           <DialogDescription>
@@ -155,6 +158,7 @@ const ProfilePictureEditDialog = ({
         </DialogFooter>
       </DialogContent>
     </Dialog>
+    
   );
 };
 

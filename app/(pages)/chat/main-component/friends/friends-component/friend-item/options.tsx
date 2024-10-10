@@ -26,17 +26,21 @@ import { BlockedModel } from "../../blocked-component/blocked";
 import { useCallback } from "react";
 import { setActiveComponent, setFriendStatus } from "@/app/redux/slices/componentSlice";
 import { Block, Remove } from "@/app/api/services/friendship.Service";
+import { handleSocketEmit } from "@/lib/socket";
+import { Socket } from "socket.io-client";
 
 interface FriendOptionsProps {
   friend: FriendModel;
   setBlockedUsers: React.Dispatch<React.SetStateAction<BlockedModel[]>>;
   setFriends: React.Dispatch<React.SetStateAction<FriendModel[]>>;
+  socket: Socket | null
 }
 
 const Options = ({
   friend,
   setBlockedUsers,
   setFriends,
+  socket
 }: FriendOptionsProps) => {
   const dispatch = useDispatch<AppDispatch>();
   const chatLists = useSelector(
@@ -127,6 +131,18 @@ const Options = ({
         const chatRoom = chatLists.find((msg) => msg.room_id === room_id);
         if (chatRoom) {
           dispatch(setChatData(chatDataObj));
+          handleSocketEmit(
+            socket,
+            "readMessage",
+            { room_id },
+            "",
+            () => {},
+            () => {
+              toast.error("An unknown error occurred. Please try again later.");
+            }
+          );
+  
+          console.warn("bu method")
         } else {
           dispatch(
             addChatList({
@@ -139,7 +155,8 @@ const Options = ({
               friend_status: "friend",
               createdAt: new Date().toISOString(),
               activeStatus: friend.activeStatus,
-              last_message_id: ""
+              last_message_id: "",
+              message_type: ""
             })
           );
           dispatch(setChatData(chatDataObj));
@@ -156,7 +173,9 @@ const Options = ({
             friend_status: "friend",
             createdAt: new Date().toISOString(),
             activeStatus: friend.activeStatus,
-            last_message_id: ""
+            last_message_id: "",
+            message_type: ""
+
           })
         );
         dispatch(setChatData(chatDataObj));

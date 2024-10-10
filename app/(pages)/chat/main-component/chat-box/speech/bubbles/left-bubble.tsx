@@ -9,7 +9,6 @@ import { MdReportGmailerrorred } from "react-icons/md";
 
 interface LeftBubbleProps {
   user: any;
-  group?: boolean;
   msg: Message;
   friend: ChatSliceModel;
   socket: Socket | null;
@@ -18,7 +17,6 @@ import Dropdown from "../dropdown";
 
 const LeftBubble: React.FC<LeftBubbleProps> = ({
   user,
-  group,
   msg,
   friend,
   socket,
@@ -26,7 +24,6 @@ const LeftBubble: React.FC<LeftBubbleProps> = ({
   const getFileNameAndUrl = (message: string) => {
     const urlParts = message.split("/");
     const fileName = urlParts.pop();
-    const fileContent = fileName?.split("_").slice(1).join("_");
 
     if (!fileName) {
       return { fileName: null, finalUrl: null }; // Dosya adı bulunamazsa null döner
@@ -96,23 +93,8 @@ const LeftBubble: React.FC<LeftBubbleProps> = ({
   return (
     <div className="block md:px-6 px-4">
       <div className="flex space-x-2 items-start group rtl:space-x-reverse mb-4">
-        {group && (
-          <div className="flex-none self-end -translate-y-5">
-            <div className="h-8 w-8 rounded-full">
-              <Image
-                width={40}
-                height={40}
-                src={user?.photo}
-                alt="User Avatar"
-                className="block w-full h-full object-cover rounded-full"
-                loading="eager"
-              />
-            </div>
-          </div>
-        )}
-
         <div className="flex-1 flex flex-col gap-2">
-          <div className="flex flex-col max-w-[40%] gap-1">
+          <div className="flex flex-col max-w-[90%] sm:max-w-[40%] gap-1">
             <div className="flex items-center gap-1">
               <div className="whitespace-pre-wrap break-all relative z-[1]">
                 <div

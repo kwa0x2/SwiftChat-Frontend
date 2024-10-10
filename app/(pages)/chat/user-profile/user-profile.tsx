@@ -2,15 +2,17 @@
 import { Search } from "@/components/ui/search";
 import Image from "next/image";
 import Dropdown from "./dropdown";
+import { PiCaretCircleLeftLight } from "react-icons/pi";
 
 interface UserProfileProps {
   user: any;
   onSearch: (searchTerm: string) => void;
+  setIsOpenChatList: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const UserProfile = ({ user, onSearch }: UserProfileProps) => {
+const UserProfile = ({ user, onSearch, setIsOpenChatList}: UserProfileProps) => {
   return (
-    <div className="px-3 py-5 border-b border-[#5C6B81]">
+    <div className="px-3 py-[18px] border-b border-[#5C6B81]">
       <div className="gap-4 flex">
         <div className="flex-1 flex gap-3">
           <div className="relative">
@@ -38,7 +40,9 @@ const UserProfile = ({ user, onSearch }: UserProfileProps) => {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <Dropdown />
+          <Dropdown setIsOpenChatList={setIsOpenChatList}/>
+          <PiCaretCircleLeftLight onClick={() => setIsOpenChatList(false)} className="text-[#4A32B0] lg:hidden text-[2rem]"/>
+
         </div>
       </div>
       <div className="pt-5">
