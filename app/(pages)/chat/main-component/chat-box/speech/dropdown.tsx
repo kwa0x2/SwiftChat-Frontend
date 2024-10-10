@@ -18,7 +18,10 @@ import { FaStar } from "react-icons/fa";
 import { IoStarSharp } from "react-icons/io5";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/app/redux/store";
-import { deleteLastMessage, updateLastMessage } from "@/app/redux/slices/chatListSlice";
+import {
+  deleteLastMessage,
+  updateLastMessage,
+} from "@/app/redux/slices/chatListSlice";
 import { FaRegStar } from "react-icons/fa";
 
 interface DropdownProps {
@@ -71,15 +74,16 @@ const Dropdown = ({
     }
   };
 
-  const handleUpdateMessageType = () => {
+  const handleUpdateMessageStarred= () => {
     if (socket && user) {
       handleSocketEmit(
         socket,
-        "updateMessageType",
+        "updateMessageStarred",
         {
           room_id: friend.room_id,
           message_id: msg.message_id,
-          message_type: msg.message_type === "starred_text" ? "text" : "starred_text"
+          message_starred:
+            msg.message_starred === true ? false : true,
         },
         null,
         () => {},
@@ -100,10 +104,13 @@ const Dropdown = ({
       <DropdownMenuContent className="backdrop-blur-2xl">
         {!isLeftBubble && (
           <>
-            <DropdownMenuItem onClick={onEdit}>
-              <MdOutlineDriveFileRenameOutline className="mr-2 text-yellow-600 h-4 w-4" />
-              Edit
-            </DropdownMenuItem>
+            {msg.message_type === "text" && (
+              <DropdownMenuItem onClick={onEdit}>
+                <MdOutlineDriveFileRenameOutline className="mr-2 text-yellow-600 h-4 w-4" />
+                Edit
+              </DropdownMenuItem>
+            )}
+
             <DropdownMenuItem onClick={handleDeleteMessage}>
               <AiOutlineDelete className="mr-2 h-4 w-4 text-rose-700" />
               <span>Delete</span>
@@ -111,13 +118,13 @@ const Dropdown = ({
             <DropdownMenuSeparator />
           </>
         )}
-        <DropdownMenuItem onClick={handleUpdateMessageType}>
-          {msg.message_type === "starred_text" ? ( 
+        <DropdownMenuItem onClick={handleUpdateMessageStarred}>
+          {msg.message_starred === true ? (
             <FaRegStar className="mr-2 h-4 w-4 text-[#412c9c]" />
           ) : (
             <FaStar className="mr-2 h-4 w-4 text-[#412c9c]" />
           )}
-          <span>{msg.message_type === "starred_text" ? "Unstar" : "Star"}</span> 
+          <span>{msg.message_starred === true ? "Unstar" : "Star"}</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

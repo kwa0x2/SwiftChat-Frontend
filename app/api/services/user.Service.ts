@@ -23,3 +23,18 @@ export const uploadProfilePhoto = async (file: File, token?: string) => {
     headers,
   });
 };
+
+export const uploadFile = async (file: File, token?: string) => {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const headers: Record<string, string> = {
+    "Content-Type": "multipart/form-data",
+  };
+
+
+  return await axios.post("/file/upload-file", formData, {
+    headers,
+  });
+};
+

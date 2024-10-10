@@ -3,8 +3,9 @@ export interface Message {
     message: string;
     sender_id:string;
     message_read_status: "unread" | "readed";
-    message_type: "text" | "starred_text";
+    message_type: "text"  | "file" | "photo";
     createdAt: string;
     updatedAt: string;
-    deletedAt: string
+    deletedAt: string;
+    message_starred:boolean
   }

@@ -1,20 +1,21 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, forwardRef } from "react";
 import { cn } from "@/lib/utils";
 
-export function AnimatedPlaceholdersInput({
-  placeholders,
-  onChange,
-  onSubmit,
-  disabled, // Yeni `disabled` özelliği eklendi
-}: {
+// Bileşeni forwardRef ile sarıyoruz
+export const AnimatedPlaceholdersInput = forwardRef<HTMLInputElement, {
   placeholders: string[];
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
-  disabled?: boolean; // Opsiyonel `disabled` özelliği
-}) {
+  disabled?: boolean;
+}>(({
+  placeholders,
+  onChange,
+  onSubmit,
+  disabled
+}, ref) => {
   const [currentPlaceholder, setCurrentPlaceholder] = useState(0);
 
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -26,10 +27,10 @@ export function AnimatedPlaceholdersInput({
 
   const handleVisibilityChange = () => {
     if (document.visibilityState !== "visible" && intervalRef.current) {
-      clearInterval(intervalRef.current); // Sekme görünürlüğü değiştiğinde interval'i temizle
+      clearInterval(intervalRef.current); 
       intervalRef.current = null;
     } else if (document.visibilityState === "visible") {
-      startAnimation(); // Sekme tekrar görünür olduğunda interval'i başlat
+      startAnimation(); 
     }
   };
 
@@ -45,7 +46,6 @@ export function AnimatedPlaceholdersInput({
     };
   }, [placeholders]);
 
-  const inputRef = useRef<HTMLInputElement>(null);
   const [value, setValue] = useState("");
   const [animating, setAnimating] = useState(false);
 
@@ -71,7 +71,7 @@ export function AnimatedPlaceholdersInput({
       className={cn(
         "w-full relative mx-auto bg-transparent border border-[#5C6B81] h-12 rounded-md overflow-hidden shadow-[0px_2px_3px_-1px_rgba(0,0,0,0.1),_0px_1px_0px_0px_rgba(25,28,33,0.02),_0px_0px_0px_1px_rgba(25,28,33,0.08)] transition duration-200",
         value && "bg-transparent",
-        disabled && "opacity-50 cursor-not-allowed" // `disabled` durumunda stil değişiklikleri
+        disabled && "opacity-50 cursor-not-allowed" 
       )}
       onSubmit={handleSubmit}
     >
@@ -81,22 +81,22 @@ export function AnimatedPlaceholdersInput({
           onChange && onChange(e);
         }}
         onKeyDown={handleKeyDown}
-        ref={inputRef}
+        ref={ref as React.RefObject<HTMLInputElement>} 
         value={value}
         type="text"
         className={cn(
           "w-full relative text-sm sm:text-base z-50 border-none text-white bg-transparent h-full rounded-md focus:outline-none focus:ring-0 pl-4 pr-16",
-          disabled && "cursor-not-allowed" // `disabled` durumunda stil değişiklikleri
+          disabled && "cursor-not-allowed"
         )}
-        disabled={disabled} // `disabled` özelliği input alanına ekleniyor
+        disabled={disabled} 
       />
 
       <button
-        disabled={!value || disabled} // Buton da `disabled` durumunda devre dışı bırakılıyor
+        disabled={!value || disabled} 
         type="submit"
         className={cn(
           "absolute right-2 top-1/2 z-50 -translate-y-1/2 h-8 w-8 rounded-md bg-[#231758] transition duration-200 flex items-center justify-center",
-          disabled ? "bg-transparent" : "disabled:bg-transparent" // `disabled` durumunda stil değişiklikleri
+          disabled ? "bg-transparent" : "disabled:bg-transparent" 
         )}
       >
         <motion.svg
@@ -161,4 +161,4 @@ export function AnimatedPlaceholdersInput({
       </div>
     </form>
   );
-}
+});
