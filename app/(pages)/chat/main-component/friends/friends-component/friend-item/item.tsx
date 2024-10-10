@@ -9,17 +9,21 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { Socket } from "socket.io-client";
 
 interface FriendItemProps {
   friend: FriendModel;
   setBlockedUsers: React.Dispatch<React.SetStateAction<BlockedModel[]>>;
   setFriends: React.Dispatch<React.SetStateAction<FriendModel[]>>;
+  socket: Socket | null
+
 }
 
 const FriendItem = ({
   friend,
   setBlockedUsers,
   setFriends,
+  socket
 }: FriendItemProps) => {
   return (
     <TooltipProvider>
@@ -55,6 +59,7 @@ const FriendItem = ({
             </div>
             <div className="flex-none flex items-center justify-center gap-2 ml-auto lg:ml-0">
               <Options
+              socket={socket}
                 setFriends={setFriends}
                 friend={friend}
                 setBlockedUsers={setBlockedUsers}

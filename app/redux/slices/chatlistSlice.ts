@@ -12,7 +12,7 @@ export interface ChatListItemModel {
   createdAt: string;
   message_deleted_at?: string;
   activeStatus: boolean;
-  message_type: "text" | "file" | "photo"
+  message_type: "text" | "file" | "photo" | ""
 }
 
 interface InitialState {

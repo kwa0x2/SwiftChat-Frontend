@@ -1,4 +1,3 @@
-"use client";
 import CustomCard from "@/components/custom-card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import RequestItem from "./request-item/item";
@@ -8,7 +7,7 @@ export interface RequestsModel {
   sender_mail: string;
   user_name: string;
   user_photo: string;
-  activeStatus: boolean
+  activeStatus: boolean;
 }
 
 interface RequestsProps {
@@ -17,15 +16,14 @@ interface RequestsProps {
   setFriends: React.Dispatch<React.SetStateAction<FriendModel[]>>;
 }
 
-const RequestsComponent = ({ requests,setRequests, setFriends }: RequestsProps) => {
+const RequestsComponent = ({ requests, setRequests, setFriends }: RequestsProps) => {
+
+
   return (
-    <CustomCard className="bg-transparent rounded-md border border-[#5C6B81] flex-1 flex flex-col justify-between">
-      <span className="border-b border-[#5C6B81] text-white pl-4 py-2">
-        Requests
-      </span>
-      <ScrollArea className="h-full rounded-md">
-        <div className="mt-3 p-6 pt-0 relative">
-          {requests?.map((reqs) => (
+    <CustomCard className="bg-transparent rounded-md border border-[#5C6B81] flex-1 flex flex-col h-full" >
+      <span className="border-b border-[#5C6B81] text-white pl-4 py-2">Requests</span>
+      <ScrollArea className="flex-1 rounded-md pt-4">
+      {requests?.map((reqs) => (
             <RequestItem
               requests={reqs}
               key={reqs.sender_mail}
@@ -33,7 +31,6 @@ const RequestsComponent = ({ requests,setRequests, setFriends }: RequestsProps) 
               setFriends={setFriends}
             />
           ))}
-        </div>
       </ScrollArea>
     </CustomCard>
   );

@@ -79,7 +79,7 @@ const GoogleSection = ({ token, onPhotoUpdate }: GoogleSectionProps) => {
             />
 
             <Link
-              href="/"
+              href="#"
               className="text-gray-500  hover:text-gray-700  duration-300"
             >
               <IoIosLogOut className="h-[1.7rem] w-auto" />

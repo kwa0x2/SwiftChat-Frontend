@@ -64,25 +64,19 @@ const ChatListItem: React.FC<ChatListItemProps> = ({
     }
 
     if (chatList.message_type === "file") {
-      const { fileName } = getFileNameAndUrl(chatList.last_message);
-
-      if (fileName) {
-        const fileExtension = fileName.slice(fileName.lastIndexOf("."));
-        const truncatedFileName = fileName.slice(0, 9) + ".." + fileExtension;
-
-        return (
-          <div className="flex items-center gap-1">
-            <FaRegFile className="h-4 w-4" /> <span>{truncatedFileName}</span>
-          </div>
-        );
-      }
+      return (
+        <div className="flex items-center gap-1">
+          <FaRegFile className="h-4 w-4" /> <span>File</span>
+        </div>
+      );
+    
     }
 
     if (chatList.message_type === "text") {
       return (
-        <span>
-          {chatList.last_message.length >= 15
-            ? chatList.last_message.substring(0, 15) + "..."
+        <span >  
+          {chatList.last_message.length >= 25
+            ? chatList.last_message.substring(0, 25) + "..."
             : chatList.last_message}
         </span>
       );
@@ -141,7 +135,7 @@ const ChatListItem: React.FC<ChatListItemProps> = ({
               {chatList.user_name}
             </span>
           </div>
-          <div className="truncate max-w-[120px]">
+          <div className="">
             <span
               className={clsx(
                 "text-xs text-[#5C6B81] transition-all duration-500 ease-in-out",
@@ -155,7 +149,7 @@ const ChatListItem: React.FC<ChatListItemProps> = ({
           </div>
         </div>
       </div>
-      <div className="flex-none  flex-col items-end  gap-2 hidden lg:flex">
+      <div className="  flex-col items-end  gap-2  flex">
         <span className="text-xs text-white text-end uppercase ">
           {chatList.updatedAt &&
             new Date(chatList.updatedAt).toLocaleTimeString([], {

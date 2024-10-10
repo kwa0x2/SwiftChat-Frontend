@@ -26,7 +26,7 @@ const ProfileInformationDialog = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="max-w-[375px]  sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>{`${user.user_name}'s Profile`}</DialogTitle>
           <DialogDescription>
@@ -34,7 +34,7 @@ const ProfileInformationDialog = ({
           </DialogDescription>
         </DialogHeader>
         {(user.friend_status === "friend" || user.friend_status === "unfriend") && (
-          <div className="gap-4 py-4 relative flex justify-center shrink-0 items-center">
+          <div className="gap-4 pt-4 relative flex justify-center shrink-0 items-center">
             <Image
               width={160}
               height={160}

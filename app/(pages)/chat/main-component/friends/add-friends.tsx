@@ -1,30 +1,30 @@
 "use client";
-import FormError from "@/components/form-error";
 import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
   FormField,
   FormItem,
-  FormMessage,
 } from "@/components/ui/form";
 import { Search } from "@/components/ui/search";
 import { Disclosure } from "@headlessui/react";
-import { toast } from "sonner";
 import { AddFriendSchemas } from "@/schemas/addfriend";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { Socket } from "socket.io-client";
 import { SendFriendRequest } from "@/app/api/services/request.Service";
 import axios from "axios";
+import { IoIosSend } from "react-icons/io";
+import { IoMenu } from "react-icons/io5";
+import { toast } from "sonner";
 
 interface AddFriendProps {
   user: any;
+  setIsOpenChatList: React.Dispatch<React.SetStateAction<boolean>>;
+  isOpenChatList: boolean;
 }
 
-const AddFriend: React.FC<AddFriendProps> = ({ user }) => {
+const AddFriend: React.FC<AddFriendProps> = ({ user, setIsOpenChatList, isOpenChatList }) => {
   const form = useForm<z.infer<typeof AddFriendSchemas>>({
     resolver: zodResolver(AddFriendSchemas),
     defaultValues: {
@@ -40,13 +40,9 @@ const AddFriend: React.FC<AddFriendProps> = ({ user }) => {
         const res = await SendFriendRequest(formData.email);
         if (res.status === 200) {
           if (res.data.status === "Friend Sent") {
-            toast.success(
-              `Friend request sent successfully to ${formData.email}!`
-            );
+            toast.success(`Friend request sent successfully to ${formData.email}!`);
           } else if (res.data.status === "Email Sent") {
-            toast.success(
-              `No such user exists, so the friend request has been sent to ${formData.email} via email!`
-            );
+            toast.success(`No such user exists, so the friend request has been sent to ${formData.email} via email!`);
           }
         }
       } catch (error) {
@@ -56,24 +52,16 @@ const AddFriend: React.FC<AddFriendProps> = ({ user }) => {
           if (status === 409) {
             switch (data.error) {
               case "Already Friend":
-                toast.warning(
-                  `${formData.email} is already in your friends list!`
-                );
+                toast.warning(`${formData.email} is already in your friends list!`);
                 break;
               case "Already Sent":
-                toast.warning(
-                  `You have already sent a friend request to ${formData.email}!`
-                );
+                toast.warning(`You have already sent a friend request to ${formData.email}!`);
                 break;
               case "Blocked User":
-                toast.warning(
-                  `Either you have blocked ${formData.email} or they have blocked you!`
-                );
+                toast.warning(`Either you have blocked ${formData.email} or they have blocked you!`);
                 break;
               default:
-                toast.error(
-                  "An unknown error occurred. Please try again later."
-                );
+                toast.error("An unknown error occurred. Please try again later.");
             }
           } else {
             toast.error("An unknown error occurred. Please try again later.");
@@ -83,13 +71,29 @@ const AddFriend: React.FC<AddFriendProps> = ({ user }) => {
     }
   }
 
+  const handleMenuClick = () => {
+    setIsOpenChatList(!isOpenChatList);
+  };
+
   return (
     <Disclosure as="nav" className="border-b border-[#5C6B81]">
-      <div className="relative px-5 flex h-20 items-center justify-between gap-5">
+      <div className="px-5 flex h-20 gap-2 items-center justify-between">
+        <Button
+          className="bg-[#4A32B0] block sm:hidden border-none hover:bg-[#4A32B0] hover:text-white text-white"
+          variant={"outline"}
+          size={"icon"}
+          onClick={handleMenuClick}
+        >
+          <IoMenu className="h-5 w-5" />
+        </Button>
         <Form {...form}>
           <form
-            className="w-full flex gap-5"
-            onSubmit={form.handleSubmit(onSubmit)}
+            className="w-full items-center flex gap-2"
+            onSubmit={form.handleSubmit(onSubmit, (errors) => {
+              if (errors.email) {
+                toast.error(errors.email.message);
+              }
+            })}
           >
             <FormField
               control={form.control}
@@ -103,7 +107,6 @@ const AddFriend: React.FC<AddFriendProps> = ({ user }) => {
                       placeholder="Please enter the email of the person you want to add as a friend."
                     />
                   </FormControl>
-                  <FormMessage />
                 </FormItem>
               )}
             />
@@ -112,8 +115,10 @@ const AddFriend: React.FC<AddFriendProps> = ({ user }) => {
               type="submit"
               className="bg-[#4A32B0] border-none hover:bg-[#4A32B0] hover:text-white text-white"
               variant={"outline"}
+              size={"icon"}
             >
-              Submit
+              <span className="pr-1 hidden sm:block">Submit</span>
+              <IoIosSend className="h-5 w-5" />
             </Button>
           </form>
         </Form>
