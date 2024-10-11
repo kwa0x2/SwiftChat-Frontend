@@ -16,16 +16,15 @@ import { UsernameSchemas } from "@/schemas/username";
 import { updateUsernameByMail } from "@/app/api/services/user.Service";
 import { toast } from "sonner";
 import { useSession } from "next-auth/react";
-import { AppDispatch } from "@/app/redux/store";
-import { useDispatch } from "react-redux";
 
 interface ProfileFormProps {
   user: any;
 }
 
-const ProfileForm = ({  user }: ProfileFormProps) => {
-  const { update } = useSession();
+const ProfileForm = ({ user }: ProfileFormProps) => {
+  const { update } = useSession(); // Get the update function from session
 
+    // Initialize the form with Zod validation schema
   const form = useForm<z.infer<typeof UsernameSchemas>>({
     resolver: zodResolver(UsernameSchemas),
     defaultValues: {
@@ -33,24 +32,31 @@ const ProfileForm = ({  user }: ProfileFormProps) => {
     },
   });
 
-  async function onSubmit(data: z.infer<typeof UsernameSchemas>) {
+  // #region Handle form submission
+  const onSubmit = async (data: z.infer<typeof UsernameSchemas>) => {
+    console.warn("user", user)
     if (user.name === data.username) {
-      toast.warning("Please enter a different name to update.");
-    } else {
-      const res = await updateUsernameByMail(data.username);
-      if (res.status === 200) {
-        toast.success("Username updated successfully!");
-      } else {
-        toast.error("An unknown error occurred while updating the username. Please try again.");
-      }
-      await update();
+      toast.warning("Please enter a different name to update."); // Notify user if no change
+      return; // Exit early to avoid unnecessary API call
     }
-  }
-  
+
+    // Call the API to update the username
+    const res = await updateUsernameByMail(data.username);
+    if (res.status === 200) {
+      toast.success("Username updated successfully!"); // Success message
+      await update(); // Refresh the session
+    } else {
+      toast.error(
+        "An unknown error occurred while updating the username. Please try again."
+      ); // Error message
+    }
+  };
+  // #endregion
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        {/* Username Field */}
         <FormField
           control={form.control}
           name="username"
@@ -68,6 +74,7 @@ const ProfileForm = ({  user }: ProfileFormProps) => {
           )}
         />
 
+        {/* Email Field (disabled) */}
         <FormItem>
           <FormLabel>Email</FormLabel>
           <FormControl>
@@ -79,6 +86,7 @@ const ProfileForm = ({  user }: ProfileFormProps) => {
           <FormMessage />
         </FormItem>
 
+        {/* Submit Button */}
         <Button type="submit" variant={"outline"}>
           Update Profile
         </Button>

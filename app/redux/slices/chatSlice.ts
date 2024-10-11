@@ -6,11 +6,9 @@ export interface ChatSliceModel {
   user_photo: string;
   friend_status: string;
   room_id: string;
-  createdAt: string
-  activeStatus?: boolean
-
+  createdAt: string;
+  activeStatus?: boolean;
 }
-
 
 interface InitialState {
   value: ChatSliceModel;
@@ -25,6 +23,8 @@ export const chatSlice = createSlice({
       user_photo: "",
       friend_status: "",
       room_id: "",
+      createdAt: "",
+      activeStatus: false,
     } as ChatSliceModel,
   } as InitialState,
   reducers: {
@@ -35,7 +35,6 @@ export const chatSlice = createSlice({
       state,
       action: PayloadAction<{ friend_status: string; user_email: string }>
     ) => {
-
       if (state.value.user_email === action.payload.user_email) {
         state.value.friend_status = action.payload.friend_status;
       }
@@ -44,7 +43,6 @@ export const chatSlice = createSlice({
       state,
       action: PayloadAction<{ user_name: string; user_email: string }>
     ) => {
-
       if (state.value.user_email === action.payload.user_email) {
         state.value.user_name = action.payload.user_name;
       }
@@ -53,7 +51,6 @@ export const chatSlice = createSlice({
       state,
       action: PayloadAction<{ user_photo: string; user_email: string }>
     ) => {
-
       if (state.value.user_email === action.payload.user_email) {
         state.value.user_photo = action.payload.user_photo;
       }
@@ -63,12 +60,11 @@ export const chatSlice = createSlice({
       action: PayloadAction<{ activeEmails: string[] }>
     ) => {
       const activeEmails = action.payload.activeEmails;
-    
+
       if (!activeEmails.includes(state.value.user_email)) {
         state.value.activeStatus = false;
       } else {
         state.value.activeStatus = true;
-
       }
     },
   },

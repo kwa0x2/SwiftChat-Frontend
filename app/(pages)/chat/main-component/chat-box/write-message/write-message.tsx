@@ -10,14 +10,9 @@ import { AppDispatch } from "@/app/redux/store";
 import { useDispatch } from "react-redux";
 import { toast } from "sonner";
 import { handleSocketEmit } from "@/lib/socket";
-import { openFileBox } from "@/app/redux/slices/fileBoxSlice";
 import Dropzone from "react-dropzone";
-import { X } from "lucide-react";
-import { FaFile } from "react-icons/fa6";
-import Image from "next/image";
-import { uploadFile } from "@/app/api/services/user.Service";
-import { AxiosProgressEvent } from "axios";
 import { Message } from "@/models/Message";
+import { uploadFile } from "@/app/api/services/file.Service";
 
 interface WriteMessageProps {
   user: any;
@@ -35,19 +30,25 @@ const WriteMessage: React.FC<WriteMessageProps> = ({
   setSelectedFile,
   selectedFile,
 }) => {
-  const [newMessage, setNewMessage] = useState("");
-  const [isDragActive, setIsDragActive] = useState(false);
   const dispatch = useDispatch<AppDispatch>();
-  const inputRef = useRef<HTMLInputElement>(null);
-  
-  useEffect(()=>{
+
+  // #region State Variables
+  const [newMessage, setNewMessage] = useState(""); // State for new message input
+  const inputRef = useRef<HTMLInputElement>(null); // Reference for the input field
+  // #endregion
+
+  // Automatically focus on the input field when the component mounts
+  useEffect(() => {
     if (inputRef.current) {
       inputRef.current.focus();
     }
-  }, [inputRef])
+  }, [inputRef]);
 
+  // #region Message Handling Functions
+  // Handle sending a message (text or file)
   const handleSendMessage = () => {
     if (user.id) {
+      // If a file is selected, handle the upload
       if (selectedFile) {
         const fileType = selectedFile.type.startsWith("image/")
           ? "photo"
@@ -63,23 +64,25 @@ const WriteMessage: React.FC<WriteMessageProps> = ({
             );
             toast.success("File upload completed successfully!");
           })
-          .catch((error) => {
+          .catch(() => {
             toast.error(
               "An error occurred while sending the file. Please try again later."
             );
           });
       }
 
+      // Send the text message if it's not empty
       if (newMessage.trim()) {
         sendMessage(friend.room_id, newMessage, friend.user_email, "text");
-        setNewMessage("");
+        setNewMessage(""); // Clear the input after sending
       }
     }
   };
 
+  // Send a message through the socket connection
   const sendMessage = (
     room_id: string,
-    message: string,
+    message_content: string,
     user_email: string,
     message_type: "text" | "photo" | "file"
   ) => {
@@ -87,16 +90,17 @@ const WriteMessage: React.FC<WriteMessageProps> = ({
       handleSocketEmit(
         socket,
         "sendMessage",
-        { room_id, message, user_email, message_type },
+        { room_id, message_content, user_email, message_type },
         "",
         (message_id) => {
+          // Update the last message in the Redux store
           dispatch(
             updateLastMessage({
               room_id,
-              message,
-              message_id: message_id,
+              message_content,
+              message_id,
               updatedAt: new Date().toISOString(),
-              message_type: message_type,
+              message_type,
             })
           );
         },
@@ -107,31 +111,36 @@ const WriteMessage: React.FC<WriteMessageProps> = ({
     }
   };
 
+  // Handle file upload and return the file URL
   const handleUploadFile = async (file: File) => {
     try {
-      setSelectedFile(null);
+      setSelectedFile(null); // Reset selected file
       toast.info(
         "File upload started. The file will be sent once the upload is complete."
       );
-      const res = await uploadFile(file);
-
-      return res.data;
-    } catch (error) {
+      const res = await uploadFile(file); // Call API to upload the file
+      return res.data; // Return the uploaded file URL
+    } catch {
       toast.error(
         "An issue occurred while uploading the file. Please try again later."
       );
     }
   };
+  // #endregion
 
-  const onDrop = (acceptedFiles: any) => {
+  // #region File Drop Handling
+  // Handle file drop event
+  const onDrop = (acceptedFiles: File[]) => {
     const file = acceptedFiles[0];
-    setSelectedFile(file);
-    setIsDragActive(false);
+    setSelectedFile(file); // Set the selected file
     if (inputRef.current) {
-      inputRef.current.focus();
+      inputRef.current.focus(); // Focus on the input field after file drop
     }
   };
+  // #endregion
 
+  // #region Placeholders and Submission
+  // Define placeholders for the input based on friend status
   const friendPlaceholders =
     friend.friend_status === "unfriend"
       ? ["You are not friends with this person, so you cannot send a message."]
@@ -146,12 +155,13 @@ const WriteMessage: React.FC<WriteMessageProps> = ({
           "Would you like to write something?",
         ];
 
+  // Handle form submission
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    handleSendMessage();
+    e.preventDefault(); // Prevent default form submission
+    handleSendMessage(); // Call the send message function
   };
-
-
+  // #endregion
+  
   return (
     <Disclosure as="nav">
       {({ open }) => (
@@ -174,7 +184,7 @@ const WriteMessage: React.FC<WriteMessageProps> = ({
                   placeholders={friendPlaceholders}
                   onChange={(e) => setNewMessage(e.target.value)}
                   onSubmit={onSubmit}
-                  disabled={friend.friend_status !== "friend"}
+                  disabled={friend.friend_status !== "friend"} // Disable input if not friends
                 />
               </div>
             </div>

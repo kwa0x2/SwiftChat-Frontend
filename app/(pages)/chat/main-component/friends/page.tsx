@@ -1,11 +1,12 @@
 import CustomCard from "@/components/custom-card";
 import AddFriend from "./add-friends";
-import FriendsComponent, { FriendModel } from "./friends-component/friends";
-import RequestsComponent, {
-  RequestsModel,
-} from "./requests-component/requests";
-import BlockedComponent, { BlockedModel } from "./blocked-component/blocked";
+import BlockedComponent from "./blocked-component/blocked";
 import { Socket } from "socket.io-client";
+import { RequestsModel } from "@/models/Request";
+import { FriendModel } from "@/models/Friend";
+import { BlockedModel } from "@/models/Blocked";
+import FriendsComponent from "./friends-component/friends";
+import RequestsComponent from "./requests-component/requests";
 
 interface FriendsSettingsProps {
   user: any;
@@ -17,8 +18,7 @@ interface FriendsSettingsProps {
   setBlockedUsers: React.Dispatch<React.SetStateAction<BlockedModel[]>>;
   setIsOpenChatList: React.Dispatch<React.SetStateAction<boolean>>;
   isOpenChatList: boolean;
-  socket: Socket | null
-
+  socket: Socket | null;
 }
 
 const FriendsSettings = ({
@@ -31,21 +31,27 @@ const FriendsSettings = ({
   blockedUsers,
   setIsOpenChatList,
   isOpenChatList,
-  socket
+  socket,
 }: FriendsSettingsProps) => {
   return (
     <CustomCard
-      className={`  ${isOpenChatList ? "hidden" : "flex flex-col flex-1 max-h-full"} `}
+      className={`  ${
+        isOpenChatList ? "hidden" : "flex flex-col flex-1 max-h-full"
+      } `}
     >
       {/* AddFriend component at the top */}
       <div className="">
-        <AddFriend user={user} setIsOpenChatList={setIsOpenChatList} isOpenChatList={isOpenChatList} />
+        <AddFriend
+          user={user}
+          setIsOpenChatList={setIsOpenChatList}
+          isOpenChatList={isOpenChatList}
+        />
       </div>
       {/* Grid layout for friends, requests, and blocked users */}
       <div className="flex-1 grid grid-cols-1 gap-4 p-5 max-h-full sm:grid-cols-3 overflow-auto">
         <div className="flex flex-col max-h-full overflow-auto">
           <FriendsComponent
-          socket={socket}
+            socket={socket}
             setFriends={setFriends}
             friends={friends}
             setBlockedUsers={setBlockedUsers}

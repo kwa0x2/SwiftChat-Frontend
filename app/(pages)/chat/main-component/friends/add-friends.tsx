@@ -1,11 +1,6 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-} from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 import { Search } from "@/components/ui/search";
 import { Disclosure } from "@headlessui/react";
 import { AddFriendSchemas } from "@/schemas/addfriend";
@@ -24,7 +19,11 @@ interface AddFriendProps {
   isOpenChatList: boolean;
 }
 
-const AddFriend: React.FC<AddFriendProps> = ({ user, setIsOpenChatList, isOpenChatList }) => {
+const AddFriend: React.FC<AddFriendProps> = ({
+  user,
+  setIsOpenChatList,
+  isOpenChatList,
+}) => {
   const form = useForm<z.infer<typeof AddFriendSchemas>>({
     resolver: zodResolver(AddFriendSchemas),
     defaultValues: {
@@ -32,49 +31,80 @@ const AddFriend: React.FC<AddFriendProps> = ({ user, setIsOpenChatList, isOpenCh
     },
   });
 
+  //#region Form Submission Handler
   async function onSubmit(formData: z.infer<typeof AddFriendSchemas>) {
-    if (user.mail === formData.email) {
+    if (user.email === formData.email) {
       toast.error("You cannot send a friend request to yourself.");
-    } else {
-      try {
-        const res = await SendFriendRequest(formData.email);
-        if (res.status === 200) {
-          if (res.data.status === "Friend Sent") {
-            toast.success(`Friend request sent successfully to ${formData.email}!`);
-          } else if (res.data.status === "Email Sent") {
-            toast.success(`No such user exists, so the friend request has been sent to ${formData.email} via email!`);
-          }
-        }
-      } catch (error) {
-        if (axios.isAxiosError(error) && error.response) {
-          const { status, data } = error.response;
+      return;
+    }
 
-          if (status === 409) {
-            switch (data.error) {
-              case "Already Friend":
-                toast.warning(`${formData.email} is already in your friends list!`);
-                break;
-              case "Already Sent":
-                toast.warning(`You have already sent a friend request to ${formData.email}!`);
-                break;
-              case "Blocked User":
-                toast.warning(`Either you have blocked ${formData.email} or they have blocked you!`);
-                break;
-              default:
-                toast.error("An unknown error occurred. Please try again later.");
-            }
-          } else {
-            toast.error("An unknown error occurred. Please try again later.");
-          }
-        }
+    try {
+      const res = await SendFriendRequest(formData.email);
+      if (res.status === 200) {
+        handleResponse(res.data.status, formData.email);
       }
+    } catch (error) {
+      handleError(error,formData);
     }
   }
 
+  // Handle responses from the API
+  const handleResponse = (status: string, email: string) => {
+    switch (status) {
+      case "Friend Sent":
+        toast.success(`Friend request sent successfully to ${email}!`);
+        break;
+      case "Email Sent":
+        toast.success(
+          `No such user exists, so the friend request has been sent to ${email} via email!`
+        );
+        break;
+      default:
+        toast.error("An unknown error occurred. Please try again later.");
+    }
+  };
+
+  // Handle API errors
+  const handleError = (error: any, formData:  z.infer<typeof AddFriendSchemas>) => {
+    if (axios.isAxiosError(error) && error.response) {
+      const { status, data } = error.response;
+
+      if (status === 409) {
+        handleConflictError(data.error,formData);
+      } else {
+        toast.error("An unknown error occurred. Please try again later.");
+      }
+    }
+  };
+
+  // Handle specific conflict errors
+  const handleConflictError = (errorType: string, formData:  z.infer<typeof AddFriendSchemas>) => {
+    switch (errorType) {
+      case "Already Friend":
+        toast.warning(`${formData.email} is already in your friends list!`);
+        break;
+      case "Already Sent":
+        toast.warning(
+          `You have already sent a friend request to ${formData.email}!`
+        );
+        break;
+      case "Blocked User":
+        toast.warning(
+          `Either you have blocked ${formData.email} or they have blocked you!`
+        );
+        break;
+      default:
+        toast.error("An unknown error occurred. Please try again later.");
+    }
+  };
+  //#endregion
+
+  //#region Toggle Chat List Visibility
   const handleMenuClick = () => {
     setIsOpenChatList(!isOpenChatList);
   };
-
+  //#endregion
+  
   return (
     <Disclosure as="nav" className="border-b border-[#5C6B81]">
       <div className="px-5 flex h-20 gap-2 items-center justify-between">

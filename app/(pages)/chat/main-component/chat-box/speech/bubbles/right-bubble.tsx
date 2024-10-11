@@ -31,111 +31,118 @@ const RightBubble: React.FC<RightBubbleProps> = ({
   friend,
 }) => {
   const [isEditing, setIsEditing] = useState<boolean>(false);
-  const [editedMessage, setEditedMessage] = useState<string>(msg.message);
+  const [editedMessage, setEditedMessage] = useState<string>(msg.message_content);
   const messageRef = useRef<HTMLDivElement>(null);
   const [messageWidth, setMessageWidth] = useState<number>(0);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  // #region Effect Hook for setting the message width and focusing input when editing
   useEffect(() => {
     if (messageRef.current) {
+      // Set the width of the message
       setMessageWidth(messageRef.current.offsetWidth);
     }
     if (isEditing && inputRef.current) {
+      // Focus on the input field when editing
       inputRef.current.focus();
     }
-  }, [msg.message, isEditing]);
+  }, [msg.message_content, isEditing]);
+  // #endregion
 
+  // #region Handlers for editing functionality
   const handleEditChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setEditedMessage(e.target.value);
+    setEditedMessage(e.target.value); // Update edited message
   };
+
 
   const handleEditSubmit = () => {
     if (socket && user) {
       handleSocketEmit(
         socket,
-        "editMessage",
+        'editMessage',
         {
           message_id: msg.message_id,
           room_id: friend.user_email,
           user_email: friend.room_id,
           edited_message: editedMessage,
         },
-        null,
-        () => {},
+        undefined,
+        undefined,
         () => {
-          toast.error(
-            "An unknown error occurred while trying to edit the message."
-          );
+          toast.error('An unknown error occurred while trying to edit the message.');
         }
       );
     }
-    setIsEditing(false);
+    setIsEditing(false); // End editing mode
   };
 
   const handleEditCancel = () => {
-    setEditedMessage(msg.message);
-    setIsEditing(false);
+    setEditedMessage(msg.message_content); // Reset to original message
+    setIsEditing(false); // End editing mode
   };
 
   const handleEditKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
-      handleEditSubmit();
+    if (e.key === 'Enter') {
+      handleEditSubmit(); // Submit edited message on Enter key press
     }
   };
+  // #endregion
 
-  const renderMessageContent = () => {
-    if (msg.deletedAt) {
-      return (
-        <div className="flex items-center gap-2">
-          <MdBlock className="h-4 w-4" />
-          <span>This message has been deleted.</span>
-        </div>
-      );
-    }
+ // #region Function to render message content
+ const renderMessageContent = () => {
+  if (msg.deletedAt) {
+    // Render a "deleted message" indicator if the message is deleted
+    return (
+      <div className="flex items-center gap-2">
+        <MdBlock className="h-4 w-4" />
+        <span>This message has been deleted.</span>
+      </div>
+    );
+  }
 
-    if (msg.message_type === "photo") {
-      const { fileName, finalUrl } = getFileNameAndUrl(msg.message);
+  // Render different content based on message type
+  if (msg.message_type === 'photo') {
+    const { fileName, finalUrl } = getFileNameAndUrl(msg.message_content);
 
-      if (finalUrl) {
-        return (
-          <Image
-            onClick={() => window.open(finalUrl ? finalUrl : "", "_blank")}
-            width={100}
-            height={100}
-            className="rounded-md h-[250px] w-auto"
-            src={finalUrl ? finalUrl : "/error-image-generic.png"}
-            alt="Selected Image"
-            loading="eager"
-          />
-        );
-      } else {
-        return <span>An error occurred while rendering the image.</span>;
-      }
-    }
+    return finalUrl ? (
+      <Image
+        onClick={() => window.open(finalUrl, '_blank')}
+        width={100}
+        height={100}
+        className="rounded-md h-[250px] w-auto"
+        src={finalUrl || '/error-image-generic.png'}
+        alt="Selected Image"
+        loading="eager"
+      />
+    ) : (
+      <span>An error occurred while rendering the image.</span>
+    );
+  }
 
-    if (msg.message_type === "file") {
-      const { fileName, finalUrl } = getFileNameAndUrl(msg.message);
+  if (msg.message_type === 'file') {
+    const { fileName, finalUrl } = getFileNameAndUrl(msg.message_content);
 
-      return (
-        <div className="flex items-center gap-2">
-          {finalUrl ? (
-            <FaFile className=" h-[75px] w-[75px]" />
-          ) : (
-            <MdReportGmailerrorred className="text-red-500 h-[75px] w-[75px]" />
-          )}
-          <a
-            href={finalUrl ? finalUrl : ""}
-            target={finalUrl ? "_blank" : ""}
-            rel="noopener noreferrer"
-          >
-            {fileName ? fileName : "File name not found."}
-          </a>
-        </div>
-      );
-    }
+    return (
+      <div className="flex items-center gap-2">
+        {finalUrl ? (
+          <FaFile className="h-[75px] w-[75px]" />
+        ) : (
+          <MdReportGmailerrorred className="text-red-500 h-[75px] w-[75px]" />
+        )}
+        <a
+          href={finalUrl || ''}
+          target={finalUrl ? '_blank' : ''}
+          rel="noopener noreferrer"
+        >
+          {fileName || 'File name not found.'}
+        </a>
+      </div>
+    );
+  }
 
-    return msg.message;
-  };
+  return msg.message_content; // Default message content
+};
+// #endregion
 
   return (
     <div className="block  ">
@@ -228,9 +235,6 @@ const RightBubble: React.FC<RightBubbleProps> = ({
             )}
           </div>
         </div>
-        
-          
-        
       </div>
     </div>
   );

@@ -1,8 +1,6 @@
 "use client";
 import Image from "next/image";
 import Options from "./options";
-import { FriendModel } from "../friends";
-import { BlockedModel } from "../../blocked-component/blocked";
 import {
   Tooltip,
   TooltipContent,
@@ -10,20 +8,21 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Socket } from "socket.io-client";
+import { FriendModel } from "@/models/Friend";
+import { BlockedModel } from "@/models/Blocked";
 
 interface FriendItemProps {
   friend: FriendModel;
   setBlockedUsers: React.Dispatch<React.SetStateAction<BlockedModel[]>>;
   setFriends: React.Dispatch<React.SetStateAction<FriendModel[]>>;
-  socket: Socket | null
-
+  socket: Socket | null;
 }
 
 const FriendItem = ({
   friend,
   setBlockedUsers,
   setFriends,
-  socket
+  socket,
 }: FriendItemProps) => {
   return (
     <TooltipProvider>
@@ -59,7 +58,7 @@ const FriendItem = ({
             </div>
             <div className="flex-none flex items-center justify-center gap-2 ml-auto lg:ml-0">
               <Options
-              socket={socket}
+                socket={socket}
                 setFriends={setFriends}
                 friend={friend}
                 setBlockedUsers={setBlockedUsers}
@@ -68,7 +67,7 @@ const FriendItem = ({
           </div>
         </TooltipTrigger>
         <TooltipContent>
-          <p>{friend.friend_mail}</p>
+          <p>{friend.friend_email}</p>
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>

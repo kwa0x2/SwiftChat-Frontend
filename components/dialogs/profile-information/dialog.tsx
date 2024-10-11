@@ -20,6 +20,7 @@ const ProfileInformationDialog = ({
   onOpenChange,
   user,
 }: ProfileInformationDialogProps) => {
+  
   const handleOpenChange = (open: boolean) => {
     onOpenChange(open);
   };
@@ -30,10 +31,12 @@ const ProfileInformationDialog = ({
         <DialogHeader>
           <DialogTitle>{`${user.user_name}'s Profile`}</DialogTitle>
           <DialogDescription>
-          View your friend&apos;s profile, including their picture, username, email, and membership date.
+            View your friend&apos;s profile, including their picture, username,
+            email, and membership date.
           </DialogDescription>
         </DialogHeader>
-        {(user.friend_status === "friend" || user.friend_status === "unfriend") && (
+        {(user.friend_status === "friend" ||
+          user.friend_status === "unfriend") && (
           <div className="gap-4 pt-4 relative flex justify-center shrink-0 items-center">
             <Image
               width={160}

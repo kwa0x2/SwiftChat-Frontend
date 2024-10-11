@@ -13,7 +13,11 @@ interface ChatNavbarProps {
   isOpenChatList: boolean;
 }
 
-const ChatNavbar = ({ friend,setIsOpenChatList,isOpenChatList }: ChatNavbarProps) => {
+const ChatNavbar = ({
+  friend,
+  setIsOpenChatList,
+  isOpenChatList,
+}: ChatNavbarProps) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   return (
@@ -75,7 +79,10 @@ const ChatNavbar = ({ friend,setIsOpenChatList,isOpenChatList }: ChatNavbarProps
               onClick={() => setIsDialogOpen(true)}
               className="text-[#4A32B0] text-2xl"
             />
-            <MdMenu   onClick={() => setIsOpenChatList(true)} className="text-[#4A32B0] block sm:hidden  text-2xl"/>
+            <MdMenu
+              onClick={() => setIsOpenChatList(true)}
+              className="text-[#4A32B0] block sm:hidden  text-2xl"
+            />
           </div>
           <ProfileInformationDialog
             isOpen={isDialogOpen}

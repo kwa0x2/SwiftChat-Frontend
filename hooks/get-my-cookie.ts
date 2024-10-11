@@ -1,11 +1,11 @@
 import { cookies } from "next/dist/client/components/headers";
 
-/* Cookies kismindan back-end tarafindan
- * bize getirilen cookiyi alır */
+//#region Cookie Retrieval
 export const getMyCookie = () => {
   const cStore = cookies();
-  const cookees = cStore.get("connect.sid");
-  if (!cookees) return null;
-  const readable = cookees?.name + "=" + cookees?.value;
+  const cookie = cStore.get("connect.sid");
+  if (!cookie) return null;
+  const readable = cookie?.name + "=" + cookie?.value;
   return readable;
 };
+//#endregion

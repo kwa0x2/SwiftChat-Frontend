@@ -23,24 +23,30 @@ const Sidebar = ({
   isOpenChatList,
   setIsOpenChatList,
 }: SidebarProps) => {
+
+  // #region Redux State and Local State
   const chatLists = useSelector(
     (state: RootState) => state.chatListReducer.chatLists
   );
   const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>("");
+  // #endregion
 
+  // #region Handler Functions
   const handleItemClick = (room_id: string) => {
     setSelectedRoomId(room_id);
+    // Toggle highlighted room
     if (highlightedRoomId === room_id) {
       setHighlightedRoomId(null);
     }
     setIsOpenChatList(false);
   };
 
+  // Filter chat messages based on search query
   const filteredMessages = chatLists?.filter((msg: ChatListItemModel) =>
     msg.user_name.toLowerCase().startsWith(searchQuery.toLowerCase())
   );
-
+  // #endregion
 
   return (
     <CustomCard
@@ -48,7 +54,11 @@ const Sidebar = ({
         isOpenChatList ? "flex" : "hidden"
       } lg:flex flex-col   min-w-full lg:min-w-[260px] max-h-full`}
     >
-      <UserProfile user={user} onSearch={setSearchQuery}  setIsOpenChatList={setIsOpenChatList} />
+      <UserProfile
+        user={user}
+        onSearch={setSearchQuery}
+        setIsOpenChatList={setIsOpenChatList}
+      />
       <ScrollArea className="flex-1 rounded-md overflow-auto">
         <div className="pt-3">
           {filteredMessages?.map((chatList: ChatListItemModel) => (
@@ -63,7 +73,6 @@ const Sidebar = ({
         </div>
       </ScrollArea>
     </CustomCard>
-
   );
 };
 

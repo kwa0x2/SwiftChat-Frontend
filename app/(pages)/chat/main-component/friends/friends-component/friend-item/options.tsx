@@ -8,7 +8,6 @@ import {
 import { GoBlocked } from "react-icons/go";
 import { IoChatboxEllipsesOutline } from "react-icons/io5";
 import { LuUserX } from "react-icons/lu";
-import { FriendModel } from "../friends";
 import { toast } from "sonner";
 import { checkAndGetPrivateRoom } from "@/app/api/services/room.Service";
 import { useDispatch, useSelector } from "react-redux";
@@ -22,103 +21,91 @@ import {
   addChatList,
   updateChatListFriendStatusByEmail,
 } from "@/app/redux/slices/chatListSlice";
-import { BlockedModel } from "../../blocked-component/blocked";
 import { useCallback } from "react";
-import { setActiveComponent, setFriendStatus } from "@/app/redux/slices/componentSlice";
-import { Block, Remove } from "@/app/api/services/friendship.Service";
+import {
+  setActiveComponent,
+  setFriendStatus,
+} from "@/app/redux/slices/componentSlice";
+import { Block, Remove } from "@/app/api/services/friend.Service";
 import { handleSocketEmit } from "@/lib/socket";
 import { Socket } from "socket.io-client";
+import { handleFriendStatusUpdate } from "@/lib/slice";
+import { FriendModel } from "@/models/Friend";
+import { BlockedModel } from "@/models/Blocked";
 
 interface FriendOptionsProps {
   friend: FriendModel;
   setBlockedUsers: React.Dispatch<React.SetStateAction<BlockedModel[]>>;
   setFriends: React.Dispatch<React.SetStateAction<FriendModel[]>>;
-  socket: Socket | null
+  socket: Socket | null;
 }
 
 const Options = ({
   friend,
   setBlockedUsers,
   setFriends,
-  socket
+  socket,
 }: FriendOptionsProps) => {
   const dispatch = useDispatch<AppDispatch>();
   const chatLists = useSelector(
     (state: RootState) => state.chatListReducer.chatLists
   );
 
+  // #region Blocking a Friend
   const blockFriend = async () => {
-    const res = await Block(friend.friend_mail);
+    const res = await Block(friend.friend_email);
     if (res.status === 200) {
+      // Update state to reflect the blocked user
       setFriends((prev) =>
-        prev.filter((req) => req.friend_mail !== friend.friend_mail)
+        prev.filter((req) => req.friend_email !== friend.friend_email)
       );
-
       setBlockedUsers((prev) => [
         ...(Array.isArray(prev) ? prev : []),
         {
-          blocked_mail: friend.friend_mail,
+          blocked_email: friend.friend_email,
           user_name: friend.user_name,
         },
       ]);
 
-      dispatch(
-        updateChatListFriendStatusByEmail({
-          friend_status: "blocked",
-          user_email: friend.friend_mail,
-        })
-      );
+      handleFriendStatusUpdate(dispatch, friend.friend_email, "blocked");
 
-      dispatch(
-        updateChatFriendStatusByEmail({
-          friend_status: "blocked",
-          user_email: friend.friend_mail,
-        })
-      );
       toast.success(`${friend.user_name} has been successfully blocked.`);
-
     } else {
-      toast.error(
-        "An unknown error occurred while trying to block the user."
-      );
+      toast.error("An unknown error occurred while trying to block the user.");
     }
   };
+  // #endregion
 
+  // #region Deleting a Friend
   const deleteFriend = async () => {
-    const res = await Remove(friend.friend_mail);
+    const res = await Remove(friend.friend_email);
     if (res.status === 200) {
+      // Update state to remove the friend
       setFriends((prev) =>
-        prev.filter((req) => req.friend_mail !== friend.friend_mail)
+        prev.filter((req) => req.friend_email !== friend.friend_email)
       );
-  
-      dispatch(
-        updateChatListFriendStatusByEmail({
-          user_email: friend.friend_mail,
-          friend_status: "unfriend",
-        })
+
+      // Dispatch actions to update chat list and friend status
+      handleFriendStatusUpdate(dispatch, friend.friend_email, "unfriend");
+      toast.success(
+        `${friend.user_name} has been successfully deleted from your friends!`
       );
-      dispatch(
-        updateChatFriendStatusByEmail({
-          user_email: friend.friend_mail,
-          friend_status: "unfriend",
-        })
-      );
-      toast.success(`${friend.user_name} has been successfully deleted from your friends!`);
     } else {
       toast.error(
         "An unknown error occurred while trying to delete the friend."
       );
     }
   };
-  
+  // #endregion
 
+  // #region Opening a Chat
   const openChatHandler = useCallback(async () => {
-    const res = await checkAndGetPrivateRoom(friend.friend_mail);
+    const res = await checkAndGetPrivateRoom(friend.friend_email);
     if (res.status === 200) {
       const room_id = res.data.room_id;
 
       const chatDataObj: ChatSliceModel = {
-        user_email: friend.friend_mail,
+        user_email: friend.friend_email,
         user_name: friend.user_name,
         user_photo: friend.user_photo,
         friend_status: "friend",
@@ -127,68 +114,50 @@ const Options = ({
         activeStatus: friend.activeStatus,
       };
 
-      if (chatLists) {
-        const chatRoom = chatLists.find((msg) => msg.room_id === room_id);
-        if (chatRoom) {
-          dispatch(setChatData(chatDataObj));
-          handleSocketEmit(
-            socket,
-            "readMessage",
-            { room_id },
-            "",
-            () => {},
-            () => {
-              toast.error("An unknown error occurred. Please try again later.");
-            }
-          );
-  
-          console.warn("bu method")
-        } else {
-          dispatch(
-            addChatList({
-              room_id,
-              last_message: "",
-              updatedAt: new Date().toISOString(),
-              user_name: friend.user_name,
-              user_photo: friend.user_photo,
-              user_email: friend.friend_mail,
-              friend_status: "friend",
-              createdAt: new Date().toISOString(),
-              activeStatus: friend.activeStatus,
-              last_message_id: "",
-              message_type: ""
-            })
-          );
-          dispatch(setChatData(chatDataObj));
-        }
+      // Check if the chat room already exists
+      const chatRoom = chatLists?.find((msg) => msg.room_id === room_id);
+      if (chatRoom) {
+        dispatch(setChatData(chatDataObj));
+        handleSocketEmit(
+          socket,
+          "readMessage",
+          { room_id },
+          "",
+          () => {},
+          () => {
+            toast.error("An unknown error occurred. Please try again later.");
+          }
+        );
       } else {
+        // If not, add a new chat room
         dispatch(
           addChatList({
             room_id,
-            last_message: "",
+            last_message_content: "",
             updatedAt: new Date().toISOString(),
             user_name: friend.user_name,
             user_photo: friend.user_photo,
-            user_email: friend.friend_mail,
+            user_email: friend.friend_email,
             friend_status: "friend",
             createdAt: new Date().toISOString(),
             activeStatus: friend.activeStatus,
             last_message_id: "",
-            message_type: ""
-
+            message_type: "",
           })
         );
         dispatch(setChatData(chatDataObj));
       }
+
+      // Update active component and friend status
       dispatch(setActiveComponent("chat"));
       dispatch(setFriendStatus("friend"));
-
     } else {
       toast.error(
         "An unknown error occurred while trying to open the chat box."
       );
     }
-  }, [friend, chatLists, dispatch]);
+  }, [friend, chatLists, dispatch, socket]);
+  // #endregion
 
   return (
     <TooltipProvider>

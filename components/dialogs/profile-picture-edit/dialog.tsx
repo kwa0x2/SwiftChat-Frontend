@@ -14,7 +14,7 @@ import { MdOutlineCancel, MdOutlineFileUpload } from "react-icons/md";
 import { useRef, useState } from "react";
 import Image from "next/image";
 import { SlPicture } from "react-icons/sl";
-import { uploadProfilePhoto } from "@/app/api/services/user.Service";
+import { updateProfilePhoto } from "@/app/api/services/user.Service";
 import { useSession } from "next-auth/react";
 import { toast } from "sonner";
 
@@ -33,11 +33,14 @@ const ProfilePictureEditDialog = ({
   onUpload,
   token,
 }: ProfileEditDialogProps) => {
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string>(user_photo);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const { update } = useSession();
+ // #region State Variables
+ const [selectedFile, setSelectedFile] = useState<File | null>(null);
+ const [imagePreview, setImagePreview] = useState<string>(user_photo);
+ const fileInputRef = useRef<HTMLInputElement>(null);
+ const { update } = useSession();
+ // #endregion
 
+  // #region File Handling
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0] ?? null;
     if (file) {
@@ -60,8 +63,7 @@ const ProfilePictureEditDialog = ({
     if (!selectedFile) return;
 
     try {
-      const result = await uploadProfilePhoto(selectedFile, token);
-
+      const result = await updateProfilePhoto(selectedFile, token);
       onUpload(result.data);
       setSelectedFile(null);
     } catch (error) {
@@ -84,18 +86,18 @@ const ProfilePictureEditDialog = ({
       fileInputRef.current.value = "";
     }
   };
+  // #endregion
 
+  // #region Dialog Handling
   const handleOpenChange = (open: boolean) => {
     if (!open) {
       handleCancel();
     }
     onOpenChange(open);
   };
+  // #endregion
 
   return (
-    
-
-   
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogContent className=" sm:max-w-[425px]">
         <DialogHeader>
@@ -158,7 +160,6 @@ const ProfilePictureEditDialog = ({
         </DialogFooter>
       </DialogContent>
     </Dialog>
-    
   );
 };
 

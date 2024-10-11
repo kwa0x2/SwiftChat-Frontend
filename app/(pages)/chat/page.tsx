@@ -1,50 +1,71 @@
 "use client";
 
 import { useCurrentUser } from "@/hooks/use-current-user";
-import { SetStateAction, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Sidebar from "./sidebar/sidebar";
 import io, { Socket } from "socket.io-client";
 import MainComponent from "@/app/(pages)/chat/main-component/page";
 import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch, RootState, useAppSelector } from "@/app/redux/store";
+import { AppDispatch, RootState } from "@/app/redux/store";
 import {
   deleteLastMessage,
   setChatList,
   updateChatListActiveStatusByEmails,
-  updateChatListFriendStatusByEmail,
   updateChatListUsernameByEmail,
   updateChatListUserPhotoByEmail,
   updateLastMessage,
 } from "@/app/redux/slices/chatListSlice";
 import { getChatListHistory } from "@/app/api/services/room.Service";
 import { toast } from "sonner";
-import { RequestsModel } from "./main-component/friends/requests-component/requests";
-import { FriendModel } from "./main-component/friends/friends-component/friends";
-import { BlockedModel } from "./main-component/friends/blocked-component/blocked";
-import { ComingRequests } from "@/app/api/services/request.Service";
-import { Blocked, Friends } from "@/app/api/services/friendship.Service";
+
+import { Requests } from "@/app/api/services/request.Service";
+import { Blocked, Friends } from "@/app/api/services/friend.Service";
 import {
   updateChatActiveStatusByEmails,
-  updateChatFriendStatusByEmail,
   updateChatUsernameByEmail,
   updateChatUserPhotoByEmail,
 } from "@/app/redux/slices/chatSlice";
 import { handleSocketEmit } from "@/lib/socket";
+import { handleFriendStatusUpdate } from "@/lib/slice";
+import { RequestsModel } from "@/models/Request";
+import { BlockedModel } from "@/models/Blocked";
+import { FriendModel } from "@/models/Friend";
 
 const ChatPage = () => {
+  // #region User and Socket Initialization
+
+  // Get the current user from a custom hook
   const currentUser = useCurrentUser();
+  // Create a reference for the socket connection
   const socketRef = useRef<Socket | null>(null);
+  // Get the socket URL from environment variables
   const socketUrl = process.env.SOCKET_IO_URL;
+  // Get the Redux dispatch function
+  const dispatch = useDispatch<AppDispatch>();
+
+  // #endregion
+
+  // #region Redux Selectors and Refs
+
+  // Select the chat lists from the Redux store
   const chatLists = useSelector(
     (state: RootState) => state.chatListReducer.chatLists
   );
+  // Select the component reducer state from the Redux store
   const componentReducerValue = useSelector(
     (state: RootState) => state.componentReducer
   );
+  // Create refs to keep track of the component reducer and chat lists
   const componentReducerRef = useRef(componentReducerValue);
   const chatListsRef = useRef(chatLists);
+  // Create a ref for online users
   const onlineUsers = useRef<string[]>([]);
-  const dispatch = useDispatch<AppDispatch>();
+
+  // #endregion
+
+  // #region Local State Initialization
+
+  // Local state to manage highlighted room, friend requests, friends, blocked users, and chat list visibility
   const [highlightedRoomId, setHighlightedRoomId] = useState<string | null>(
     null
   );
@@ -54,243 +75,303 @@ const ChatPage = () => {
   const [isOpenChatList, setIsOpenChatList] = useState(false);
   const isOpenChatListRef = useRef(isOpenChatList);
 
-  const getChatListHistoryData = async () => {
-    const res = await getChatListHistory();
-    if (res.status === 200) {
-      dispatch(setChatList(res.data.data));
-      dispatch(
-        updateChatListActiveStatusByEmails({
-          activeEmails: onlineUsers.current,
-        })
-      );
-      dispatch(
-        updateChatActiveStatusByEmails({
-          activeEmails: onlineUsers.current,
-        })
-      );
-    }
-  };
+  // #endregion
 
   useEffect(() => {
     componentReducerRef.current = componentReducerValue;
   }, [componentReducerValue]);
 
-  useEffect(() => {
-    chatListsRef.current = chatLists;
-  }, [chatLists]);
+  // useEffect(() => {
+  //   chatListsRef.current = chatLists;
+  // }, [chatLists]);
 
   useEffect(() => {
     isOpenChatListRef.current = isOpenChatList;
   }, [isOpenChatList]);
 
+  // #region API Calls
+
+  // Fetch chat list history from the API
+  const getChatListHistoryData = async () => {
+    const res = await getChatListHistory();
+    if (res.status === 200) {
+      dispatch(setChatList(res.data.data));
+      updateActiveUsersStatus();
+    }
+  };
+
+  // Fetch incoming friend requests from the API
+  const getRequestData = async () => {
+    const res = await Requests();
+    if (res.status === 200) setRequests(res.data.data);
+    else toast.error("Failed to fetch friend requests.");
+  };
+
+  // Fetch friends data from the API
+  const getFriendsData = async () => {
+    const res = await Friends();
+    if (res.status === 200) setFriends(res.data.data);
+    else toast.error("Failed to fetch friends.");
+  };
+
+  // Fetch blocked users data from the API
+  const getBlockedUsersData = async () => {
+    const res = await Blocked();
+    if (res.status === 200) setBlockedUsers(res.data.data);
+    else toast.error("Failed to fetch blocked users.");
+  };
+
+  // #endregion
+
+  // #region Socket Initialization and Event Handling
+
+  // useEffect to manage socket connection and setup listeners
   useEffect(() => {
+    // Create a new socket connection
     const newSocket = io(socketUrl as string, {
-      transports: ["websocket", "polling"],
+      transports: ["websocket", "polling"], // Specify transport methods
     });
 
-    newSocket.on("connect", () => console.log("connected "));
+    // Log when the socket connects
+    newSocket.on("connect", () => console.log("connected"));
+    // Log when the socket disconnects
     newSocket.on("disconnect", () => console.log("disconnected"));
+    // Log any connection errors
     newSocket.on("connect_error", (error) =>
       console.error(`Connection Error: ${error.message}`)
     );
 
+    // Emit a joinRoom event to the "notification" room
     newSocket.emit("joinRoom", "notification");
 
+    // Store the socket reference
     socketRef.current = newSocket;
 
-    if (currentUser && currentUser.email) {
-      getChatListHistoryData();
-      getRequestData();
-      getFriendsData();
-      getBlockedUsersData();
-
-      newSocket.on(currentUser.email, (response: any) =>
-        handleSocketResponse(response)
-      );
-
-      newSocket.on("onlineUsers", (response: any) => {
-        onlineUsers.current = response;
-        dispatch(
-          updateChatListActiveStatusByEmails({
-            activeEmails: response,
-          })
-        );
-        dispatch(
-          updateChatActiveStatusByEmails({
-            activeEmails: response,
-          })
-        );
-
-        setFriends((prevFriends) =>
-          prevFriends?.map((friend) =>
-            response.includes(friend.friend_mail)
-              ? { ...friend, activeStatus: true }
-              : { ...friend, activeStatus: false }
-          )
-        );
-
-        setRequests((prevRequests) =>
-          prevRequests?.map((requests) =>
-            response.includes(requests.sender_mail)
-              ? { ...requests, activeStatus: true }
-              : { ...requests, activeStatus: false }
-          )
-        );
-      });
+    // Fetch initial data and setup socket listeners if user email is available
+    if (currentUser?.email) {
+      fetchInitialData();
+      setupSocketListeners(newSocket, currentUser.email);
     }
 
+    // Cleanup function to remove socket listeners on component unmount
     return () => {
-      if (currentUser && currentUser.email) {
-        newSocket.off(currentUser.email);
-      }
+      if (currentUser?.email) newSocket.off(currentUser.email);
     };
   }, [socketUrl, currentUser?.email]);
 
+  // #endregion
+
+  // #region Socket Listener Setup
+
+  // Function to setup socket listeners for specific events
+  const setupSocketListeners = (socket: Socket, email: string) => {
+    // Listen for responses associated with the user's email
+    socket.on(email, (response: any) => handleSocketResponse(response));
+    // Listen for updates on online users
+    socket.on("onlineUsers", (response: any) =>
+      handleOnlineUsersUpdate(response)
+    );
+  };
+
+  // #endregion
+
+  // #region Socket Response Handling
+
+  // Function to handle incoming socket responses
   const handleSocketResponse = (response: any) => {
-    console.warn("email socket", response);
-
-    const { action, data } = response;
-    // if (chatLists.length === 0) {
-    //   getChatListHistoryData();
-    // }
-    if (action === "new_message") {
-      handleNewMessage(data);
-    } else if (action === "update_friendship_request") {
-      handleFriendshipUpdate(data);
-    } else if (action === "friend_request") {
-      handleFriendRequest(data);
-    } else if (action === "blocked_friend") {
-      handleBlockedFriend(data);
-    } else if (action === "deleted_friend") {
-      handleDeletedFriend(data);
-    } else if (action === "update_username") {
-      handleUpdateUsername(data);
-    } else if (action === "update_user_photo") {
-      handleUpdateUserPhoto(data);
-    } else if (action === "delete_message") {
-      const { room_id, message_id } = data;
-
-      dispatch(
-        deleteLastMessage({
-          room_id,
-          message_id,
-          updatedAt: new Date().toISOString(),
-          deletedAt: new Date().toISOString(),
-        })
-      );
+    const { action, data } = response; // Destructure action and data from the response
+    switch (action) {
+      case "new_message":
+        handleNewMessage(data); // Handle new message event
+        break;
+      case "update_friendship_request":
+        handleFriendshipUpdate(data); // Handle friendship update event
+        break;
+      case "friend_request":
+        handleFriendRequest(data); // Handle friend request event
+        break;
+      case "blocked_friend":
+        handleBlockedFriend(data); // Handle blocked friend event
+        break;
+      case "deleted_friend":
+        handleDeletedFriend(data); // Handle deleted friend event
+        break;
+      case "update_username":
+        handleUpdateUsername(data); // Handle username update event
+        break;
+      case "update_user_photo":
+        handleUpdateUserPhoto(data); // Handle user photo update event
+        break;
+      case "delete_message":
+        handleDeleteMessage(data); // Handle message deletion event
+        break;
+      default:
+        break; // No action needed for unknown events
     }
   };
 
-  const handleNewMessage = (data: any) => {
-    const { room_id, message, message_id, updatedAt, message_type } = data;
+  // #endregion
 
+  // #region Online Users Update Handling
+
+  // Function to handle updates on online users
+  const handleOnlineUsersUpdate = (response: any) => {
+    onlineUsers.current = response; // Update the list of online users
+    updateActiveUsersStatus(); // Update the active status of users in chat
+    updateFriendsActiveStatus(response); // Update the active status of friends
+    updateRequestsActiveStatus(response); // Update the active status of requests
+  };
+
+  // #endregion
+
+  // #region Status Update Functions
+
+  // Function to update the active status of users in the chat list
+  const updateActiveUsersStatus = () => {
+    dispatch(
+      updateChatListActiveStatusByEmails({ activeEmails: onlineUsers.current })
+    );
+    dispatch(
+      updateChatActiveStatusByEmails({ activeEmails: onlineUsers.current })
+    );
+  };
+
+  // Function to update the active status of friends based on online users
+  const updateFriendsActiveStatus = (activeEmails: string[]) => {
+    setFriends((prevFriends) =>
+      prevFriends?.map(
+        (friend) =>
+          activeEmails.includes(friend.friend_email)
+            ? { ...friend, activeStatus: true } // Set active status to true if online
+            : { ...friend, activeStatus: false } // Set active status to false if offline
+      )
+    );
+  };
+
+  // Function to update the active status of friend requests based on online users
+  const updateRequestsActiveStatus = (activeEmails: string[]) => {
+    setRequests((prevRequests) =>
+      prevRequests?.map(
+        (request) =>
+          activeEmails.includes(request.sender_email)
+            ? { ...request, activeStatus: true } // Set active status to true if online
+            : { ...request, activeStatus: false } // Set active status to false if offline
+      )
+    );
+  };
+
+  // #endregion
+
+  // #region Socket Response Handlers
+
+  // Handle incoming new message and update the chat list with the latest message
+  const handleNewMessage = (data: any) => {
+    const { room_id, message_content, message_id, updatedAt, message_type } = data;
+
+    // Check if the room exists in the chat list
     const roomExists = chatListsRef.current?.some(
       (chat) => chat.room_id === room_id
     );
 
-    if (!roomExists) {
-      getChatListHistoryData();
-    }
+    // If room doesn't exist, fetch the chat history for that room
+    if (!roomExists) getChatListHistoryData();
 
+    // Dispatch action to update the last message in the chat list
     dispatch(
       updateLastMessage({
         room_id,
-        message,
+        message_content,
         message_id,
         updatedAt,
         message_type,
       })
     );
+
+    // If the active component isn't the chat or the chat list is open, highlight the room
     if (
       componentReducerRef.current.activeComponent !== "chat" ||
-      isOpenChatListRef.current == true
+      isOpenChatListRef.current
     ) {
       setHighlightedRoomId(room_id);
-    } else if (componentReducerRef.current.friendStatus === "friend") {
-      console.warn("isOpenChatList", isOpenChatListRef.current);
-
+    }
+    // If the user is in the chat component and is a friend, mark the message as read
+    else if (componentReducerRef.current.friendStatus === "friend") {
       handleSocketEmit(
         socketRef.current,
         "readMessage",
-        { room_id, message_id },
-        "",
-        () => {},
+        {
+          room_id,
+          message_id,
+        },
+        undefined,
+        undefined,
         () => {
+          // Handle error during message read
           toast.error("An unknown error occurred. Please try again later.");
         }
       );
     }
   };
 
+  // Handle when a friendship status is updated to accepted
   const handleFriendshipUpdate = (data: any) => {
     if (data.status === "accepted") {
-      const updatedData = { ...data.user_data, activeStatus: true };
-
+      // Update the friend status and set them to active
+      const updatedFriend = { ...data.user_data, activeStatus: true };
       setFriends((prev) =>
-        Array.isArray(prev) ? [...prev, updatedData] : [updatedData]
+        Array.isArray(prev) ? [...prev, updatedFriend] : [updatedFriend]
       );
-      dispatch(
-        updateChatListFriendStatusByEmail({
-          friend_status: "friend",
-          user_email: data.user_data.friend_mail,
-        })
-      );
-      dispatch(
-        updateChatFriendStatusByEmail({
-          friend_status: "friend",
-          user_email: data.user_data.friend_mail,
-        })
-      );
+
+      // Update the friend status in the state
+      handleFriendStatusUpdate(dispatch, data.user_data.friend_email, "friend");
+
+      // Show a notification that the user is now a friend
       toast.info(`${data.user_data.user_name} is now your friend!`);
     }
   };
 
+  // Handle receiving a new friend request
   const handleFriendRequest = (data: any) => {
-    const updatedData = { ...data, activeStatus: true };
+    const updatedRequest = { ...data, activeStatus: true };
 
+    // Update the requests state with the new friend request
     setRequests((prev) =>
-      Array.isArray(prev) ? [...prev, updatedData] : [updatedData]
+      Array.isArray(prev) ? [...prev, updatedRequest] : [updatedRequest]
     );
+
+    // Show a notification for the new friend request
     toast.info(`${data.user_name} has sent you a friend request.`);
   };
 
+  // Handle blocking a friend
   const handleBlockedFriend = (data: any) => {
-    if (chatLists) getChatListHistoryData();
-    const { friend_mail, friend_status } = data;
-    dispatch(
-      updateChatListFriendStatusByEmail({
-        friend_status,
-        user_email: friend_mail,
-      })
+    // Remove the blocked friend from the friends list
+    setFriends((prev) =>
+      prev?.filter((friend) => friend.friend_email !== data.friend_email)
     );
-    dispatch(
-      updateChatFriendStatusByEmail({
-        friend_status,
-        user_email: friend_mail,
-      })
-    );
-    setFriends((prev) => prev.filter((req) => req.friend_mail !== friend_mail));
+
+    // Update the friend status to reflect they are blocked
+    handleFriendStatusUpdate(dispatch, data.friend_email, data.friend_status);
+
   };
 
+  // Handle deleting a friend
   const handleDeletedFriend = (data: any) => {
-    const { user_email } = data;
-    setFriends((prev) => prev?.filter((req) => req.friend_mail !== user_email));
-    dispatch(
-      updateChatListFriendStatusByEmail({
-        user_email,
-        friend_status: "unfriend",
-      })
+    // Remove the deleted friend from the friends list
+    setFriends((prev) =>
+      prev?.filter((friend) => friend.friend_email !== data.user_email)
     );
-    dispatch(
-      updateChatFriendStatusByEmail({
-        user_email,
-        friend_status: "unfriend",
-      })
-    );
+
+    // Update the friend status to "unfriend"
+    handleFriendStatusUpdate(dispatch, data.user_email, "unfriend");
+
   };
 
+  // Handle when a user updates their username
   const handleUpdateUsername = (data: any) => {
     const { updated_username, user_email } = data;
+
+    // Update the username in the chat list and chat components
     dispatch(
       updateChatListUsernameByEmail({
         user_name: updated_username,
@@ -304,33 +385,39 @@ const ChatPage = () => {
       })
     );
 
+    // Update the friend's username in the friends list
     setFriends((prevFriends) =>
       prevFriends?.map((friend) =>
-        friend.friend_mail === user_email
+        friend.friend_email === user_email
           ? { ...friend, user_name: updated_username }
           : friend
       )
     );
 
+    // Update the requestor's username in the requests list
     setRequests((prevRequests) =>
       prevRequests?.map((request) =>
-        request.sender_mail === user_email
+        request.sender_email === user_email
           ? { ...request, user_name: updated_username }
           : request
       )
     );
 
+    // Update the blocked user's username in the blocked users list
     setBlockedUsers((prevBlockedUsers) =>
       prevBlockedUsers?.map((blockedUsers) =>
-        blockedUsers.blocked_mail === user_email
+        blockedUsers.blocked_email === user_email
           ? { ...blockedUsers, user_name: updated_username }
           : blockedUsers
       )
     );
   };
 
+  // Handle when a user updates their profile photo
   const handleUpdateUserPhoto = (data: any) => {
     const { updated_user_photo, user_email } = data;
+
+    // Update the profile photo in the chat list and chat components
     dispatch(
       updateChatListUserPhotoByEmail({
         user_photo: updated_user_photo,
@@ -338,63 +425,57 @@ const ChatPage = () => {
       })
     );
     dispatch(
-      updateChatUserPhotoByEmail({
-        user_photo: updated_user_photo,
-        user_email,
-      })
+      updateChatUserPhotoByEmail({ user_photo: updated_user_photo, user_email })
     );
 
+    // Update the friend's profile photo in the friends list
     setFriends((prevFriends) =>
       prevFriends?.map((friend) =>
-        friend.friend_mail === user_email
+        friend.friend_email === user_email
           ? { ...friend, user_photo: updated_user_photo }
           : friend
       )
     );
 
+    // Update the requestor's profile photo in the requests list
     setRequests((prevRequests) =>
       prevRequests?.map((request) =>
-        request.sender_mail === user_email
+        request.sender_email === user_email
           ? { ...request, user_photo: updated_user_photo }
           : request
       )
     );
   };
 
-  const getRequestData = async () => {
-    const res = await ComingRequests();
-    if (res.status === 200) {
-      setRequests(res.data.data);
-    } else {
-      toast.error(
-        "An issue occurred while fetching friends. Please try again later."
-      );
-    }
+  // Handle deleting a message from the chat
+  const handleDeleteMessage = (data: any) => {
+    const { room_id, message_id } = data;
+
+    // Dispatch action to delete the last message from the chat
+    dispatch(deleteLastMessage({ room_id, message_id }));
   };
 
-  const getFriendsData = async () => {
-    const res = await Friends();
-    if (res.status === 200) {
-      setFriends(res.data.data);
-    } else {
-      toast.error(
-        "An issue occurred while fetching friends. Please try again later."
-      );
-    }
-  };
+  // #endregion
 
-  const getBlockedUsersData = async () => {
-    const res = await Blocked();
-    if (res.status !== 200) {
-      toast.error(
-        "An unknown error occurred while retrieving blocked users. Please try again later."
-      );
-    } else {
-      setBlockedUsers(res.data.data);
-    }
+  // #region Fetch Data On Component Mount
+
+  // Fetch initial data when the component mounts
+  const fetchInitialData = async () => {
+    await Promise.all([
+      // Fetch chat list history data
+      getChatListHistoryData(),
+      // Fetch friend request data
+      getRequestData(),
+      // Fetch friends data
+      getFriendsData(),
+      // Fetch blocked users data
+      getBlockedUsersData(),
+    ]);
   };
+  // #endregion
 
   return (
+    // Main component layout for the chat application
     <div
       className="h-screen w-screen p-6 flex lg:gap-5 relative"
       style={{ zIndex: "1" }}

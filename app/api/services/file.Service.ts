@@ -1,23 +1,16 @@
 import axios from "../axios";
 
+// #region Upload a file.
+export const uploadFile = async (file: File) => {
+  const formData = new FormData();
+  formData.append("file", file);
 
-export const uploadFile = async (formData: FormData, setUploadProgress: (progress: number) => void) => {
-    return await axios.post("/file", formData, {
-        headers: {
-            'Content-Type': 'multipart/form-data',
-        },
-        onUploadProgress: (progressEvent) => {
-            if (progressEvent.total) {
-                const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-                setUploadProgress(progress);
-            }
-        },
-    });
+  const headers: Record<string, string> = {
+    "Content-Type": "multipart/form-data",
+  };
+
+  return await axios.post("/files/upload", formData, {
+    headers,
+  });
 };
-
-
-
-
-
-
-
+// #endregion

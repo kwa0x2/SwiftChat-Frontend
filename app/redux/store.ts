@@ -3,14 +3,12 @@ import chatReducer from './slices/chatSlice'
 import { TypedUseSelectorHook, useSelector } from 'react-redux'
 import chatListReducer from './slices/chatListSlice'
 import componentReducer from './slices/componentSlice'
-import fileBoxReducer from './slices/fileBoxSlice'
 
 export const store = configureStore({
   reducer: {
     chatReducer,
     chatListReducer,
     componentReducer,
-    fileBoxReducer,
   },
 })
 

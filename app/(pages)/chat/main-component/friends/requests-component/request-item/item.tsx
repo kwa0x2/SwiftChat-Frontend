@@ -1,8 +1,9 @@
 "use client";
 import Image from "next/image";
 import Options from "./option";
-import { RequestsModel } from "../requests";
-import { FriendModel } from "../../friends-component/friends";
+import { RequestsModel } from "@/models/Request";
+import { FriendModel } from "@/models/Friend";
+
 
 interface ComingRequestsProps {
   requests: RequestsModel;

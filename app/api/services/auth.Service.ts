@@ -1,11 +1,15 @@
 import { getMyCookie } from "@/hooks/get-my-cookie";
 import axios from "../axios";
 
-// kayit olmak icin
-export const signup = async (token: string, user_name: string, user_photo: string) => {
+// #region Sign up a new user.
+export const signup = async (
+  token: string,
+  userName: string,
+  userPhoto: string
+) => {
   return await axios.post(
     "/auth/signup",
-    { user_name: user_name, user_photo: user_photo },
+    { user_name: userName, user_photo: userPhoto },
     {
       headers: {
         Authorization: token,
@@ -13,8 +17,9 @@ export const signup = async (token: string, user_name: string, user_photo: strin
     }
   );
 };
+//#endregion
 
-// logout server side
+// #region Log out the user on the server side.
 export const logoutServer = async () => {
   const query = await fetch(`${process.env.BASE_URL}/auth/logout`, {
     method: "POST",
@@ -29,11 +34,11 @@ export const logoutServer = async () => {
   };
   return response;
 };
+//#endregion
 
-//#region CHECK VALID SESSION
-// for server side | check for user valid session
+// #region Check if the user has a valid session on the server side.
 export const getLoggedInUserServer = async () => {
-  const query = await fetch(`${process.env.BASE_URL}/auth`, {
+  const query = await fetch(`${process.env.BASE_URL}/auth/status`, {
     headers: {
       Cookie: `${getMyCookie()}`,
     },
@@ -41,9 +46,10 @@ export const getLoggedInUserServer = async () => {
   const response = await query.json();
   return response;
 };
+//#endregion
 
-// for client side | check for user valid session
+// #region Check if the user has a valid session on the client side.
 export const getLoggedInUser = async () => {
-  return await axios.get("/auth");
+  return await axios.get("/auth/status");
 };
 //#endregion

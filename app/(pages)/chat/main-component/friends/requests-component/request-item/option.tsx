@@ -6,15 +6,14 @@ import {
 } from "@/components/ui/tooltip";
 import { BsCheckLg } from "react-icons/bs";
 import { LiaTimesSolid } from "react-icons/lia";
-import { RequestsModel } from "../requests";
 import { RequestStatus } from "@/models/Enum";
 import { toast } from "sonner";
-import { FriendModel } from "../../friends-component/friends";
 import { AppDispatch } from "@/app/redux/store";
 import { useDispatch } from "react-redux";
-import { updateChatListFriendStatusByEmail } from "@/app/redux/slices/chatListSlice";
-import { updateChatFriendStatusByEmail } from "@/app/redux/slices/chatSlice";
 import { UpdateFriendshipRequest } from "@/app/api/services/request.Service";
+import { handleFriendStatusUpdate } from "@/lib/slice";
+import { FriendModel } from "@/models/Friend";
+import { RequestsModel } from "@/models/Request";
 
 interface ComingRequestsProps {
   requests: RequestsModel;
@@ -29,60 +28,59 @@ const Options: React.FC<ComingRequestsProps> = ({
 }) => {
   const dispatch = useDispatch<AppDispatch>();
 
+  //#region Update Friendship Request Function
   const updateFriendshipRequest = async (
     request: RequestsModel,
     status: RequestStatus
   ) => {
-    const res = await UpdateFriendshipRequest(request.sender_mail, status);
+    const res = await UpdateFriendshipRequest(request.sender_email, status);
+
     if (res.status === 200) {
+      // If the request is accepted
       if (status === RequestStatus.accepted) {
+        // Remove the request from the list
         setRequests((prevRequests) =>
-          prevRequests.filter((req) => req.sender_mail !== request.sender_mail)
+          prevRequests?.filter((req) => req.sender_email !== request.sender_email)
         );
 
+        // Create a new friend model
         const newFriend: FriendModel = {
-          friend_mail: request.sender_mail,
+          friend_email: request.sender_email,
           user_name: requests.user_name,
           user_photo: request.user_photo,
           activeStatus: request.activeStatus,
         };
 
-        setFriends((prevRequests) => {
-          if (!Array.isArray(prevRequests)) {
-            return [newFriend];
-          }
-          return [...prevRequests, newFriend];
+        // Update the friends list
+        setFriends((prevFriends) => {
+          return Array.isArray(prevFriends)
+            ? [...prevFriends, newFriend] // Add new friend
+            : [newFriend]; // Create an array if it was not an array
         });
 
-        dispatch(
-          updateChatListFriendStatusByEmail({
-            friend_status: "friend",
-            user_email: request.sender_mail,
-          })
-        );
+        handleFriendStatusUpdate(dispatch, request.sender_email, "friend");
 
-        dispatch(
-          updateChatFriendStatusByEmail({
-            friend_status: "friend",
-            user_email: request.sender_mail,
-          })
-        );
+        // Notify the user of success
         toast.success(`${requests.user_name} is now your friend!`);
-      } else if (status === RequestStatus.rejected) {
+      }
+      // If the request is rejected
+      else if (status === RequestStatus.rejected) {
+        // Remove the request from the list
         setRequests((prevRequests) =>
-          prevRequests.filter((req) => req.sender_mail !== request.sender_mail)
+          prevRequests?.filter((req) => req.sender_email !== request.sender_email)
         );
         toast.success(`The friend request has been successfully rejected.`);
       }
     } else {
-      toast.error(
-        "An unknown error occurred. Please try again later."
-      );
+      // Notify the user of an error
+      toast.error("An unknown error occurred. Please try again later.");
     }
   };
+  //#endregion
 
   return (
     <>
+      {/* Accept Friend Request Button */}
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger>
@@ -99,6 +97,7 @@ const Options: React.FC<ComingRequestsProps> = ({
         </Tooltip>
       </TooltipProvider>
 
+      {/* Reject Friend Request Button */}
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger>

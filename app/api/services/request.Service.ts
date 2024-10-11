@@ -1,22 +1,30 @@
 import axios from "../axios";
-import {RequestStatus} from "@/models/Enum";
+import { RequestStatus } from "@/models/Enum";
 
-export const ComingRequests = async () => {
-    return await axios.get("/request");
+// #region Get all friend requests for the logged-in user.
+export const Requests = async () => {
+  return await axios.get("/friend-requests");
 };
+// #endregion
 
-
+// #region Send a friend request to a user.
 export const SendFriendRequest = async (email: string) => {
-    const body = {
-        email: email,
-    };
-    return await axios.post("/request", body);
+  const body = {
+    email: email,
+  };
+  return await axios.post("/friend-requests", body);
 };
+// #endregion
 
-export const UpdateFriendshipRequest = async (senderMail: string, status: RequestStatus) => {
-    const body = {
-        email: senderMail,
-        status: status,
-    }
-    return await axios.patch("/request", body)
-}
+// #region Update the status of a friendship request.
+export const UpdateFriendshipRequest = async (
+  senderEmail: string,
+  status: RequestStatus
+) => {
+  const body = {
+    email: senderEmail,
+    status: status,
+  };
+  return await axios.patch("/friend-requests", body);
+};
+// #endregion

@@ -2,17 +2,17 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 export interface ChatListItemModel {
   room_id: string;
-  last_message: string;
+  last_message_content: string;
   last_message_id: string;
-  updatedAt?: string;
+  message_type: "text" | "file" | "photo" | "";
   user_name: string;
   user_photo: string;
   user_email: string;
   friend_status: string;
   createdAt: string;
   message_deleted_at?: string;
+  updatedAt?: string;
   activeStatus: boolean;
-  message_type: "text" | "file" | "photo" | ""
 }
 
 interface InitialState {
@@ -38,21 +38,21 @@ const chatListSlice = createSlice({
       state,
       action: PayloadAction<{
         room_id: string;
-        message: string;
+        message_content: string;
         message_id: string;
         updatedAt: string;
-        message_type: "text" | "file" | "photo"
+        message_type: "text" | "file" | "photo";
       }>
     ) => {
       const existingMessage = state.chatLists?.find(
         (msg) => msg.room_id === action.payload.room_id
       );
       if (existingMessage) {
-        existingMessage.last_message = action.payload.message;
+        existingMessage.last_message_content = action.payload.message_content;
         existingMessage.updatedAt = action.payload.updatedAt;
         existingMessage.last_message_id = action.payload.message_id;
         existingMessage.message_type = action.payload.message_type;
-        existingMessage.message_deleted_at = undefined
+        existingMessage.message_deleted_at = undefined;
         state.chatLists = [
           existingMessage,
           ...state.chatLists.filter(
@@ -66,8 +66,6 @@ const chatListSlice = createSlice({
       action: PayloadAction<{
         room_id: string;
         message_id: string;
-        updatedAt: string;
-        deletedAt: string;
       }>
     ) => {
       const existingMessage = state.chatLists?.find(
@@ -77,9 +75,9 @@ const chatListSlice = createSlice({
         existingMessage &&
         existingMessage.last_message_id === action.payload.message_id
       ) {
-        existingMessage.updatedAt = action.payload.updatedAt;
-        existingMessage.message_deleted_at = action.payload.deletedAt;
-        existingMessage.last_message = "";
+        existingMessage.updatedAt = new Date().toISOString();
+        existingMessage.message_deleted_at = new Date().toISOString();
+        existingMessage.last_message_content = "";
         state.chatLists = [
           existingMessage,
           ...state.chatLists.filter(
@@ -107,7 +105,7 @@ const chatListSlice = createSlice({
     },
     updateChatListFriendStatusByEmail: (
       state,
-      action: PayloadAction<{ friend_status: string; user_email: string }>
+      action: PayloadAction<{ user_email: string; friend_status: string }>
     ) => {
       const existingMessage = state.chatLists?.find(
         (chatList) => chatList.user_email === action.payload.user_email
