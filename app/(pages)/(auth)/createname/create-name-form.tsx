@@ -1,4 +1,3 @@
-"use client";
 import FormError from "@/components/form-error";
 import {
   Form,
