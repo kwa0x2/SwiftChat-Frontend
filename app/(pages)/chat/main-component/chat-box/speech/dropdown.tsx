@@ -21,7 +21,7 @@ import { AppDispatch } from "@/app/redux/store";
 import {
   deleteLastMessage,
   updateLastMessage,
-} from "@/app/redux/slices/chatListSlice";
+} from "../../../../../../app/redux/slices/chatListSlice";
 import { FaRegStar } from "react-icons/fa";
 
 interface DropdownProps {

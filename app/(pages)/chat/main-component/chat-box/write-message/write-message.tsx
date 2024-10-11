@@ -5,7 +5,7 @@ import { Socket } from "socket.io-client";
 import React, { useEffect, useRef, useState } from "react";
 import { AnimatedPlaceholdersInput } from "@/components/ui/animated-placeholders-input";
 import { ChatSliceModel } from "@/app/redux/slices/chatSlice";
-import { updateLastMessage } from "@/app/redux/slices/chatListSlice";
+import { updateLastMessage } from "../../../../../../app/redux/slices/chatListSlice";
 import { AppDispatch } from "@/app/redux/store";
 import { useDispatch } from "react-redux";
 import { toast } from "sonner";

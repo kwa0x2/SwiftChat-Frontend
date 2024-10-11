@@ -20,7 +20,7 @@ import {
 import {
   addChatList,
   updateChatListFriendStatusByEmail,
-} from "@/app/redux/slices/chatListSlice";
+} from "../../../../../../../app/redux/slices/chatListSlice";
 import { useCallback } from "react";
 import {
   setActiveComponent,
