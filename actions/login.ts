@@ -3,10 +3,14 @@
 import { signIn } from "@/auth";
 import { DEFAULT_LOGIN_REDIRECT } from "@/routes";
 
-/** Bu metodun amaci eger signIn kodunu client side tarafindan cagirirsak
- * user middleware'a takiliyor yani giris yapmis olsa bile giris yapmamis gibi gozukuyor.
- * ancak bu metod sayesinde once giris yapip session olusup daha sonra middleware kontrol edildiginden
- * sorunsuzca chat sayfasina yonlendirilebiliyor.
+// #region User Login Action
+
+/*
+ * This method ensures that when the signIn function is called from the client side,
+ * the user middleware is checked properly. Even if the user is logged in, they appear
+ * as not logged in due to middleware checks. This method allows the user to log in,
+ * create a session, and then pass through the middleware checks, allowing them to be
+ * redirected to the chat page seamlessly.
  */
 export const loginAction = async (
   id: string,
@@ -22,3 +26,4 @@ export const loginAction = async (
     redirectTo: DEFAULT_LOGIN_REDIRECT,
   });
 };
+// #endregion

@@ -4,24 +4,27 @@ import { logoutServer } from "@/app/api/services/auth.Service";
 import { cookies } from "next/dist/client/components/headers";
 import { signOut } from "@/auth";
 
-/** bu metodun amacı once back-end tarafindan
- * sonra front-end tarafindaki auth.js tarafindan guvenli cikis saglamak
+// #region User Logout Action
+
+/*
+ * This method handles user logout by first sending a logout request to the backend,
+ * followed by calling the front-end auth.js methods to ensure a secure logout process.
  */
 export const logoutAction = async () => {
   try {
-    //server side logout istegi
+    // Server-side logout request
     await logoutServer().then(async (res: any) => {
       if (res.status === 200) {
-        /** normalde back-end cookie'yi siliyor ancak istek kodumuz server side
-         * oldugundan cookie silme islemini manuel yapmak zorundayiz
+        /* Normally, the backend will delete the cookie, but since this request
+         * is server-side, we need to manually delete the cookie here.
          */
         cookies().delete(process.env.SESSION_COOKIE_NAME || "connect.sid");
-        //istek basarili ise auth.js tarafindan cikis islemlerini baslatiyoruz
+        // If the request is successful, initiate logout procedures in auth.js
         await signOut();
-        
       }
     });
   } catch (error) {
     throw error;
   }
 };
+// #endregion

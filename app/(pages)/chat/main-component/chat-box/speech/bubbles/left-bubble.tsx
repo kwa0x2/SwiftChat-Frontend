@@ -21,12 +21,14 @@ const LeftBubble: React.FC<LeftBubbleProps> = ({
   friend,
   socket,
 }) => {
+
+  // #region Helper Function
   const getFileNameAndUrl = (message: string) => {
     const urlParts = message.split("/");
     const fileName = urlParts.pop();
 
     if (!fileName) {
-      return { fileName: null, finalUrl: null }; // Dosya adı bulunamazsa null döner
+      return { fileName: null, finalUrl: null }; // Returns null if no file name is found
     }
 
     const baseUrl = urlParts.join("/");
@@ -35,8 +37,11 @@ const LeftBubble: React.FC<LeftBubbleProps> = ({
 
     return { fileName, finalUrl };
   };
+  // #endregion
 
+  // #region Function to render message content
   const renderMessageContent = () => {
+    // Render a "deleted message" indicator if the message is deleted
     if (msg.deletedAt) {
       return (
         <div className="flex items-center gap-2">
@@ -46,8 +51,9 @@ const LeftBubble: React.FC<LeftBubbleProps> = ({
       );
     }
 
+    // Render different content based on message type
     if (msg.message_type === "photo") {
-      const { fileName, finalUrl } = getFileNameAndUrl(msg.message);
+      const { fileName, finalUrl } = getFileNameAndUrl(msg.message_content);
 
       if (finalUrl) {
         return (
@@ -67,7 +73,7 @@ const LeftBubble: React.FC<LeftBubbleProps> = ({
     }
 
     if (msg.message_type === "file") {
-      const { fileName, finalUrl } = getFileNameAndUrl(msg.message);
+      const { fileName, finalUrl } = getFileNameAndUrl(msg.message_content);
 
       return (
         <div className="flex items-center gap-2">
@@ -87,8 +93,9 @@ const LeftBubble: React.FC<LeftBubbleProps> = ({
       );
     }
 
-    return msg.message;
+    return msg.message_content; // Default message content
   };
+  // #endregion
 
   return (
     <div className="block md:px-6 px-4">

@@ -11,8 +11,6 @@ import {
 } from "@/app/redux/slices/componentSlice";
 import { LuImage } from "react-icons/lu";
 import { FaRegFile } from "react-icons/fa";
-import { getFileNameAndUrl } from "@/lib/utils";
-import { MdBlock } from "react-icons/md";
 
 interface ChatListItemProps {
   chatList: ChatListItemModel;
@@ -28,6 +26,8 @@ const ChatListItem: React.FC<ChatListItemProps> = ({
   onClick,
 }) => {
   const dispatch = useDispatch<AppDispatch>();
+
+  // #region Open Message Box
   const openMessageBox = () => {
     dispatch(
       setChatData({
@@ -42,10 +42,11 @@ const ChatListItem: React.FC<ChatListItemProps> = ({
     );
     dispatch(setActiveComponent("chat"));
     dispatch(setFriendStatus(chatList.friend_status));
-
     onClick();
   };
+  // #endregion
 
+  // #region Render Message Content
   const renderMessageContent = () => {
     if (chatList.message_deleted_at) {
       return (
@@ -55,36 +56,33 @@ const ChatListItem: React.FC<ChatListItemProps> = ({
       );
     }
 
-    if (chatList.message_type === "photo") {
-      return (
-        <div className="flex items-center gap-1">
-          <LuImage className="h-4 w-4" /> <span>Image</span>
-        </div>
-      );
+    switch (chatList.message_type) {
+      case "photo":
+        return (
+          <div className="flex items-center gap-1">
+            <LuImage className="h-4 w-4" /> <span>Image</span>
+          </div>
+        );
+      case "file":
+        return (
+          <div className="flex items-center gap-1">
+            <FaRegFile className="h-4 w-4" /> <span>File</span>
+          </div>
+        );
+      case "text":
+        return (
+          <span>
+            {chatList.last_message_content.length >= 25
+              ? chatList.last_message_content.substring(0, 25) + "..."
+              : chatList.last_message_content}
+          </span>
+        );
+      default:
+        return null;
     }
-
-    if (chatList.message_type === "file") {
-      return (
-        <div className="flex items-center gap-1">
-          <FaRegFile className="h-4 w-4" /> <span>File</span>
-        </div>
-      );
-    
-    }
-
-    if (chatList.message_type === "text") {
-      return (
-        <span >  
-          {chatList.last_message.length >= 25
-            ? chatList.last_message.substring(0, 25) + "..."
-            : chatList.last_message}
-        </span>
-      );
-    }
-
-    return null;
   };
-
+  // #endregion
+  
   return (
     <div
       onClick={openMessageBox}

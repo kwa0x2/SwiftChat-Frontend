@@ -8,22 +8,28 @@ import TitleSection from "./title-section";
 import { useState } from "react";
 
 const CreateName = () => {
+  
+  // #region Search Params and State Management
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
   const [userPhoto, setUserPhoto] = useState<string>("");
 
+  // #endregion
+
+  // #region Error Handling
   if (token == null) return <UnknownErrorCard />;
+  // #endregion
 
   return (
     <CustomCard className="max-w-md mx-3 w-full rounded-md md:rounded-2xl p-4 md:p-8 relative">
-      {/* baslik yazilarin bulundugu kisim */}
+      {/* Title Section */}
       <TitleSection />
 
-      {/* google bilgilerin bulundugu kisim */}
-      <GoogleSection token={token} onPhotoUpdate={setUserPhoto}/>
+      {/* Google Info Section */}
+      <GoogleSection token={token} onPhotoUpdate={setUserPhoto} />
 
-      {/* kullanici adi girilen form kismi */}
-      <CreateNameForm token={token} user_photo={userPhoto}/>
+      {/* Username Form Section */}
+      <CreateNameForm token={token} user_photo={userPhoto} />
     </CustomCard>
   );
 };

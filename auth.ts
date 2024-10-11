@@ -4,17 +4,14 @@ import Credentials from "next-auth/providers/credentials";
 import { getLoggedInUserServer } from "@/app/api/services/auth.Service";
 import { cookies } from "next/dist/client/components/headers";
 
-/** bu metodun amaci user.role kismi boyle bir alan yok
- * hatasi veriyor bunun onune gecmek icin yazildi */
 //#region EXTENDED USER
 export type ExtendedUser = DefaultSession["user"] & {
-  role: "standard" | "high";
   name: any;
   photo: any;
 };
 declare module "next-auth" {
   interface Session {
-    user: ExtendedUser;
+    user: ExtendedUser; 
   }
 }
 //#endregion
@@ -22,44 +19,41 @@ declare module "next-auth" {
 export const { auth, handlers, signIn, signOut } = NextAuth({
   callbacks: {
     async session({ token, session }) {
-      /** eger kullanici giris yapmis ise token icinde sub olusur
-       * ve session icindede user objesi olusur */
+      /* If the user is logged in, the token will have a 'sub' field,
+       * and the session will include the user object.
+       */
       if (token.sub && session.user) {
-        //front-end tarafinda session icinde user_id degerine erismek icin
+        // Set user details from token to session for frontend access
         session.user.name = token.username || session.user.name;
         session.user.photo = token.photo || session.user.photo;
 
-        session.user.id = token.sub;
+        session.user.id = token.sub; // Assign user ID from token
       }
 
-      //token icinden gelen role yetkisini session'a iletiyoruz
-      if (token.role && session.user) {
-        session.user.role = token.role;
-      }
-      return session;
+
+      return session; // Return updated session
     },
     async jwt({ token }) {
-      /** burda yazan yetkilendirme kodu kullanici her bir sayfa
-       * degistirdiginde tetikleniyor surekli olarak guncel yetkisini cekiyor yani
+      /* This authorization code runs every time the user changes pages,
+       * ensuring that the user's permissions are updated continuously.
        */
 
-      //bu kisimda userin session icinde gozuken role yetkisini ekliyoruz
+      // Check if user ID exists in the token
       if (!token.sub) return token;
 
-      const existingUser = await getLoggedInUserServer();
-      if (!existingUser.role) {
-        cookies().delete(process.env.SESSION_COOKIE_NAME || "connect.sid");
-        await signOut();
+      const existingUser = await getLoggedInUserServer(); // Fetch user info
+      if (!existingUser.email) {
+        cookies().delete(process.env.SESSION_COOKIE_NAME || "connect.sid"); // Delete cookie if no email
+        await signOut(); // Sign out user
       }
 
+            // Update token with existing user information
       if (existingUser && existingUser.name && existingUser.photo) {
-        token.name = existingUser.name;
+        token.name = existingUser.name; 
         token.photo = existingUser.photo;
-
       }
 
-      token.role = existingUser.role;
-      return token;
+      return token; // Return updated token
     },
   },
   session: { strategy: "jwt" },
@@ -71,15 +65,8 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
           name: credentials.name as string,
           email: credentials.email as string,
           photo: credentials.photo as string,
-          role: credentials.role as string
         };
       },
     }),
   ],
 });
-
-/** auth.js yapisindan dolayi user giris yapmis olsa bile session etrafinda user role bilgisi icin
- * tekrar api ye istek atıp user bilgilerini cekmemiz gerekiyor. bunu daha hafifletmek icin ise
- * redis icindeki session verisini cekiyoruz. Bu isin kotu yani user basarili bir sekilde giris yaptiktan sonra
- * 1 adet back-end istegi gidiyor veritabanina.
- */

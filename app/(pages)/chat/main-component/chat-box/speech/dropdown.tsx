@@ -44,6 +44,8 @@ const Dropdown = ({
   const [dropdown, setDropdown] = useState<boolean>(false);
   const dispatch = useDispatch<AppDispatch>();
 
+  // #region Message Handling Functions
+  // Handle deleting a message
   const handleDeleteMessage = () => {
     if (socket && user) {
       handleSocketEmit(
@@ -54,14 +56,12 @@ const Dropdown = ({
           room_id: friend.room_id,
           user_email: friend.user_email,
         },
-        null,
+        undefined,
         () => {
           dispatch(
             deleteLastMessage({
               room_id: friend.room_id,
               message_id: msg.message_id,
-              updatedAt: new Date().toISOString(),
-              deletedAt: new Date().toISOString(),
             })
           );
         },
@@ -74,7 +74,8 @@ const Dropdown = ({
     }
   };
 
-  const handleUpdateMessageStarred= () => {
+  // Handle updating the starred state of a message
+  const handleUpdateMessageStarred = () => {
     if (socket && user) {
       handleSocketEmit(
         socket,
@@ -82,11 +83,10 @@ const Dropdown = ({
         {
           room_id: friend.room_id,
           message_id: msg.message_id,
-          message_starred:
-            msg.message_starred === true ? false : true,
+          message_starred: !msg.message_starred, // Toggle star state
         },
-        null,
-        () => {},
+        undefined,
+        undefined,
         () => {
           toast.error(
             "An unknown error occurred while trying to star the message."
@@ -95,6 +95,7 @@ const Dropdown = ({
       );
     }
   };
+  // #endregion
 
   return (
     <DropdownMenu open={dropdown} onOpenChange={setDropdown}>

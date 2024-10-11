@@ -9,7 +9,11 @@ interface ProfileProps {
   isOpenChatList: boolean;
 }
 
-const Profile = ({ user,setIsOpenChatList, isOpenChatList }: ProfileProps) => {
+const Profile: React.FC<ProfileProps> = ({
+  user,
+  setIsOpenChatList,
+  isOpenChatList,
+}) => {
   return (
     <CustomCard
       className={`${

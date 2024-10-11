@@ -1,27 +1,18 @@
 import { TypewriterEffectSmooth } from "@/components/ui/typewriter-effect";
-
+// Displays a typewriter effect with a welcome message
 const Header = () => {
   const words = [
-    {
-      text: "Welcome",
-      className: "text-white",
-    },
-    {
-      text: "To",
-      className: "text-white",
-    },
-    {
-      text: "SwiftChat",
-      className: "text-white",
-    },
+    { text: "Welcome", className: "text-white" },
+    { text: "To", className: "text-white" },
+    { text: "SwiftChat", className: "text-white" },
   ];
+
   return (
-    <>
-      <h2 className="text-white text-4xl md:text-6xl font-bold text-center">
-        <TypewriterEffectSmooth words={words} />
-      </h2>
-    </>
+    <h2 className="text-white text-4xl md:text-6xl font-bold text-center">
+      <TypewriterEffectSmooth words={words} />
+    </h2>
   );
 };
+
 
 export default Header;

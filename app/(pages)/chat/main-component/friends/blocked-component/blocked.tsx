@@ -2,12 +2,8 @@
 import CustomCard from "@/components/custom-card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import BlockedItem from "./blocked-item/item";
-import { Socket } from "socket.io-client";
+import { BlockedModel } from "@/models/Blocked";
 
-export interface BlockedModel {
-  blocked_mail: string;
-  user_name: string;
-}
 
 interface BlockedProps {
   blockedUsers: BlockedModel[];
@@ -15,8 +11,6 @@ interface BlockedProps {
 }
 
 const BlockedComponent = ({ blockedUsers, setBlockedUsers }: BlockedProps) => {
-
-
   return (
     <CustomCard className="bg-transparent rounded-md border border-[#5C6B81] flex flex-col h-full">
       <span className="border-b border-[#5C6B81] text-white pl-4 py-2">
@@ -25,7 +19,7 @@ const BlockedComponent = ({ blockedUsers, setBlockedUsers }: BlockedProps) => {
       <ScrollArea className="flex-1 rounded-md pt-4">
         {blockedUsers?.map((blockedUser) => (
           <BlockedItem
-            key={blockedUser.blocked_mail}
+            key={blockedUser.blocked_email}
             blockedUser={blockedUser}
             setBlockedUsers={setBlockedUsers}
           />

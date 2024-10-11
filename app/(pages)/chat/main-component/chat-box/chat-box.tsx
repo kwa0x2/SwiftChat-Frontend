@@ -4,7 +4,7 @@ import { Message } from "@/models/Message";
 import { useEffect, useState } from "react";
 import { Socket } from "socket.io-client";
 import { ChatSliceModel } from "@/app/redux/slices/chatSlice";
-import { getChatHistoryByRoomId } from "@/app/api/services/message.Service";
+import { getMessageHistoryByRoomId } from "@/app/api/services/message.Service";
 import { toast } from "sonner";
 import { ComponentSliceModel } from "@/app/redux/slices/componentSlice";
 import { useDispatch } from "react-redux";
@@ -39,11 +39,12 @@ const ChatBox = ({
   const dispatch = useDispatch<AppDispatch>();
   const [selectedFile, setSelectedFile] = useState<any>(null);
 
+  // #region Socket and Chat History Management
   useEffect(() => {
     const fetchHistory = async (room_id: string) => {
-      const res = await getChatHistoryByRoomId(room_id);
+      const res = await getMessageHistoryByRoomId(room_id);
       if (res.status === 200) {
-        setMessages(res.data.data);
+        setMessages(res.data.data); // Set fetched messages
       } else {
         toast.error(
           "An unknown error occurred while retrieving messages. Please try again later."
@@ -52,9 +53,9 @@ const ChatBox = ({
     };
 
     if (user?.id && chatReducerValue?.room_id && socket) {
-      socket.off(chatReducerValue.room_id);
+      socket.off(chatReducerValue.room_id); // Clean up previous socket listeners
 
-      fetchHistory(chatReducerValue.room_id);
+      fetchHistory(chatReducerValue.room_id); // Fetch chat history
 
       if (chatReducerValue.friend_status === "friend") {
         handleSocketEmit(
@@ -69,20 +70,11 @@ const ChatBox = ({
         );
 
         socket.on(chatReducerValue.room_id, (res: any) => {
-          console.warn("room_id socket", res);
+          // Handle incoming socket messages
           if (res.action === "new_message") {
-            console.warn("res.data", res.data);
-            setMessages((prevMessages) => [...prevMessages, res.data]);
+            setMessages((prevMessages) => [...prevMessages, res.data]); // Append new messages
           } else if (res.action === "delete_message") {
-            dispatch(
-              deleteLastMessage({
-                room_id: chatReducerValue.room_id,
-                message_id: res.data,
-                updatedAt: new Date().toISOString(),
-                deletedAt: new Date().toISOString(),
-              })
-            );
-
+            dispatch(deleteLastMessage({ room_id: chatReducerValue.room_id, message_id: res.data }));
             setMessages((prevMessages) =>
               prevMessages.map((msg) =>
                 msg.message_id === res.data
@@ -94,10 +86,7 @@ const ChatBox = ({
             setMessages((prevMessages) =>
               prevMessages.map((msg) =>
                 msg.message_id === res.data.message_id
-                  ? {
-                      ...msg,
-                      message: res.data.edited_message,
-                    }
+                  ? { ...msg, message_content: res.data.edited_message, updatedAt: new Date().toISOString() }
                   : msg
               )
             );
@@ -105,10 +94,7 @@ const ChatBox = ({
             setMessages((prevMessages) =>
               prevMessages.map((msg) =>
                 msg.message_id === res.data.message_id
-                  ? {
-                      ...msg,
-                      message_starred: res.data.message_starred,
-                    }
+                  ? { ...msg, message_starred: res.data.message_starred }
                   : msg
               )
             );
@@ -116,10 +102,7 @@ const ChatBox = ({
             setMessages((prevMessages) =>
               prevMessages.map((msg) =>
                 msg.sender_id === user.id
-                  ? {
-                      ...msg,
-                      message_read_status: "readed",
-                    }
+                  ? { ...msg, message_read_status: "readed" }
                   : msg
               )
             );
@@ -129,9 +112,11 @@ const ChatBox = ({
     }
 
     return () => {
-      if (socket) socket.off(chatReducerValue.room_id);
+      if (socket) socket.off(chatReducerValue.room_id); // Cleanup socket listeners on unmount
     };
-  }, [chatReducerValue.room_id, socket]);
+  }, [chatReducerValue.room_id, socket, user?.id]); // Add user.id to dependencies
+
+  // #endregion
 
   if (componentReducerValue.activeComponent === "chat")
     return (
@@ -146,7 +131,7 @@ const ChatBox = ({
           isOpenChatList={isOpenChatList}
         />
 
-        {/* Chat Message */}
+        {/* Chat Message Display */}
         <Speech
           friend={chatReducerValue}
           user={user}
@@ -154,12 +139,13 @@ const ChatBox = ({
           socket={socket}
         />
 
+        {/* File Upload Section */}
         <FileBox
           selectedFile={selectedFile}
           setSelectedFile={setSelectedFile}
         />
 
-        {/* Write new message section */}
+        {/* Message Input Section */}
         <div className="mt-auto">
           <WriteMessage
             selectedFile={selectedFile}

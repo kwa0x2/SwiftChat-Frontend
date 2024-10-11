@@ -16,35 +16,36 @@ interface SpeechProps {
 const Speech: React.FC<SpeechProps> = ({ user, messages, socket, friend }) => {
   const endOfMessagesRef = useRef<HTMLDivElement | null>(null);
 
+  // Scroll to the latest message when messages change
   useEffect(() => {
     endOfMessagesRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages.length]);
 
   return (
     <ScrollArea className="rounded-md">
-    <div className="mt-3 p-6 pt-0 z-20 relative flex-1 overflow-y-auto">
-      {messages.map((msg) =>
-        msg.sender_id === user.id ? (
-          <RightBubble
-            key={msg.message_id}
-            user={user}
-            msg={msg}
-            socket={socket}
-            friend={friend}
-          />
-        ) : (
-          <LeftBubble
-            key={msg.message_id}
-            user={user}
-            msg={msg}
-            friend={friend}
-            socket={socket}
-          />
-        )
-      )}
-      <div ref={endOfMessagesRef} />
-    </div>
-  </ScrollArea>
+      <div className="mt-3 p-6 pt-0 z-20 relative flex-1 overflow-y-auto">
+        {messages.map((msg) =>
+          msg.sender_id === user.id ? (
+            <RightBubble
+              key={msg.message_id}
+              user={user}
+              msg={msg}
+              socket={socket}
+              friend={friend}
+            />
+          ) : (
+            <LeftBubble
+              key={msg.message_id}
+              user={user}
+              msg={msg}
+              friend={friend}
+              socket={socket}
+            />
+          )
+        )}
+        <div ref={endOfMessagesRef} />
+      </div>
+    </ScrollArea>
   );
 };
 

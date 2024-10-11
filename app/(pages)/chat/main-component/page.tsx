@@ -2,10 +2,10 @@ import FriendsSettings from "@/app/(pages)/chat/main-component/friends/page";
 import { RootState, useAppSelector } from "@/app/redux/store";
 import io, { Socket } from "socket.io-client";
 import Profile from "./profile/page";
-import { RequestsModel } from "./friends/requests-component/requests";
-import { FriendModel } from "./friends/friends-component/friends";
-import { BlockedModel } from "./friends/blocked-component/blocked";
 import ChatBox from "./chat-box/chat-box";
+import { RequestsModel } from "@/models/Request";
+import { FriendModel } from "@/models/Friend";
+import { BlockedModel } from "@/models/Blocked";
 
 interface MainComponentProps {
   user: any;
@@ -15,7 +15,7 @@ interface MainComponentProps {
   requests: RequestsModel[];
   friends: FriendModel[];
   blockedUsers: BlockedModel[];
-  onlineUsers: string[]
+  onlineUsers: string[];
   setBlockedUsers: React.Dispatch<React.SetStateAction<BlockedModel[]>>;
   isOpenChatList: boolean;
   setIsOpenChatList: React.Dispatch<React.SetStateAction<boolean>>;
@@ -31,15 +31,18 @@ const MainComponent: React.FC<MainComponentProps> = ({
   friends,
   blockedUsers,
   isOpenChatList,
-  setIsOpenChatList
+  setIsOpenChatList,
 }) => {
-  const chatReducerValue = useAppSelector((state) => state.chatReducer.value);
-  const componentReducerValue = useAppSelector((state) => state.componentReducer);
+  const chatReducerValue = useAppSelector(
+    (state: RootState) => state.chatReducer.value
+  );
+  const componentReducerValue = useAppSelector(
+    (state: RootState) => state.componentReducer
+  );
 
   return (
     <>
-      {/*friends settings */}
-
+      {/* Friends Settings */}
       {componentReducerValue.activeComponent === "friends" && (
         <FriendsSettings
           setBlockedUsers={setBlockedUsers}
@@ -55,9 +58,24 @@ const MainComponent: React.FC<MainComponentProps> = ({
         />
       )}
 
-      {componentReducerValue.activeComponent === "profile" && <Profile user={user} setIsOpenChatList={setIsOpenChatList} isOpenChatList={isOpenChatList} />}
-      {/* chat box */}
-      <ChatBox setIsOpenChatList={setIsOpenChatList} isOpenChatList={isOpenChatList} chatReducerValue={chatReducerValue} componentReducerValue={componentReducerValue} user={user} socket={socket} />
+      {/* Profile Component */}
+      {componentReducerValue.activeComponent === "profile" && (
+        <Profile
+          user={user}
+          setIsOpenChatList={setIsOpenChatList}
+          isOpenChatList={isOpenChatList}
+        />
+      )}
+
+      {/* Chat Box */}
+      <ChatBox
+        setIsOpenChatList={setIsOpenChatList}
+        isOpenChatList={isOpenChatList}
+        chatReducerValue={chatReducerValue}
+        componentReducerValue={componentReducerValue}
+        user={user}
+        socket={socket}
+      />
     </>
   );
 };

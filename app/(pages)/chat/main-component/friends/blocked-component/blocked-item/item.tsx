@@ -2,8 +2,8 @@
 
 import Image from "next/image";
 import Options from "./options";
-import { BlockedModel } from "../blocked";
 import { Socket } from "socket.io-client";
+import { BlockedModel } from "@/models/Blocked";
 
 interface BlockedItemProps {
   blockedUser: BlockedModel;
@@ -35,7 +35,7 @@ const BlockedItem = ({ blockedUser, setBlockedUsers }: BlockedItemProps) => {
         </div>
       </div>
       <div className="flex-none flex items-center justify-center gap-2 ml-auto lg:ml-0">
-        <Options setBlockedUsers={setBlockedUsers} blockedUser={blockedUser}  />
+        <Options setBlockedUsers={setBlockedUsers} blockedUser={blockedUser} />
       </div>
     </div>
   );

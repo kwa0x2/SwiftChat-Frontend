@@ -10,15 +10,19 @@ import { getLoggedInUser } from "@/app/api/services/auth.Service";
 import { toast } from "sonner";
 
 const LoginPage = () => {
+  
+  // #region State Management
   const [error, setError] = useState(false);
+  // #endregion
 
+  // #region useEffect - Fetch Logged In User Data
   useEffect(() => {
     const fetchData = async () => {
       try {
         const res: any = await getLoggedInUser();
         if (res.error) setError(true);
 
-        //kullanici basarili bir sekilde giris yapmis demektir
+        // If user data is successfully retrieved, proceed with login action
         if (res) {
           loginAction(
             res.data.id,
@@ -35,6 +39,7 @@ const LoginPage = () => {
 
     fetchData();
   }, []);
+  // #endregion
 
   if (error) return <UnknownErrorCard />;
 
