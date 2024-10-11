@@ -4,6 +4,8 @@ import Credentials from "next-auth/providers/credentials";
 import { getLoggedInUserServer } from "@/app/api/services/auth.Service";
 import { cookies } from "next/dist/client/components/headers";
 
+
+
 //#region EXTENDED USER
 export type ExtendedUser = DefaultSession["user"] & {
   name: any;

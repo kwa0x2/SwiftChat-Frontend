@@ -162,3 +162,6 @@ export const AnimatedPlaceholdersInput = forwardRef<HTMLInputElement, {
     </form>
   );
 });
+
+// Display name for debugging
+AnimatedPlaceholdersInput.displayName = "AnimatedPlaceholdersInput";

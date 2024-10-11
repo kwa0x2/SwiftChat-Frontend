@@ -1,7 +1,9 @@
+"use client"
 import CustomCard from "@/components/custom-card";
 import ProfileForm from "./profile-component/form";
 import ProfilePicture from "./profile-component/profile-picture";
 import { MdMenu } from "react-icons/md";
+import React from "react";
 
 interface ProfileProps {
   user: any;
