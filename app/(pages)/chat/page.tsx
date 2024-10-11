@@ -1,4 +1,3 @@
-"use client";
 
 import { useCurrentUser } from "@/hooks/use-current-user";
 import { useEffect, useRef, useState } from "react";
@@ -14,7 +13,7 @@ import {
   updateChatListUsernameByEmail,
   updateChatListUserPhotoByEmail,
   updateLastMessage,
-} from "../../../app/redux/slices/chatListSlice";
+} from "@/app/redux/slices/chatListSlice";
 import { getChatListHistory } from "@/app/api/services/room.Service";
 import { toast } from "sonner";
 

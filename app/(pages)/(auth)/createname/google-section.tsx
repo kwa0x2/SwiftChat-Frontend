@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { FcGoogle } from "react-icons/fc";
 import { IoIosLogOut } from "react-icons/io";
 import { RiImageEditLine } from "react-icons/ri";
-import ProfilePictureEditDialog from "../../../../components/dialogs/profile-picture-edit/dialog";
+import ProfilePictureEditDialog from "@/components/dialogs/profile-picture-edit/dialog";
 import { toast } from "sonner";
 
 interface GoogleSectionProps {
