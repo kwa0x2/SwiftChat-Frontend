@@ -15,7 +15,8 @@ import WriteMessage from "./write-message/write-message";
 import { handleSocketEmit } from "@/lib/socket";
 import {
   deleteLastMessage,
-} from "@/app/redux/slices/chatListSlice";
+} from "../../../../../app/redux/slices/chatListSlice";
+
 import FileBox from "./file-box/file-box";
 
 interface ChatBoxProps {
