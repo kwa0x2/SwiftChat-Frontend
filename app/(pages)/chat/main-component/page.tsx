@@ -1,3 +1,4 @@
+"use client"
 import FriendsSettings from "@/app/(pages)/chat/main-component/friends/page";
 import { RootState, useAppSelector } from "@/app/redux/store";
 import io, { Socket } from "socket.io-client";

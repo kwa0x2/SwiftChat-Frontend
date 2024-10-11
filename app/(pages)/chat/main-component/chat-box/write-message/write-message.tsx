@@ -1,3 +1,4 @@
+"use client";
 import { Disclosure } from "@headlessui/react";
 import { LuPlusCircle } from "react-icons/lu";
 import { Socket } from "socket.io-client";

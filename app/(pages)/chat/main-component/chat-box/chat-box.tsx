@@ -1,3 +1,4 @@
+"use client";
 import CustomCard from "@/components/custom-card";
 import { Message } from "@/models/Message";
 import { useEffect, useState } from "react";
