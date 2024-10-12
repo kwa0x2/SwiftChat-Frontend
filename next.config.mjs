@@ -2,7 +2,7 @@
 const nextConfig = {
     env: {
         BASE_URL: process.env.BASE_URL,
-        SOCKET_IO_URL: "http://localhost:9000/chat",
+        SOCKET_IO_URL: process.env.SOCKET_IO_CONNECTION_URL,
     },
     images: {
         unoptimized: true,
