@@ -4,7 +4,6 @@ import { AnimatePresence, motion } from "framer-motion";
 import React, { useEffect, useRef, useState, forwardRef } from "react";
 import { cn } from "@/lib/utils";
 
-// Bileşeni forwardRef ile sarıyoruz
 export const AnimatedPlaceholdersInput = forwardRef<HTMLInputElement, {
   placeholders: string[];
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -17,8 +16,9 @@ export const AnimatedPlaceholdersInput = forwardRef<HTMLInputElement, {
   disabled
 }, ref) => {
   const [currentPlaceholder, setCurrentPlaceholder] = useState(0);
-
+  const [value, setValue] = useState("");
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+
   const startAnimation = () => {
     intervalRef.current = setInterval(() => {
       setCurrentPlaceholder((prev) => (prev + 1) % placeholders.length);
@@ -27,10 +27,10 @@ export const AnimatedPlaceholdersInput = forwardRef<HTMLInputElement, {
 
   const handleVisibilityChange = () => {
     if (document.visibilityState !== "visible" && intervalRef.current) {
-      clearInterval(intervalRef.current); 
+      clearInterval(intervalRef.current);
       intervalRef.current = null;
     } else if (document.visibilityState === "visible") {
-      startAnimation(); 
+      startAnimation();
     }
   };
 
@@ -46,23 +46,11 @@ export const AnimatedPlaceholdersInput = forwardRef<HTMLInputElement, {
     };
   }, [placeholders]);
 
-  const [value, setValue] = useState("");
-  const [animating, setAnimating] = useState(false);
-
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter" && !animating && !disabled) {
+    if (e.key === "Enter" && !disabled) {
+      e.preventDefault();
       setValue("");
-      setAnimating(false);
       onSubmit && onSubmit(e as unknown as React.FormEvent<HTMLFormElement>);
-    }
-  };
-
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (!disabled) {
-      setValue("");
-      setAnimating(false);
-      onSubmit && onSubmit(e);
     }
   };
 
@@ -73,15 +61,26 @@ export const AnimatedPlaceholdersInput = forwardRef<HTMLInputElement, {
         value && "bg-transparent",
         disabled && "opacity-50 cursor-not-allowed" 
       )}
-      onSubmit={handleSubmit}
+      onSubmit={(e) => {
+        e.preventDefault();
+        if (!disabled) {
+          setValue("");
+          onSubmit && onSubmit(e);
+        }
+      }}
     >
       <input
         onChange={(e) => {
           setValue(e.target.value);
           onChange && onChange(e);
+          if (e.target.value) {
+            setCurrentPlaceholder(-1); // Placeholder'ı hemen gizle
+          } else {
+            setCurrentPlaceholder(0); // Geri dönerken ilk placeholder'ı göster
+          }
         }}
         onKeyDown={handleKeyDown}
-        ref={ref as React.RefObject<HTMLInputElement>} 
+        ref={ref as React.RefObject<HTMLInputElement>}
         value={value}
         type="text"
         className={cn(
@@ -92,7 +91,7 @@ export const AnimatedPlaceholdersInput = forwardRef<HTMLInputElement, {
       />
 
       <button
-        disabled={!value || disabled} 
+        disabled={!value || disabled}
         type="submit"
         className={cn(
           "absolute right-2 top-1/2 z-50 -translate-y-1/2 h-8 w-8 rounded-md bg-[#231758] transition duration-200 flex items-center justify-center",
@@ -133,25 +132,13 @@ export const AnimatedPlaceholdersInput = forwardRef<HTMLInputElement, {
 
       <div className="absolute inset-0 flex items-center rounded-md pointer-events-none">
         <AnimatePresence mode="wait">
-          {!value && (
+          {currentPlaceholder >= 0 && !value && (
             <motion.p
-              initial={{
-                y: 5,
-                opacity: 0,
-              }}
+              initial={{ y: 5, opacity: 0 }}
               key={`current-placeholder-${currentPlaceholder}`}
-              animate={{
-                y: 0,
-                opacity: 1,
-              }}
-              exit={{
-                y: -15,
-                opacity: 0,
-              }}
-              transition={{
-                duration: 0.3,
-                ease: "linear",
-              }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: -15, opacity: 0 }}
+              transition={{ duration: 0.3, ease: "linear" }}
               className="text-zinc-500 text-sm sm:text-base font-normal pl-4 text-left w-[calc(100%-2rem)] truncate"
             >
               {placeholders[currentPlaceholder]}

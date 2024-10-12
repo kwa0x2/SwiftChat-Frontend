@@ -18,9 +18,10 @@ import { useRouter } from "next/navigation";
 
 interface DropDownProbs {
   setIsOpenChatList: React.Dispatch<React.SetStateAction<boolean>>;
+  setSelectedRoomId: React.Dispatch<React.SetStateAction<string | null>>;
 }
 
-const Dropdown = ({ setIsOpenChatList }: DropDownProbs) => {
+const Dropdown = ({ setIsOpenChatList,setSelectedRoomId  }: DropDownProbs) => {
   const dispatch = useDispatch<AppDispatch>();
 
   // #region Dropdown State and Router
@@ -60,7 +61,7 @@ const Dropdown = ({ setIsOpenChatList }: DropDownProbs) => {
             clickHandler(() => {
               setIsOpenChatList(false); // Close chat list
               dispatch(setActiveComponent("profile")); // Set active component to profile
-               
+              setSelectedRoomId(null) // Reset selected room ID
             })
           }
         >
@@ -74,6 +75,7 @@ const Dropdown = ({ setIsOpenChatList }: DropDownProbs) => {
             clickHandler(() => {
               dispatch(setActiveComponent("friends")); // Set active component to friends
               setIsOpenChatList(false); // Close chat list
+              setSelectedRoomId(null) // Reset selected room ID
             })
           }
         >

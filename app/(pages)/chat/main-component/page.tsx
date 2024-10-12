@@ -7,7 +7,6 @@ import ChatBox from "./chat-box/chat-box";
 import { RequestsModel } from "@/models/Request";
 import { FriendModel } from "@/models/Friend";
 import { BlockedModel } from "@/models/Blocked";
-import React from "react";
 
 interface MainComponentProps {
   user: any;

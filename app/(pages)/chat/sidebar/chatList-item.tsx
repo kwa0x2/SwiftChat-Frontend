@@ -4,11 +4,11 @@ import { setChatData } from "@/app/redux/slices/chatSlice";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/app/redux/store";
 import clsx from "clsx";
-import { ChatListItemModel } from "@/app/redux/slices/chatListSlice";
 import {
-  setActiveComponent,
-  setFriendStatus,
-} from "@/app/redux/slices/componentSlice";
+  ChatListItemModel,
+  updateChatListHighlightByRoomId,
+} from "@/app/redux/slices/chatListSlice";
+import { setActiveComponent } from "@/app/redux/slices/componentSlice";
 import { LuImage } from "react-icons/lu";
 import { FaRegFile } from "react-icons/fa";
 
@@ -28,6 +28,8 @@ const ChatListItem: React.FC<ChatListItemProps> = ({
   const dispatch = useDispatch<AppDispatch>();
 
   // #region Open Message Box
+
+  // Function to open the message box for a chat
   const openMessageBox = () => {
     dispatch(
       setChatData({
@@ -40,10 +42,16 @@ const ChatListItem: React.FC<ChatListItemProps> = ({
         activeStatus: chatList.activeStatus,
       })
     );
-    dispatch(setActiveComponent("chat"));
-    dispatch(setFriendStatus(chatList.friend_status));
-    onClick();
+    dispatch(setActiveComponent("chat")); // Set active component to chat view
+    dispatch(
+      updateChatListHighlightByRoomId({
+        room_id: chatList.room_id,
+        highlight: false,
+      })
+    ); // Remove highlight from chat list item
+    onClick(); // Call the onClick handler
   };
+
   // #endregion
 
   // #region Render Message Content
@@ -82,7 +90,7 @@ const ChatListItem: React.FC<ChatListItemProps> = ({
     }
   };
   // #endregion
-  
+
   return (
     <div
       onClick={openMessageBox}

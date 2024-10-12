@@ -12,7 +12,9 @@ export interface ChatListItemModel {
   createdAt: string;
   message_deleted_at?: string;
   updatedAt?: string;
+
   activeStatus: boolean;
+  highlight: boolean
 }
 
 interface InitialState {
@@ -44,17 +46,17 @@ const chatListSlice = createSlice({
         message_type: "text" | "file" | "photo";
       }>
     ) => {
-      const existingMessage = state.chatLists?.find(
+      const existingChatList = state.chatLists?.find(
         (msg) => msg.room_id === action.payload.room_id
       );
-      if (existingMessage) {
-        existingMessage.last_message_content = action.payload.message_content;
-        existingMessage.updatedAt = action.payload.updatedAt;
-        existingMessage.last_message_id = action.payload.message_id;
-        existingMessage.message_type = action.payload.message_type;
-        existingMessage.message_deleted_at = undefined;
+      if (existingChatList) {
+        existingChatList.last_message_content = action.payload.message_content;
+        existingChatList.updatedAt = action.payload.updatedAt;
+        existingChatList.last_message_id = action.payload.message_id;
+        existingChatList.message_type = action.payload.message_type;
+        existingChatList.message_deleted_at = undefined;
         state.chatLists = [
-          existingMessage,
+          existingChatList,
           ...state.chatLists.filter(
             (msg) => msg.room_id !== action.payload.room_id
           ),
@@ -68,18 +70,18 @@ const chatListSlice = createSlice({
         message_id: string;
       }>
     ) => {
-      const existingMessage = state.chatLists?.find(
+      const existingChatList = state.chatLists?.find(
         (msg) => msg.room_id === action.payload.room_id
       );
       if (
-        existingMessage &&
-        existingMessage.last_message_id === action.payload.message_id
+        existingChatList &&
+        existingChatList.last_message_id === action.payload.message_id
       ) {
-        existingMessage.updatedAt = new Date().toISOString();
-        existingMessage.message_deleted_at = new Date().toISOString();
-        existingMessage.last_message_content = "";
+        existingChatList.updatedAt = new Date().toISOString();
+        existingChatList.message_deleted_at = new Date().toISOString();
+        existingChatList.last_message_content = "";
         state.chatLists = [
-          existingMessage,
+          existingChatList,
           ...state.chatLists.filter(
             (msg) => msg.room_id !== action.payload.room_id
           ),
@@ -90,13 +92,13 @@ const chatListSlice = createSlice({
       state,
       action: PayloadAction<{ room_id: string; user_email: string }>
     ) => {
-      const existingMessage = state.chatLists?.find(
+      const existingChatList = state.chatLists?.find(
         (chatList) => chatList.user_email === action.payload.user_email
       );
-      if (existingMessage) {
-        existingMessage.room_id = action.payload.room_id;
+      if (existingChatList) {
+        existingChatList.room_id = action.payload.room_id;
         state.chatLists = [
-          existingMessage,
+          existingChatList,
           ...state.chatLists.filter(
             (chatList) => chatList.user_email !== action.payload.user_email
           ),
@@ -107,13 +109,13 @@ const chatListSlice = createSlice({
       state,
       action: PayloadAction<{ user_email: string; friend_status: string }>
     ) => {
-      const existingMessage = state.chatLists?.find(
+      const existingChatList = state.chatLists?.find(
         (chatList) => chatList.user_email === action.payload.user_email
       );
-      if (existingMessage) {
-        existingMessage.friend_status = action.payload.friend_status;
+      if (existingChatList) {
+        existingChatList.friend_status = action.payload.friend_status;
         state.chatLists = [
-          existingMessage,
+          existingChatList,
           ...state.chatLists.filter(
             (chatList) => chatList.user_email !== action.payload.user_email
           ),
@@ -124,13 +126,13 @@ const chatListSlice = createSlice({
       state,
       action: PayloadAction<{ user_name: string; user_email: string }>
     ) => {
-      const existingMessage = state.chatLists?.find(
+      const existingChatList = state.chatLists?.find(
         (chatList) => chatList.user_email === action.payload.user_email
       );
-      if (existingMessage) {
-        existingMessage.user_name = action.payload.user_name;
+      if (existingChatList) {
+        existingChatList.user_name = action.payload.user_name;
         state.chatLists = [
-          existingMessage,
+          existingChatList,
           ...state.chatLists.filter(
             (chatList) => chatList.user_email !== action.payload.user_email
           ),
@@ -141,13 +143,13 @@ const chatListSlice = createSlice({
       state,
       action: PayloadAction<{ user_photo: string; user_email: string }>
     ) => {
-      const existingMessage = state.chatLists?.find(
+      const existingChatList = state.chatLists?.find(
         (chatList) => chatList.user_email === action.payload.user_email
       );
-      if (existingMessage) {
-        existingMessage.user_photo = action.payload.user_photo;
+      if (existingChatList) {
+        existingChatList.user_photo = action.payload.user_photo;
         state.chatLists = [
-          existingMessage,
+          existingChatList,
           ...state.chatLists.filter(
             (chatList) => chatList.user_email !== action.payload.user_email
           ),
@@ -168,6 +170,26 @@ const chatListSlice = createSlice({
         }
       });
     },
+    updateChatListHighlightByRoomId: (
+      state,
+      action: PayloadAction<{ room_id: string, highlight: boolean }>
+    ) => {
+      const existingChatList = state.chatLists?.find(
+        (chatList) => chatList.room_id === action.payload.room_id
+      );
+      console.warn("existingMessage",existingChatList)
+      console.warn("action.payload.room_id",action.payload.room_id)
+
+      if (existingChatList) {
+        existingChatList.highlight = action.payload.highlight;
+        state.chatLists = [
+          existingChatList,
+          ...state.chatLists.filter(
+            (chatList) => chatList.room_id !== action.payload.room_id
+          ),
+        ];
+      }
+    },
   },
 });
 
@@ -181,5 +203,6 @@ export const {
   deleteLastMessage,
   addChatList,
   updateChatListActiveStatusByEmails,
+  updateChatListHighlightByRoomId
 } = chatListSlice.actions;
 export default chatListSlice.reducer;

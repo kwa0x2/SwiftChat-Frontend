@@ -15,16 +15,13 @@ import { AppDispatch, RootState } from "@/app/redux/store";
 import {
   ChatSliceModel,
   setChatData,
-  updateChatFriendStatusByEmail,
 } from "@/app/redux/slices/chatSlice";
 import {
   addChatList,
-  updateChatListFriendStatusByEmail,
 } from "@/app/redux/slices/chatListSlice";
 import { useCallback } from "react";
 import {
   setActiveComponent,
-  setFriendStatus,
 } from "@/app/redux/slices/componentSlice";
 import { Block, Remove } from "@/app/api/services/friend.Service";
 import { handleSocketEmit } from "@/lib/socket";
@@ -143,6 +140,7 @@ const Options = ({
             activeStatus: friend.activeStatus,
             last_message_id: "",
             message_type: "",
+            highlight: false
           })
         );
         dispatch(setChatData(chatDataObj));
@@ -150,7 +148,6 @@ const Options = ({
 
       // Update active component and friend status
       dispatch(setActiveComponent("chat"));
-      dispatch(setFriendStatus("friend"));
     } else {
       toast.error(
         "An unknown error occurred while trying to open the chat box."

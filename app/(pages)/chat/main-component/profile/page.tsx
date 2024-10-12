@@ -32,7 +32,7 @@ const Profile: React.FC<ProfileProps> = ({
           </div>
           <MdMenu
             onClick={() => setIsOpenChatList(true)}
-            className="text-[#4A32B0] text-3xl block sm:hidden cursor-pointer"
+            className="text-[#4A32B0] text-3xl block lg:hidden cursor-pointer"
           />
         </div>
         <ProfilePicture user={user} />
