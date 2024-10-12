@@ -109,7 +109,7 @@ const AddFriend: React.FC<AddFriendProps> = ({
     <Disclosure as="nav" className="border-b border-[#5C6B81]">
       <div className="px-5 flex h-20 gap-2 items-center justify-between">
         <Button
-          className="bg-[#4A32B0] block sm:hidden border-none hover:bg-[#4A32B0] hover:text-white text-white"
+          className="bg-[#4A32B0] block lg:hidden border-none hover:bg-[#4A32B0] hover:text-white text-white"
           variant={"outline"}
           size={"icon"}
           onClick={handleMenuClick}

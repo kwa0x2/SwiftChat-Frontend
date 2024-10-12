@@ -2,7 +2,7 @@
 const nextConfig = {
     env: {
         BASE_URL: process.env.BASE_URL,
-        SOCKET_IO_URL: process.env.SOCKET_IO_CONNECTION_URL,
+        SOCKET_IO_URL: process.env.SOCKET_IO_URL,
     },
     images: {
         unoptimized: true,

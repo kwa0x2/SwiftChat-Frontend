@@ -86,7 +86,7 @@ const ChatBox = ({
             setMessages((prevMessages) =>
               prevMessages.map((msg) =>
                 msg.message_id === res.data.message_id
-                  ? { ...msg, message_content: res.data.edited_message, updatedAt: new Date().toISOString() }
+                  ? { ...msg, message_content: res.data.edited_message }
                   : msg
               )
             );

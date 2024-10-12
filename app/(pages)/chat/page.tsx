@@ -1,7 +1,7 @@
 "use client";
 
 import { useCurrentUser } from "@/hooks/use-current-user";
-import { useEffect, useRef, useState } from "react";
+import { SetStateAction, useEffect, useRef, useState } from "react";
 import Sidebar from "./sidebar/sidebar";
 import io, { Socket } from "socket.io-client";
 import MainComponent from "@/app/(pages)/chat/main-component/page";
@@ -11,6 +11,7 @@ import {
   deleteLastMessage,
   setChatList,
   updateChatListActiveStatusByEmails,
+  updateChatListHighlightByRoomId,
   updateChatListUsernameByEmail,
   updateChatListUserPhotoByEmail,
   updateLastMessage,
@@ -52,12 +53,12 @@ const ChatPage = () => {
     (state: RootState) => state.chatListReducer.chatLists
   );
   // Select the component reducer state from the Redux store
-  const componentReducerValue = useSelector(
-    (state: RootState) => state.componentReducer
+  const chatReducerValue = useSelector(
+    (state: RootState) => state.chatReducer.value
   );
   // Create refs to keep track of the component reducer and chat lists
-  const componentReducerRef = useRef(componentReducerValue);
   const chatListsRef = useRef(chatLists);
+  const chatReducerRef = useRef(chatReducerValue);
   // Create a ref for online users
   const onlineUsers = useRef<string[]>([]);
 
@@ -66,9 +67,6 @@ const ChatPage = () => {
   // #region Local State Initialization
 
   // Local state to manage highlighted room, friend requests, friends, blocked users, and chat list visibility
-  const [highlightedRoomId, setHighlightedRoomId] = useState<string | null>(
-    null
-  );
   const [requests, setRequests] = useState<RequestsModel[]>([]);
   const [friends, setFriends] = useState<FriendModel[]>([]);
   const [blockedUsers, setBlockedUsers] = useState<BlockedModel[]>([]);
@@ -77,18 +75,20 @@ const ChatPage = () => {
 
   // #endregion
 
+  // Update the reference of chat reducer value when it changes
   useEffect(() => {
-    componentReducerRef.current = componentReducerValue;
-  }, [componentReducerValue]);
+    chatReducerRef.current = chatReducerValue;
+  }, [chatReducerValue]);
 
-  // useEffect(() => {
-  //   chatListsRef.current = chatLists;
-  // }, [chatLists]);
+  // Update the reference of chat lists when it changes
+  useEffect(() => {
+    chatListsRef.current = chatLists;
+  }, [chatLists]);
 
+  // Update the reference of chat list visibility when it changes
   useEffect(() => {
     isOpenChatListRef.current = isOpenChatList;
   }, [isOpenChatList]);
-
   // #region API Calls
 
   // Fetch chat list history from the API
@@ -265,16 +265,17 @@ const ChatPage = () => {
   // #region Socket Response Handlers
 
   // Handle incoming new message and update the chat list with the latest message
-  const handleNewMessage = (data: any) => {
-    const { room_id, message_content, message_id, updatedAt, message_type } = data;
+  const handleNewMessage = async  (data: any) => {
+    const { room_id, message_content, message_id, updatedAt, message_type } =
+      data;
 
     // Check if the room exists in the chat list
     const roomExists = chatListsRef.current?.some(
       (chat) => chat.room_id === room_id
     );
 
-    // If room doesn't exist, fetch the chat history for that room
-    if (!roomExists) getChatListHistoryData();
+    // If the room doesn't exist, fetch the chat history for that room
+    if (!roomExists) await getChatListHistoryData();
 
     // Dispatch action to update the last message in the chat list
     dispatch(
@@ -289,13 +290,19 @@ const ChatPage = () => {
 
     // If the active component isn't the chat or the chat list is open, highlight the room
     if (
-      componentReducerRef.current.activeComponent !== "chat" ||
+      chatReducerRef.current.room_id !== room_id ||
       isOpenChatListRef.current
     ) {
-      setHighlightedRoomId(room_id);
+      console.warn("new message23",room_id)
+        dispatch(
+          updateChatListHighlightByRoomId({
+            room_id,
+            highlight: true,
+          })
+        );
     }
     // If the user is in the chat component and is a friend, mark the message as read
-    else if (componentReducerRef.current.friendStatus === "friend") {
+    else if (chatReducerRef.current.friend_status === "friend") {
       handleSocketEmit(
         socketRef.current,
         "readMessage",
@@ -352,7 +359,6 @@ const ChatPage = () => {
 
     // Update the friend status to reflect they are blocked
     handleFriendStatusUpdate(dispatch, data.friend_email, data.friend_status);
-
   };
 
   // Handle deleting a friend
@@ -364,7 +370,6 @@ const ChatPage = () => {
 
     // Update the friend status to "unfriend"
     handleFriendStatusUpdate(dispatch, data.user_email, "unfriend");
-
   };
 
   // Handle when a user updates their username
@@ -482,8 +487,6 @@ const ChatPage = () => {
     >
       <Sidebar
         user={currentUser}
-        highlightedRoomId={highlightedRoomId}
-        setHighlightedRoomId={setHighlightedRoomId}
         isOpenChatList={isOpenChatList}
         setIsOpenChatList={setIsOpenChatList}
       />

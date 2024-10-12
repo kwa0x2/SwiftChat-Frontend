@@ -8,9 +8,10 @@ interface UserProfileProps {
   user: any; // User object
   onSearch: (searchTerm: string) => void; // Function to handle search term input
   setIsOpenChatList: React.Dispatch<React.SetStateAction<boolean>>; // Function to set chat list visibility
+  setSelectedRoomId: React.Dispatch<React.SetStateAction<string | null>>; // Function to set the currently selected chat room ID
 }
 
-const UserProfile = ({ user, onSearch, setIsOpenChatList }: UserProfileProps) => {
+const UserProfile = ({ user, onSearch, setIsOpenChatList, setSelectedRoomId }: UserProfileProps) => {
   return (
     <div className="px-3 py-[18px] border-b border-[#5C6B81]">
       <div className="gap-4 flex">
@@ -40,7 +41,7 @@ const UserProfile = ({ user, onSearch, setIsOpenChatList }: UserProfileProps) =>
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <Dropdown setIsOpenChatList={setIsOpenChatList} /> {/* Dropdown for additional options */}
+          <Dropdown setIsOpenChatList={setIsOpenChatList} setSelectedRoomId={setSelectedRoomId} /> {/* Dropdown for additional options */}
           <PiCaretCircleLeftLight 
             onClick={() => setIsOpenChatList(false)} 
             className="text-[#4A32B0] lg:hidden text-[2rem]" // Back button to close chat list
