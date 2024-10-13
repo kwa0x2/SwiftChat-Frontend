@@ -144,7 +144,7 @@ const LeftBubble: React.FC<LeftBubbleProps> = ({
             </div>
             <div className="flex justify-start gap-1 text-xs text-gray-500">
               <span className="text-[#e0f2fe] uppercase">
-                {new Date(msg.updatedAt).toLocaleTimeString([], {
+                {new Date(msg.createdAt).toLocaleTimeString([], {
                   hour: "2-digit",
                   minute: "2-digit",
                   hour12: true,
