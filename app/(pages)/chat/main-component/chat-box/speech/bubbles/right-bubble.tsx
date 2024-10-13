@@ -222,7 +222,7 @@ const RightBubble: React.FC<RightBubbleProps> = ({
               <span className="italic pr-1">Edited</span>
             )}
             <span className="text-[#e0f2fe] uppercase">
-              {new Date(msg.updatedAt).toLocaleTimeString([], {
+              {new Date(msg.createdAt).toLocaleTimeString([], {
                 hour: "2-digit",
                 minute: "2-digit",
                 hour12: true,
