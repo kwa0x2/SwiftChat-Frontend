@@ -2,6 +2,8 @@ This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next
 
 ## Getting Started
 
+[Backend](https://github.com/kwa0x2/SwiftChat-Backend)
+
 First, run the development server:
 
 ```bash
