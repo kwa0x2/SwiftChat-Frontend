@@ -1,8 +1,8 @@
 "use client"
-import FriendsSettings from "@/app/(pages)/chat/main-component/friends/page";
+import FriendsSettings from "@/app/(pages)/chat/main-component/friends";
 import { RootState, useAppSelector } from "@/app/redux/store";
 import io, { Socket } from "socket.io-client";
-import Profile from "./profile/page";
+import Profile from "./profile";
 import ChatBox from "./chat-box/chat-box";
 import { RequestsModel } from "@/models/Request";
 import { FriendModel } from "@/models/Friend";
