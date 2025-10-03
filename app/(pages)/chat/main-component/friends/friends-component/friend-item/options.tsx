@@ -2,7 +2,6 @@
 import {
   Tooltip,
   TooltipContent,
-  TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { GoBlocked } from "react-icons/go";
@@ -157,7 +156,7 @@ const Options = ({
   // #endregion
 
   return (
-    <TooltipProvider>
+    <>
       <Tooltip>
         <TooltipTrigger onClick={blockFriend}>
           <GoBlocked className="text-rose-600 h-5 w-5 transition-all duration-500 opacity-70 hover:opacity-100" />
@@ -182,7 +181,7 @@ const Options = ({
           <p>Send a message</p>
         </TooltipContent>
       </Tooltip>
-    </TooltipProvider>
+    </>
   );
 };
 
