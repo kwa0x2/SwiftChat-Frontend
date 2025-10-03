@@ -4,7 +4,7 @@ import { useCurrentUser } from "@/hooks/use-current-user";
 import { SetStateAction, useEffect, useRef, useState } from "react";
 import Sidebar from "./sidebar/sidebar";
 import io, { Socket } from "socket.io-client";
-import MainComponent from "@/app/(pages)/chat/main-component/page";
+import MainComponent from "@/app/(pages)/chat/main-component";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/app/redux/store";
 import {
