@@ -1,6 +1,6 @@
 "use client";
 import { Disclosure } from "@headlessui/react";
-import { LuPlusCircle } from "react-icons/lu";
+import { LuCirclePlus } from "react-icons/lu";
 import { Socket } from "socket.io-client";
 import React, { useEffect, useRef, useState } from "react";
 import { AnimatedPlaceholdersInput } from "@/components/ui/animated-placeholders-input";
@@ -173,7 +173,7 @@ const WriteMessage: React.FC<WriteMessageProps> = ({
                   {({ getRootProps, getInputProps }) => (
                     <div {...getRootProps()}>
                       <input {...getInputProps()} />
-                      <LuPlusCircle className="text-[#4A32B0] text-[2rem] cursor-pointer" />
+                      <LuCirclePlus className="text-[#4A32B0] text-[2rem] cursor-pointer" />
                     </div>
                   )}
                 </Dropzone>
