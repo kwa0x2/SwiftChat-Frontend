@@ -98,7 +98,7 @@ const Options = ({
   // #region Opening a Chat
   const openChatHandler = useCallback(async () => {
     const res = await checkAndGetPrivateRoom(friend.friend_email);
-    if (res.status === 200) {
+    if (res.status === 200 && res.data && res.data.room_id) {
       const room_id = res.data.room_id;
 
       const chatDataObj: ChatSliceModel = {
