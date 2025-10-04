@@ -177,8 +177,6 @@ const chatListSlice = createSlice({
       const existingChatList = state.chatLists?.find(
         (chatList) => chatList.room_id === action.payload.room_id
       );
-      console.warn("existingMessage",existingChatList)
-      console.warn("action.payload.room_id",action.payload.room_id)
 
       if (existingChatList) {
         existingChatList.highlight = action.payload.highlight;

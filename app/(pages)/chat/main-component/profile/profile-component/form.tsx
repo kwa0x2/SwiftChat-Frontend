@@ -34,7 +34,6 @@ const ProfileForm = ({ user }: ProfileFormProps) => {
 
   // #region Handle form submission
   const onSubmit = async (data: z.infer<typeof UsernameSchemas>) => {
-    console.warn("user", user)
     if (user.name === data.username) {
       toast.warning("Please enter a different name to update."); // Notify user if no change
       return; // Exit early to avoid unnecessary API call

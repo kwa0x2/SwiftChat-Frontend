@@ -56,9 +56,14 @@ const ChatPage = () => {
   const chatReducerValue = useSelector(
     (state: RootState) => state.chatReducer.value
   );
+  // Select the component reducer state from the Redux store
+  const componentReducerValue = useSelector(
+    (state: RootState) => state.componentReducer
+  );
   // Create refs to keep track of the component reducer and chat lists
   const chatListsRef = useRef(chatLists);
   const chatReducerRef = useRef(chatReducerValue);
+  const componentReducerRef = useRef(componentReducerValue);
   // Create a ref for online users
   const onlineUsers = useRef<string[]>([]);
 
@@ -84,6 +89,11 @@ const ChatPage = () => {
   useEffect(() => {
     chatListsRef.current = chatLists;
   }, [chatLists]);
+
+  // Update the reference of component reducer when it changes
+  useEffect(() => {
+    componentReducerRef.current = componentReducerValue;
+  }, [componentReducerValue]);
 
   // Update the reference of chat list visibility when it changes
   useEffect(() => {
@@ -291,9 +301,9 @@ const ChatPage = () => {
     // If the active component isn't the chat or the chat list is open, highlight the room
     if (
       chatReducerRef.current.room_id !== room_id ||
-      isOpenChatListRef.current
+      isOpenChatListRef.current ||
+      componentReducerRef.current.activeComponent !== "chat"
     ) {
-      console.warn("new message23",room_id)
         dispatch(
           updateChatListHighlightByRoomId({
             room_id,

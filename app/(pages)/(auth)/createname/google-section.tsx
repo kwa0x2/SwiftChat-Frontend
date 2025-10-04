@@ -67,7 +67,7 @@ const GoogleSection = ({ token, onPhotoUpdate }: GoogleSectionProps) => {
               alt={"Google Username"}
               width={48}
               height={48}
-              className="rounded-full hover:bg-gray-500/50"
+              className="rounded-full w-[48px] h-[48px] object-cover hover:bg-gray-500/50"
             />
             <div>
               {/* name section */}

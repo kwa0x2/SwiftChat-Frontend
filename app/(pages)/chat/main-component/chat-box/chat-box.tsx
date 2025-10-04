@@ -52,7 +52,8 @@ const ChatBox = ({
       }
     };
 
-    if (user?.id && chatReducerValue?.room_id && socket) {
+    // Only process messages when the chat component is active
+    if (user?.id && chatReducerValue?.room_id && socket && componentReducerValue.activeComponent === "chat") {
       socket.off(chatReducerValue.room_id); // Clean up previous socket listeners
 
       fetchHistory(chatReducerValue.room_id); // Fetch chat history
@@ -114,7 +115,7 @@ const ChatBox = ({
     return () => {
       if (socket) socket.off(chatReducerValue.room_id); // Cleanup socket listeners on unmount
     };
-  }, [chatReducerValue.room_id, socket, user?.id]); // Add user.id to dependencies
+  }, [chatReducerValue.room_id, socket, user?.id, componentReducerValue.activeComponent]); // Add activeComponent to dependencies
 
   // #endregion
 
@@ -122,7 +123,7 @@ const ChatBox = ({
     return (
       <CustomCard
         className={`${
-          isOpenChatList ? "hidden" : "flex-1 flex-col justify-between flex"
+          isOpenChatList ? "hidden" : "flex-1 flex-col justify-between flex relative"
         }`}
       >
         <ChatNavbar
@@ -139,7 +140,7 @@ const ChatBox = ({
           socket={socket}
         />
 
-        {/* File Upload Section */}
+        {/* File Upload Section - Positioned absolutely on the left */}
         <FileBox
           selectedFile={selectedFile}
           setSelectedFile={setSelectedFile}

@@ -57,8 +57,8 @@ const CreateNameForm = ({ token, user_photo }: CreateNameFormProps) => {
         setErrorMessage("An unknown error occurred.");
       }
     } catch (error: any) {
-      if (error.response.data.code === 409) {
-        setErrorMessage("This username is already taken.");
+      if (error.response?.status === 409) {
+        setErrorMessage(error.response?.data?.message || "This username is already taken.");
       } else {
         setErrorMessage("An unknown error occurred.");
       }
