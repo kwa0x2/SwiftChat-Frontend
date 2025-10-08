@@ -140,14 +140,14 @@ const ChatBox = ({
           socket={socket}
         />
 
-        {/* File Upload Section - Positioned absolutely on the left */}
-        <FileBox
-          selectedFile={selectedFile}
-          setSelectedFile={setSelectedFile}
-        />
-
         {/* Message Input Section */}
-        <div className="mt-auto">
+        <div className="mt-auto relative">
+          {/* File Upload Section - Positioned absolutely above WriteMessage */}
+          <FileBox
+            selectedFile={selectedFile}
+            setSelectedFile={setSelectedFile}
+          />
+
           <WriteMessage
             selectedFile={selectedFile}
             setSelectedFile={setSelectedFile}
